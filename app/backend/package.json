@@ -1,0 +1,23 @@
+{
+  "name": "salescale-backend",
+  "version": "1.0.0",
+  "description": "Backend API service for SaleScale Flash Sale distributed platform using Go & Gin",
+  "scripts": {
+    "dev": "go run ./cmd/api",
+    "build": "go build -o bin/ ./cmd/api",
+    "lint": "go vet ./...",
+    "format": "go fmt ./...",
+    "test": "go test ./...",
+    "test:unit": "go test -v -short ./...",
+    "test:integration": "go test -v -run Integration ./..."
+  },
+  "keywords": [
+    "golang",
+    "gin",
+    "flash-sale",
+    "ecommerce",
+    "salescale"
+  ],
+  "author": "SaleScale Team",
+  "license": "MIT"
+}

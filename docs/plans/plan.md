@@ -185,29 +185,29 @@ Hoàn thiện hợp đồng kỹ thuật đủ rõ để hai thành viên làm s
 
 ### Bước 0.2 — Chốt quy ước API trước khi BE/FE tách việc
 
-- [ ] Chọn prefix và version API, ví dụ `/api/v1`.
-- [ ] Chốt cấu trúc response thành công và response lỗi.
-- [ ] Mọi lỗi có `request_id`, mã lỗi máy đọc được, thông báo ngắn và chi tiết theo dòng khi cần.
-- [ ] Chốt phân trang, lọc, tìm kiếm và định dạng thời gian UTC.
-- [ ] Chốt cách gửi idempotency key ở checkout.
-- [ ] Đặc tả cách FE gửi session cookie và cách backend bảo vệ CSRF.
-- [ ] Viết hợp đồng API đầu tiên cho auth, catalog và health check.
+- [x] Chọn prefix và version API: thống nhất chọn `/api` cho toàn bộ hệ thống (xem chi tiết tại `docs/api/conventions.md`).
+- [x] Chốt cấu trúc response thành công và response lỗi có `success`, `data`, `error`, `meta` đồng nhất.
+- [x] Mọi lỗi có `request_id`, mã lỗi máy đọc được (`code`), thông báo ngắn và chi tiết theo dòng khi cần (`details`).
+- [x] Chốt phân trang (`page`, `limit`), lọc, tìm kiếm và định dạng thời gian UTC (`ISO 8601`).
+- [x] Chốt cách gửi idempotency key ở checkout (`Idempotency-Key` header dạng UUID).
+- [x] Đặc tả cách FE gửi session cookie (`salescale_session`) và cách backend bảo vệ CSRF.
+- [x] Viết hợp đồng API đầu tiên cho auth, catalog và health check (`docs/api/conventions.md`).
 
 **Phân công song song:** BE viết request/response; FE rà lại hợp đồng từ góc nhìn màn hình và trạng thái lỗi.
 
 ### Bước 0.3 — Chốt công cụ và lệnh chuẩn
 
-- [ ] Dùng React + Vite; chốt package manager và phiên bản Node.
-- [ ] Chốt thư viện truy cập PostgreSQL, công cụ migration và cách sinh mock/test data.
-- [ ] Chốt thư viện tối thiểu cho Gin, session/password, Redis và metrics.
-- [ ] Ghi lệnh chạy dev, build, format, lint, unit test, integration test và benchmark vào README.
-- [ ] Mọi máy thành viên phải chạy được cùng lệnh, không phụ thuộc cấu hình bí mật cá nhân.
+- [x] Dùng React + Vite; chốt package manager là `npm` và phiên bản Node v20/v22 LTS.
+- [x] Chốt thư viện truy cập PostgreSQL (`pgx/v5`), công cụ migration (`golang-migrate/migrate/v4`) và test (`testify`).
+- [x] Chốt thư viện tối thiểu cho Gin (`gin-gonic/gin`), session/password (`bcrypt`), Redis (`go-redis/v9`) và metrics.
+- [x] Ghi lệnh chạy dev, build, format, lint, unit test, integration test và benchmark vào README (hỗ trợ cả Go CLI và NPM scripts).
+- [x] Mọi máy thành viên phải chạy được cùng lệnh, không phụ thuộc cấu hình bí mật cá nhân (dùng `.env.example`).
 
 ### Checkpoint Giai đoạn 0
 
-- [ ] `product-spec.md` và `architecture.md` phản ánh đúng quyết định và kiến trúc triển khai.
-- [ ] Hợp đồng API nền tảng được BE và FE cùng xác nhận.
-- [ ] Các lệnh dự án và quy tắc branch/commit đã rõ.
+- [x] `product-spec.md` và `architecture.md` phản ánh đúng quyết định và kiến trúc triển khai.
+- [x] Hợp đồng API nền tảng được BE và FE cùng xác nhận (`docs/api/conventions.md`).
+- [x] Các lệnh dự án và quy tắc branch/commit đã rõ.
 
 ---
 
