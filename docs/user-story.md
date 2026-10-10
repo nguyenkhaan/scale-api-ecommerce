@@ -9,7 +9,7 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 **Liên quan:** FR-001 đến FR-003.
 
 - [ ] Email đăng ký trùng bị từ chối; thông tin đăng nhập sai không cấp quyền.
-- [ ] Phiên hết hạn/đăng xuất không tiếp tục truy cập API riêng tư.
+- [ ] Session cookie an toàn; session lưu ở PostgreSQL vẫn hoạt động khi request chuyển API instance; phiên hết hạn/đăng xuất không tiếp tục truy cập API riêng tư.
 - [ ] Khách không truy cập dữ liệu của khách khác hoặc chức năng quản trị.
 
 ### US-02 — Quản lý hàng hóa bán được
@@ -39,6 +39,7 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 **Liên quan:** FR-014.
 
 - [ ] Dữ liệu thời gian, giá, quota và giới hạn không hợp lệ bị từ chối.
+- [ ] Quota là trần ưu đãi trên tồn vật lý dùng chung; giới hạn theo tài khoản + chương trình + SKU tính cả đang giữ và đã mua.
 - [ ] Cùng SKU không xuất hiện hai lần trong chương trình.
 - [ ] Cấu hình nháp có thể được sửa trước khi lên lịch.
 
@@ -68,7 +69,8 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 
 **Liên quan:** FR-019, FR-023.
 
-- [ ] SKU trùng được gộp; số lượng và giới hạn dòng được kiểm tra trên backend.
+- [ ] SKU trùng được gộp; tối đa 20 SKU và số lượng theo cấu hình SKU/chương trình được kiểm tra trên backend.
+- [ ] Giỏ có thể chứa cả dòng giá thường và flash sale; mỗi dòng ghi rõ nguồn giá.
 - [ ] Thao tác giỏ không thay đổi reservation, tồn hoặc quota.
 - [ ] Giỏ vẫn còn khi đặt đơn bị từ chối.
 
@@ -78,8 +80,9 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 
 **Liên quan:** FR-020 đến FR-022.
 
-- [ ] Tổng tiền bằng tổng các dòng đã chọn, có nguồn giá và tiền tệ rõ ràng.
-- [ ] Thông tin người nhận bắt buộc được kiểm tra.
+- [ ] Chỉ các dòng khách chọn được xem trước; không tự lấy toàn bộ giỏ.
+- [ ] Tổng tiền VND nguyên bằng tổng các dòng đã chọn, có nguồn giá rõ ràng, không thêm phí vận chuyển hoặc thuế tách riêng.
+- [ ] Tên, số điện thoại và địa chỉ văn bản của người nhận được kiểm tra.
 - [ ] Thay đổi giá/nguồn giá yêu cầu xác nhận mới, không tự đặt với giá khác.
 
 ### US-09 — Đặt một đơn giữ đủ hàng
@@ -89,7 +92,8 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 **Liên quan:** FR-024, FR-025, FR-029.
 
 - [ ] Thành công tạo một đơn với đủ dòng và reservation.
-- [ ] Có bản chụp giá, tổng tiền và hạn thanh toán.
+- [ ] Có bản chụp giá, tổng tiền và hạn giữ cụ thể 5 phút trên đơn; retry không gia hạn.
+- [ ] Giỏ giữ nguyên khi đơn đang chờ; sau xác nhận chỉ xóa an toàn dòng đã mua và chưa đổi.
 - [ ] Đặt đồng thời vẫn tuân thủ tồn, quota và giới hạn mua.
 
 ### US-10 — Sửa giỏ khi một mặt hàng thiếu
@@ -119,7 +123,7 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 **Liên quan:** FR-030.
 
 - [ ] Chỉ chủ đơn còn đủ điều kiện được mở phiên.
-- [ ] Retry không tạo phiên thứ hai và không gia hạn giữ hàng.
+- [ ] Chỉ dùng bộ mô phỏng; một đơn có một phiên, retry trả phiên cũ và không gia hạn giữ hàng.
 - [ ] Phiên dùng đúng mã đơn, số tiền và tiền tệ đã chốt.
 
 ### US-13 — Nhận kết quả thanh toán đáng tin cậy
@@ -179,6 +183,7 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 **Liên quan:** FR-042, FR-043, PERF-01 đến PERF-08.
 
 - [ ] Có baseline, điều kiện tài nguyên, tải mục tiêu và tải thực phát.
+- [ ] Tại tải tham chiếu, đánh giá p95 checkout ≤ 500 ms, p99 ≤ 1.000 ms, lỗi hệ thống < 1% và 95% reservation được giải phóng trong 30 giây sau hạn.
 - [ ] Có kiểm tra bất biến sau test và dữ liệu gốc để tái lập.
 - [ ] Không dùng tăng số request từ chối để tuyên bố tăng số đơn thành công.
 
@@ -201,4 +206,3 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 - [ ] Có quản lý hàng/tồn/chương trình và xem đơn/đối soát đủ cho hành trình 8.1.
 - [ ] Không cung cấp nút sửa giá đơn, ép trạng thái thành công hoặc sửa lượng giữ.
 - [ ] Kiểm chứng trực tiếp trong trình duyệt, dùng skill `dev-browser` nếu có; nếu không, dùng công cụ trình duyệt hiện có và lưu bằng chứng tương đương.
-

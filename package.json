@@ -1,0 +1,33 @@
+{
+  "name": "salescale-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SaleScale Distributed Flash Sale System Monorepo",
+  "scripts": {
+    "dev:backend": "npm --prefix app/backend run dev",
+    "build:backend": "npm --prefix app/backend run build",
+    "lint:backend": "npm --prefix app/backend run lint",
+    "format:backend": "npm --prefix app/backend run format",
+    "test:backend": "npm --prefix app/backend run test",
+    "test:unit:backend": "npm --prefix app/backend run test:unit",
+    "test:integration:backend": "npm --prefix app/backend run test:integration",
+    "dev:frontend": "npm --prefix app/frontend run dev",
+    "build:frontend": "npm --prefix app/frontend run build",
+    "preview:frontend": "npm --prefix app/frontend run preview",
+    "build": "npm run build:backend && npm run build:frontend",
+    "test": "npm run test:backend"
+  },
+  "keywords": [
+    "ecommerce",
+    "flash-sale",
+    "go",
+    "gin",
+    "react",
+    "vite",
+    "tailwindcss",
+    "postgresql",
+    "redis"
+  ],
+  "author": "SaleScale Team",
+  "license": "MIT"
+}

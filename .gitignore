@@ -11,6 +11,8 @@
 *.dll
 *.so
 *.dylib
+bin/
+app/backend/bin/
 
 # Test binary, built with `go test -c`
 *.test
@@ -38,6 +40,9 @@ logs
 
 node_modules
 bower_components
+dist
+dist-ssr
+*.local
 
 *.sublime*
 

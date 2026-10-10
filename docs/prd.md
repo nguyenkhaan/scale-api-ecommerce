@@ -4,8 +4,8 @@
 
 | Thuộc tính | Nội dung |
 |---|---|
-| Phiên bản | 1.0 — Bản dự thảo nghiệp vụ để rà soát và chốt triển khai |
-| Ngày cập nhật | 18/09/2026 |
+| Phiên bản | 1.1 — Đã ghi nhận các quyết định triển khai |
+| Ngày cập nhật | 07/10/2026 |
 | Sản phẩm | SaleScale |
 | Đề tài đồ án | Tối ưu hóa tầng API trong hệ thống Flash Sale phân tán sử dụng Go và Gin |
 | Thời gian và nhân sự | 12 tuần, 2 người |
@@ -13,6 +13,7 @@
 | Mô hình triển khai | Mỗi doanh nghiệp có bản triển khai, dữ liệu và cấu hình riêng |
 | Trọng tâm | Đặt đơn đồng thời với giỏ nhiều sản phẩm; tốc độ xử lý và tính đúng đắn |
 | Công nghệ người dùng đã chọn | Go, Gin |
+| Công nghệ giao diện đã chọn | React, Vite |
 | Công nghệ đề xuất cho thực nghiệm | PostgreSQL, Redis, NGINX, k6 |
 | Đầu ra | Backend, giao diện demo tối thiểu, tài liệu API, kiểm thử nghiệp vụ và báo cáo trước/sau tối ưu |
 
@@ -20,9 +21,9 @@
 
 - **Đã xác nhận:** lựa chọn được người dùng xác nhận trong trao đổi về ý tưởng.
 - **Đề xuất MVP:** quy tắc bổ sung để tài liệu đủ cụ thể cho thiết kế và nghiệm thu; chưa phải xác nhận của chủ sản phẩm.
-- **Cần chốt:** điểm có ảnh hưởng đến nghiệm thu, tích hợp hoặc tài nguyên; được tập hợp tại mục 17.
+- **Cần chốt:** chi tiết còn mở ngoài các quyết định đã xác nhận; được tập hợp tại mục 17.3.
 
-Các yêu cầu chi tiết bên dưới mô tả bản MVP đề xuất. Khi có thay đổi, phải cập nhật quy tắc liên quan, tiêu chí nghiệm thu và kịch bản kiểm thử cùng nhau. Tài liệu này xác định sản phẩm và hành vi cần đạt; thiết kế bảng dữ liệu, cấu trúc mã nguồn và hợp đồng API chi tiết thuộc tài liệu triển khai sau đó.
+Các quyết định tại mục 17.2 là cơ sở triển khai và nghiệm thu. Khi có thay đổi, phải cập nhật quy tắc liên quan, tiêu chí nghiệm thu và kịch bản kiểm thử cùng nhau. Tài liệu này xác định sản phẩm và hành vi cần đạt; thiết kế bảng dữ liệu, cấu trúc mã nguồn và hợp đồng API chi tiết thuộc tài liệu triển khai sau đó.
 
 ## 1. Tóm tắt sản phẩm dành cho doanh nghiệp
 
@@ -113,7 +114,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 | SCOPE-06 | Đặt đơn đồng thời là trọng tâm; cache đọc sản phẩm hỗ trợ | Đã xác nhận |
 | SCOPE-07 | Go và Gin; 12 tuần, 2 người | Đã xác nhận |
 
-### 4.2. Chức năng bắt buộc của bản MVP đề xuất
+### 4.2. Chức năng bắt buộc của bản MVP
 
 1. Đăng ký, đăng nhập, đăng xuất và phân quyền cơ bản.
 2. Cấu hình nhận diện cửa hàng và thông tin liên hệ tối thiểu.
@@ -180,7 +181,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 | Đơn hàng | Mã đơn, chủ sở hữu, trạng thái, tổng tiền, hạn thanh toán, thông tin người nhận | Giá và dữ liệu mặt hàng được chụp tại thời điểm đặt |
 | Dòng đơn | SKU, tên/thuộc tính chụp lại, số lượng, đơn giá, nguồn giá | Không phụ thuộc giá hiện tại sau khi đơn đã tạo |
 | Giữ hàng | Đơn, SKU, số lượng, hạn giữ, trạng thái, chương trình nếu có | Truy nguyên được hàng giữ, chuyển thành bán hoặc giải phóng |
-| Thanh toán | Mã phiên, đơn, số tiền, tiền tệ, kết quả đã xác minh | Một phiên cho một đơn theo đề xuất MVP |
+| Thanh toán | Mã phiên, đơn, số tiền, tiền tệ, kết quả đã xác minh | Một phiên cho một đơn; retry trả phiên cũ |
 | Sự kiện thanh toán | Mã sự kiện, mã giao dịch, thời điểm tiếp nhận, kết quả xử lý | Nhận lại sự kiện không làm lặp tác động |
 | Bất thường | Đơn/phiên, loại vấn đề, bằng chứng, trạng thái rà soát | Không đồng nghĩa với việc đơn đã thanh toán |
 | Nhật ký nghiệp vụ | Tác nhân, thao tác, đối tượng, trước/sau, thời điểm | Phục vụ kiểm tra điều chỉnh tồn và tranh chấp trạng thái |
@@ -195,18 +196,18 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 - **BR-02 — Đơn vị tồn kho:** tồn kho quản lý theo SKU; các màu/kích cỡ khác nhau không dùng chung số lượng nếu là SKU khác nhau.
 - **BR-03 — Hiệu lực hàng hóa:** danh mục không hiển thị hoặc sản phẩm/SKU ngừng bán không được đưa vào đơn mới. Đơn đã tạo vẫn giữ bản chụp để tra cứu.
 - **BR-04 — Lưu lịch sử:** hàng hóa, SKU hoặc chương trình đã được tham chiếu bởi đơn được ngừng hoạt động thay vì xóa mất lịch sử.
-- **BR-05 — Tiền:** đề xuất MVP dùng VND, số tiền nguyên, giá lớn hơn 0 và số lượng nguyên dương. Không dùng phép tính số thực có sai số để tính tổng tiền.
-- **BR-06 — Tổng tiền:** tổng tiền bằng tổng số lượng × đơn giá của các dòng. MVP không thu phí vận chuyển, không áp thêm mã giảm giá và không tách thuế; đây là quy ước demo cần chốt.
+- **BR-05 — Tiền:** MVP dùng VND, số tiền nguyên, giá lớn hơn 0 và số lượng nguyên dương. Không dùng phép tính số thực có sai số để tính tổng tiền.
+- **BR-06 — Tổng tiền:** tổng tiền bằng tổng số lượng × đơn giá của các dòng. MVP không thu phí vận chuyển, không áp thêm mã giảm giá và không tách thuế.
 
 ### 6.2. Giỏ hàng và giá
 
 - **BR-07 — Giỏ không giữ hàng:** thêm/sửa giỏ không giảm tồn khả dụng hoặc quota. Thông tin còn hàng trên màn hình không bảo đảm đặt đơn sẽ thành công.
 - **BR-08 — Giỏ nhiều mặt hàng:** khách chọn toàn bộ hoặc một tập dòng để đặt; đơn được tạo từ tập đã xác nhận, không tự bổ sung các dòng khác.
-- **BR-09 — Gộp SKU:** nhiều lần thêm cùng SKU gộp vào một dòng; giới hạn số lượng được kiểm tra trên tổng số lượng SKU đó. Không cho dùng nhiều dòng trùng SKU để né giới hạn. Giới hạn số dòng của giỏ áp dụng cả trên backend, không chỉ giao diện.
+- **BR-09 — Gộp SKU và giới hạn giỏ:** nhiều lần thêm cùng SKU gộp vào một dòng; một giỏ có tối đa 20 SKU. Giới hạn số lượng được kiểm tra trên tổng số lượng SKU đó theo cấu hình SKU/chương trình. Không cho dùng nhiều dòng trùng SKU để né giới hạn; mọi giới hạn áp dụng ở backend, không chỉ giao diện.
 - **BR-10 — Giá có thẩm quyền:** backend tính giá từ dữ liệu hiện hành. Client không được tự đặt giá flash sale, tổng tiền hoặc nguồn khuyến mãi.
 - **BR-11 — Xác nhận thay đổi giá:** nếu giá/nguồn giá hoặc tổng tiền khác bản khách vừa xác nhận, từ chối đặt đơn với `PRICE_CHANGED`, trả giá mới và yêu cầu khách xác nhận lại. Không âm thầm tính giá thường khi giá flash sale đã hết hiệu lực.
 - **BR-12 — Giá đã đặt:** đơn giữ nguyên giá được chốt trong thời hạn thanh toán, kể cả chương trình kết thúc trong lúc khách đang thanh toán. Đơn hết hạn không được hồi sinh để tiếp tục hưởng giá cũ.
-- **BR-13 — Giỏ sau đặt đơn:** đề xuất giữ nguyên giỏ sau khi tạo đơn chờ thanh toán. Khi thanh toán thành công, chỉ loại các dòng đã mua nếu dòng đó chưa thay đổi so với lần đặt; không xóa sản phẩm mới thêm hoặc số lượng khách vừa sửa. Nếu không bảo đảm cập nhật an toàn, giữ giỏ và thông báo khách rà soát thay vì xóa nhầm.
+- **BR-13 — Giỏ sau đặt đơn:** giữ nguyên giỏ sau khi tạo đơn chờ thanh toán. Khi thanh toán thành công, chỉ loại các dòng đã mua nếu dòng đó chưa thay đổi so với lần đặt; không xóa sản phẩm mới thêm hoặc số lượng khách vừa sửa. Nếu không bảo đảm cập nhật an toàn, giữ giỏ và thông báo khách rà soát thay vì xóa nhầm.
 
 ### 6.3. Flash sale
 
@@ -224,7 +225,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 
 - **BR-23 — Nguyên tử cả giỏ:** chỉ tạo đơn có đủ tất cả reservation khi mọi dòng hợp lệ. Bất kỳ dòng nào không hợp lệ thì không tạo đơn chờ thanh toán và không lưu tác động giữ hàng của các dòng còn lại.
 - **BR-24 — Báo rõ lỗi:** kết quả bị từ chối chỉ rõ SKU, số lượng yêu cầu và nguyên nhân có thể xác định. Tồn khả dụng trả về phản ánh thời điểm kiểm tra, không phải cam kết giữ hàng cho lần sau. Backend thu thập lỗi của các dòng có thể kiểm tra an toàn; không che lỗi hệ thống dưới dạng hết hàng. Nếu một dòng có nhiều lỗi, ưu tiên báo dữ liệu/hàng hóa không hợp lệ, chương trình/giá không còn đúng, giới hạn mua, rồi số lượng không đủ; có thể kèm các nguyên nhân bổ sung đã xác định.
-- **BR-25 — Thời hạn giữ:** đề xuất 5 phút từ lúc đơn được tạo. Giá trị cấu hình được chụp vào đơn; thay đổi cấu hình không sửa hạn của đơn đang tồn tại.
+- **BR-25 — Thời hạn giữ:** giữ hàng 5 phút từ lúc đơn được tạo. Hạn cụ thể được chụp vào đơn; thay đổi cấu hình không sửa hạn của đơn đang tồn tại.
 - **BR-26 — Không kéo dài tự động:** retry, mở lại trang, mở lại phiên thanh toán hoặc gửi callback lặp không gia hạn giữ hàng.
 - **BR-27 — Quyền giữ:** đơn chờ thanh toán có đủ reservation cho từng dòng; đơn đã xác nhận đã chuyển hết reservation thành lượng bán; đơn hủy/thất bại/hết hạn đã giải phóng hết reservation.
 - **BR-28 — Hết hạn có thẩm quyền:** điều kiện thời hạn được kiểm tra lại trong thao tác chuyển trạng thái. Tác vụ nền chạy chậm không làm đơn hết hạn tiếp tục đủ điều kiện thanh toán.
@@ -243,8 +244,8 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 
 ### 6.6. Thanh toán và sự kiện đến muộn
 
-- **BR-38 — Môi trường:** không dùng tiền thật. Bộ mô phỏng là năng lực bắt buộc; cổng sandbox cụ thể chỉ được tích hợp khi được chọn trong phần cần chốt.
-- **BR-39 — Một phiên:** đề xuất một phiên thanh toán cho một đơn. Gọi mở phiên lại trả phiên cũ nếu còn hiệu lực; lỗi khởi tạo không rõ kết quả phải được tra cứu/retry cùng định danh, không tạo phiên độc lập tùy tiện.
+- **BR-38 — Môi trường:** không dùng tiền thật hoặc cổng sandbox; chỉ dùng bộ mô phỏng bắt buộc.
+- **BR-39 — Một phiên:** mỗi đơn có một phiên thanh toán. Gọi mở phiên lại trả phiên cũ; lỗi khởi tạo không rõ kết quả phải được tra cứu/retry cùng định danh, không tạo phiên độc lập tùy tiện.
 - **BR-40 — Xác minh:** chỉ tin kết quả từ nguồn thử nghiệm được xác thực. Phải kiểm tra mã đơn, mã phiên/giao dịch, số tiền, tiền tệ và định danh sự kiện; trang redirect của client không đủ để xác nhận đã trả tiền.
 - **BR-41 — Thành công đúng hạn:** chỉ xác nhận đơn còn `PENDING_PAYMENT`, còn đủ quyền giữ và chưa hết hạn tại thời điểm đánh giá có thẩm quyền trong thao tác chuyển trạng thái. Chuyển trạng thái đơn, reservation, tồn và quota phải nhất quán.
 - **BR-42 — Cạnh tranh với hết hạn/hủy:** kết quả quyết định bằng trạng thái và thời hạn được kiểm tra trong cùng thao tác cập nhật được phối hợp. Tại đúng thời điểm hết hạn, đơn không còn đủ điều kiện xác nhận; thời gian do client hoặc bộ mô phỏng tự khai không được dùng để hồi sinh đơn.
@@ -421,8 +422,8 @@ Phản hồi lỗi có định danh request, mã có thể xử lý bằng chư�
 |---|---|---|
 | NFR-01 | Nhất quán | Các bất biến mục 6.7 được kiểm tra sau mọi kịch bản đồng thời; thao tác nhiều SKU không commit một phần |
 | NFR-02 | Bền vững | Không mất đơn/reservation/sự kiện đã xác nhận lưu khi tiến trình ứng dụng khởi động lại; dữ liệu nghiệp vụ nằm trong kho bền vững |
-| NFR-03 | Nhiều instance | Bất kỳ instance nào cũng truy vấn đúng trạng thái; idempotency/giới hạn mua/hết hạn không dựa riêng vào bộ nhớ tiến trình |
-| NFR-04 | Bảo mật tài khoản | Mật khẩu được băm bằng cơ chế phù hợp; dữ liệu đầu vào kiểm tra; có giới hạn thử đăng nhập; bí mật không hard-code hoặc ghi log |
+| NFR-03 | Nhiều instance | Bất kỳ instance nào cũng truy vấn đúng trạng thái; session, idempotency, giới hạn mua và hết hạn dùng dữ liệu PostgreSQL dùng chung, không dựa riêng vào bộ nhớ tiến trình |
+| NFR-04 | Bảo mật tài khoản | Mật khẩu được băm bằng cơ chế phù hợp; xác thực dùng session cookie an toàn và có bảo vệ CSRF; dữ liệu đầu vào kiểm tra; có giới hạn thử đăng nhập; bí mật không hard-code hoặc ghi log |
 | NFR-05 | Quyền dữ liệu | Kiểm tra quyền sở hữu server-side; không cache công khai giỏ/đơn/thanh toán; môi trường công khai dùng HTTPS |
 | NFR-06 | Thanh toán | Xác thực nguồn sự kiện thử nghiệm và kiểm tra nội dung; client không thể tự xác nhận đơn |
 | NFR-07 | Thời gian | Lưu mốc thời gian thống nhất, đề xuất UTC và hiển thị theo múi giờ cửa hàng; quyết định hết hạn dùng nguồn giờ server/database |
@@ -564,17 +565,17 @@ Tỷ lệ đọc/ghi, phân bố SKU, số dòng và số lượng/dòng phải 
 10. Chờ worker xử lý tới hạn theo cửa sổ quy định, rồi chạy kiểm tra tồn/quota/reservation/đơn và đối chiếu nhật ký.
 11. Lưu cấu hình, commit/phiên bản, dữ liệu gốc và kết quả kiểm tra; kết luận chỉ áp dụng trong điều kiện đã đo.
 
-### 14.6. Mục tiêu hiệu năng đề xuất, chưa phải SLA
+### 14.6. Mục tiêu hiệu năng, chưa phải SLA
 
-| Hạng mục | Đề xuất để thảo luận | Trạng thái |
+| Hạng mục | Mục tiêu | Cách áp dụng |
 |---|---|---|
-| Độ trễ checkout hợp lệ | p95 ≤ 500 ms; p99 ≤ 1.000 ms, không bao gồm thời gian khách thanh toán | Cần chốt tại tải và cấu hình tham chiếu |
-| Lỗi hệ thống | < 1% tại tải tham chiếu; timeout vẫn được tính | Cần chốt, không thay thế yêu cầu bất biến |
-| Trả reservation quá hạn | 95% đơn được giải phóng trong 30 giây sau hạn khi hệ thống ở tải tham chiếu | Cần chốt và đo; sự cố worker có báo cáo riêng |
-| Throughput | Xác định từ baseline và điểm bão hòa; chưa đặt số request/giây cố định | Cần đo trước khi chốt ngưỡng |
+| Độ trễ checkout hợp lệ | p95 ≤ 500 ms; p99 ≤ 1.000 ms, không bao gồm thời gian khách thanh toán | Đo tại tải và cấu hình tham chiếu được ghi sau E0 |
+| Lỗi hệ thống | < 1% tại tải tham chiếu; timeout vẫn được tính | Không thay thế yêu cầu bất biến |
+| Trả reservation quá hạn | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu | Đo riêng sự cố worker và quá trình khôi phục |
+| Throughput | Xác định từ baseline và điểm bão hòa; chưa đặt số request/giây cố định | Báo kết quả đo, không tự đặt ngưỡng trước E0 |
 | Hiệu quả tối ưu | Cải thiện có thể lặp lại về năng lực hoặc độ trễ ở điều kiện tương đương; giải thích trường hợp không cải thiện | Bắt buộc có dữ liệu; chưa cam kết tỷ lệ phần trăm |
 
-Không dùng các ngưỡng đề xuất này để tuyên bố hệ thống đã đạt. Bản chốt nghiệm thu phải ghi tải tham chiếu, cấu hình, thời lượng và quy tắc tính mẫu.
+Các mục tiêu cố định không đủ để tuyên bố hệ thống đã đạt nếu thiếu tải tham chiếu, cấu hình, thời lượng và quy tắc tính mẫu trong báo cáo nghiệm thu.
 
 ## 15. Bộ kiểm chứng nghiệp vụ và điều kiện nghiệm thu
 
@@ -618,7 +619,7 @@ Các test tiền/tồn cần kiểm chứng trực tiếp dữ liệu sau thực
 - Có E0 và các phép đo tương ứng hướng tối ưu; ít nhất có so sánh một và nhiều API instance.
 - Báo cáo phân biệt request, đơn tạo mới, replay, đơn xác nhận, từ chối nghiệp vụ, từ chối tải và lỗi hệ thống.
 - Bản triển khai được dựng lại từ hướng dẫn; dữ liệu demo/benchmark có thể reset mà không ảnh hưởng dữ liệu ngoài môi trường thử nghiệm.
-- Các điểm cần chốt ảnh hưởng nghiệm thu đã có quyết định hoặc được ghi là hạn chế còn lại, không bị trình bày thành tính năng đã hoàn thành.
+- Các chi tiết còn mở ảnh hưởng nghiệm thu phải được quyết định hoặc ghi là hạn chế còn lại, không bị trình bày thành tính năng đã hoàn thành.
 - Không tuyên bố không thể có lỗi trong mọi môi trường chỉ vì bộ test hiện tại không phát hiện vi phạm.
 
 ### 15.3. Gói bàn giao
@@ -653,9 +654,8 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 
 - Môi trường chạy database, cache, nhiều API instance và load generator có tài nguyên được công bố.
 - Bộ mô phỏng thanh toán có thể kiểm soát delay, retry và định danh sự kiện.
-- Cấu hình thời hạn, giới hạn giỏ, giới hạn mua và ngân sách pool được chốt trước phép đo cuối.
+- Cấu hình tải tham chiếu và ngân sách pool được ghi trước phép đo cuối; thời hạn và giới hạn giỏ/mua dùng các quyết định tại mục 17.2.
 - Bản baseline đúng nghiệp vụ phải hoàn thành trước các phép so sánh.
-- Sandbox bên ngoài, nếu chọn, cần tài khoản thử nghiệm và cơ chế sự kiện phù hợp. Thiếu sandbox không được chặn bộ mô phỏng bắt buộc; chỉ tích hợp sandbox nếu thuộc bản chốt.
 
 ### 16.3. Rủi ro và xử lý
 
@@ -666,57 +666,60 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 | Hết hàng quá sớm khi benchmark | Số request/giây cao nhưng chủ yếu là từ chối | Tách bài đo đủ tồn và khan hiếm; báo riêng giai đoạn còn hàng |
 | Cache miss/Redis lỗi dồn tải DB | Tải đọc làm checkout chậm | Fallback có giới hạn, TTL hợp lý, phép đo hỗn hợp và kiểm soát tải |
 | Tăng pool theo từng replica | Database hết kết nối | Tính ngân sách tổng, đo chờ pool và giữ cấu hình trong báo cáo |
-| Sandbox thiếu ổn định hoặc chưa chọn | Mất thời gian tích hợp, khó tái lập lỗi | Bộ mô phỏng bắt buộc; giới hạn một sandbox nếu được chốt |
 | Quy tắc hết hạn không nhất quán | Xác nhận đơn đã trả hàng | Nguồn thời gian có thẩm quyền, guard trạng thái/thời hạn và TEST-15/16 |
 | Giới hạn sản phẩm mở rộng thành sàn thương mại | Không đủ 12 tuần cho tối ưu và báo cáo | Bảo vệ mục 4.3; thay đổi phạm vi phải có đánh giá ảnh hưởng |
 | Mục tiêu tải vượt tài nguyên lab | Không thể kết luận năng lực sản phẩm tổng quát | Chốt cấu hình/tải tham chiếu sau baseline, báo giới hạn thay vì suy rộng |
 
-## 17. Giả định, đề xuất cần chốt và quản lý thay đổi
+## 17. Quyết định, chi tiết còn mở và quản lý thay đổi
 
-### 17.1. Giả định làm cơ sở bản dự thảo
+### 17.1. Giả định còn phải kiểm chứng
 
 | Mã | Giả định | Cách kiểm chứng/ảnh hưởng nếu sai |
 |---|---|---|
-| ASSUMP-01 | Doanh nghiệp bán hàng vật lý theo SKU, dùng một nguồn tồn do backend quản lý | Chốt trước thiết kế tồn; nếu có ERP/nhiều kho thì phải xét lại phạm vi |
-| ASSUMP-02 | Khách cần đăng nhập để có giỏ bền vững và đặt đơn | Chốt luồng tài khoản; mua không đăng nhập cần thiết kế lại định danh/giới hạn mua |
-| ASSUMP-03 | Không có ưu đãi cộng dồn, phí vận chuyển hoặc tính thuế riêng trong demo | Chốt cách tính tổng; nếu thay đổi phải cập nhật bản chụp giá và thanh toán |
-| ASSUMP-04 | Tải benchmark là mô phỏng, chưa có dữ liệu hành vi thực tế của doanh nghiệp | Công bố workload và không tuyên bố tỷ lệ truy cập là dữ liệu thị trường |
-| ASSUMP-05 | Hàng sau thanh toán được doanh nghiệp thực hiện giao ngoài MVP | Chốt nghĩa `CONFIRMED`; thêm vận chuyển sẽ ảnh hưởng trạng thái và phạm vi |
-| ASSUMP-06 | Bộ mô phỏng đủ chứng minh nghiệp vụ thanh toán; sandbox tùy quyết định | Chốt yêu cầu tích hợp trước khi dành thời gian cho provider |
+| ASSUMP-01 | Doanh nghiệp bán hàng vật lý theo SKU, dùng một nguồn tồn do backend quản lý | Nếu có ERP/nhiều kho thì phải xét lại phạm vi |
+| ASSUMP-02 | Khách cần đăng nhập để có giỏ bền vững và đặt đơn | Mua không đăng nhập cần thiết kế lại định danh/giới hạn mua |
+| ASSUMP-03 | Tải benchmark là mô phỏng, chưa có dữ liệu hành vi thực tế của doanh nghiệp | Công bố workload và không tuyên bố tỷ lệ truy cập là dữ liệu thị trường |
+| ASSUMP-04 | Hàng sau thanh toán được doanh nghiệp thực hiện giao ngoài MVP | Thêm vận chuyển sẽ ảnh hưởng trạng thái và phạm vi |
 
-### 17.2. Các điểm cần chủ sản phẩm chốt
+### 17.2. Các quyết định đã xác nhận
 
-| Mã | Nội dung | Đề xuất hiện tại | Thời điểm cần chốt |
-|---|---|---|---|
-| OPEN-01 | Thời gian giữ hàng | 5 phút; chụp hạn vào đơn, không gia hạn khi retry | Trước thiết kế checkout/worker |
-| OPEN-02 | Chính sách quota và hàng thường | Dùng chung tồn vật lý; quota là trần ưu đãi, không tách kho | Trước thiết kế flash sale/tồn |
-| OPEN-03 | Giới hạn mua | Cấu hình theo tài khoản + chương trình + SKU, tính cả lượng đang giữ | Trước triển khai flash sale |
-| OPEN-04 | Giỏ có hàng thường và flash sale | Cho phép, mỗi dòng có nguồn giá rõ; không cộng ưu đãi | Trước đặc tả giá/checkout |
-| OPEN-05 | Chọn các dòng đặt và giỏ sau mua | Cho chọn tập dòng; giữ giỏ lúc chờ, chỉ xóa an toàn dòng chưa đổi khi xác nhận | Trước triển khai giỏ/demo |
-| OPEN-06 | Thanh toán thử nghiệm | Bộ mô phỏng bắt buộc; chưa chọn provider sandbox, không dùng tiền thật | Trước phát triển thanh toán |
-| OPEN-07 | Một phiên và thất bại cuối cùng | Một phiên/đơn; thất bại chắc chắn đóng đơn, mua lại tạo đơn mới | Trước đặc tả trạng thái thanh toán |
-| OPEN-08 | Giá/tiền tệ/phí | VND nguyên; không phí vận chuyển và không tính thuế riêng trong demo | Trước đặc tả giá |
-| OPEN-09 | Thông tin người nhận | Tên, điện thoại và địa chỉ văn bản; chỉ ghi nhận, không tích hợp vận chuyển | Trước thiết kế đơn/demo |
-| OPEN-10 | Giới hạn giỏ/payload | Đề xuất tối đa 20 dòng SKU, giới hạn số lượng theo cấu hình SKU và chương trình | Trước benchmark và giới hạn tài nguyên |
-| OPEN-11 | Nhận diện người dùng | Email/mật khẩu, quyền khách/quản trị; chưa chọn cơ chế phiên/token | Trước đặc tả xác thực |
-| OPEN-12 | Cấu hình và tải nghiệm thu | Chốt sau baseline; dùng mục tiêu độ trễ/lỗi tại 14.6 làm điểm thảo luận | Trước benchmark cuối |
-| OPEN-13 | Chậm giải phóng quá hạn | Đề xuất 95% trong 30 giây tại tải tham chiếu; xử lý khôi phục có test riêng | Trước thiết kế worker và nghiệm thu |
-| OPEN-14 | Cách đối soát thanh toán muộn | Xem bằng chứng/ghi chú, không tự hồi sinh đơn hay hoàn tiền | Trước nghiệm thu thanh toán |
+| Mã | Nội dung | Quyết định |
+|---|---|---|
+| DEC-01 | Thời gian giữ hàng | 5 phút; lưu hạn cụ thể trên đơn; retry không gia hạn |
+| DEC-02 | Chính sách quota flash sale | Dùng chung tồn vật lý; quota chỉ là trần ưu đãi, không tách kho |
+| DEC-03 | Giới hạn mua | Theo tài khoản + chương trình + SKU; tính cả lượng đang giữ và đã mua |
+| DEC-04 | Giỏ thường và flash sale | Cho phép cùng giỏ; mỗi dòng ghi rõ nguồn giá |
+| DEC-05 | Chọn dòng checkout | Cho chọn một tập dòng; không tự lấy toàn bộ giỏ |
+| DEC-06 | Giỏ sau khi đặt | Giữ nguyên khi chờ; chỉ xóa an toàn dòng chưa đổi sau khi xác nhận |
+| DEC-07 | Thanh toán | Chỉ dùng bộ mô phỏng bắt buộc; không dùng tiền thật hoặc provider sandbox |
+| DEC-08 | Phiên thanh toán | Một phiên cho một đơn; retry trả phiên cũ |
+| DEC-09 | Tiền | VND số nguyên; không phí vận chuyển, không tách thuế |
+| DEC-10 | Người nhận | Tên, số điện thoại và địa chỉ văn bản |
+| DEC-11 | Giới hạn giỏ | Tối đa 20 SKU; số lượng theo cấu hình SKU/chương trình |
+| DEC-12 | Xác thực | Session cookie an toàn; session lưu ở PostgreSQL để dùng được nhiều instance |
+| DEC-13 | Giao diện | React + Vite |
+| DEC-14 | Mục tiêu hiệu năng | p95 checkout ≤ 500 ms, p99 ≤ 1.000 ms tại tải tham chiếu; lỗi hệ thống < 1% |
+| DEC-15 | Chậm giải phóng | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu |
 
-Các điểm OPEN không thay đổi những lựa chọn SCOPE đã xác nhận. Chúng giúp chốt hành vi chi tiết; không được tự coi là toàn bộ dự án còn chưa xác định.
+### 17.3. Chi tiết còn mở
 
-### 17.3. Quy tắc quản lý thay đổi phạm vi
+| Mã | Nội dung | Cách xử lý |
+|---|---|---|
+| OPEN-01 | Tải và cấu hình tham chiếu | Ghi sau baseline E0; không thay đổi các mục tiêu DEC-14 và DEC-15 nếu không qua quy trình thay đổi |
+| OPEN-02 | Cách đối soát thanh toán muộn | Đề xuất chỉ xem bằng chứng/ghi chú, không tự hồi sinh đơn hay hoàn tiền; quyết định trước nghiệm thu thanh toán |
+
+### 17.4. Quy tắc quản lý thay đổi phạm vi
 
 Mọi thay đổi phải ghi: lý do kinh doanh, quy tắc/yêu cầu bị ảnh hưởng, tác động đến trạng thái tiền/tồn, kiểm thử, thời gian và điều kiện đo. Thay đổi ảnh hưởng giỏ, quota, giữ hàng hoặc thanh toán phải cập nhật BR, INV, FR và TEST tương ứng trước triển khai.
 
 Việc bổ sung marketplace, nhiều doanh nghiệp chung nền tảng, thanh toán thật, ERP, vận chuyển hoặc checkout bất đồng bộ toàn bộ được xem là thay đổi phạm vi dự án, không phải hoàn thiện nhỏ của MVP.
 
-### 17.4. Checklist chốt dự án
+### 17.5. Checklist chốt dự án
 
 - [ ] Xác nhận phạm vi SCOPE-01 đến SCOPE-07 và danh sách ngoài phạm vi.
 - [ ] Rà soát các quy tắc BR, vòng đời đơn và quy ước tồn/quota.
-- [ ] Có quyết định cho OPEN-01 đến OPEN-11 và OPEN-14 trước triển khai phần tương ứng.
-- [ ] Chốt cấu hình/tải/chỉ số nghiệm thu tại OPEN-12 và OPEN-13 trước benchmark cuối.
+- [ ] Ghi tải/cấu hình tham chiếu tại OPEN-01 sau E0 và trước benchmark cuối.
+- [ ] Quyết định OPEN-02 trước nghiệm thu thanh toán.
 - [ ] Chốt danh sách chức năng P0/P1, ma trận TEST và gói bàn giao.
 - [ ] Chốt kế hoạch 12 tuần, phân công và các mốc tích hợp.
 - [ ] Ghi lại mọi khác biệt giữa bản chốt và dự thảo này bằng phiên bản tài liệu mới.

@@ -7,7 +7,7 @@
 | Mã | Ưu tiên | Yêu cầu | Tiêu chí nghiệm thu |
 |---|---|---|---|
 | FR-001 | P0 | Khách đăng ký bằng email và mật khẩu | Email được chuẩn hóa và duy nhất; dữ liệu không hợp lệ bị từ chối; khách không tự gán vai trò quản trị |
-| FR-002 | P0 | Đăng nhập, đăng xuất và xác thực request riêng tư | Sai thông tin không cấp quyền; thông tin xác thực hết hạn không truy cập API riêng tư; logout vô hiệu hóa phiên theo cơ chế được chọn |
+| FR-002 | P0 | Đăng nhập, đăng xuất và xác thực request riêng tư | Dùng session cookie an toàn, session lưu ở PostgreSQL và dùng được qua nhiều instance; sai thông tin không cấp quyền; phiên hết hạn/logout không truy cập API riêng tư |
 | FR-003 | P0 | Phân biệt quyền khách và quản trị | Khách không sửa hàng hóa/flash sale; khách A không đọc hoặc đổi giỏ, đơn và thanh toán của B |
 | FR-004 | P1 | Cấu hình nhận diện cửa hàng | Quản trị sửa tên, mô tả ngắn, URL logo và liên hệ; khách xem thông tin công khai; không có thao tác chọn tenant |
 
@@ -37,18 +37,18 @@
 | FR-014 | P0 | Tạo/sửa chương trình nháp | Kiểm tra thời gian, giá ưu đãi, quota, giới hạn mua và SKU hoạt động; trả lỗi cấu hình cụ thể |
 | FR-015 | P0 | Lên lịch và khóa cấu hình | Không cho cùng SKU chồng khoảng nhận đơn; chương trình lên lịch giữ nguyên các thông số bán; hủy lịch trước mở cho phép sửa |
 | FR-016 | P0 | Hiển thị chương trình và giá ưu đãi | Khách xem giờ mở/đóng và điều kiện; backend kiểm tra thời gian chính thức, không tin đồng hồ client |
-| FR-017 | P0 | Áp dụng đồng thời tồn kho, quota và giới hạn mua | Cùng một request và các request đồng thời đều không vượt INV-01, INV-09, INV-10 |
+| FR-017 | P0 | Áp dụng đồng thời tồn kho, quota và giới hạn mua | Quota chỉ là trần ưu đãi trên tồn vật lý dùng chung; giới hạn theo tài khoản + chương trình + SKU tính cả đang giữ và đã mua; mọi request đều giữ INV-01, INV-09, INV-10 |
 | FR-018 | P1 | Dừng nhận đơn mới và xem thống kê chương trình | Dừng không phá đơn giữ trước đó; thống kê tách lượng giữ, lượng đã bán và đơn bị từ chối |
 
 ### 9.5. Giỏ hàng và xem trước đơn
 
 | Mã | Ưu tiên | Yêu cầu | Tiêu chí nghiệm thu |
 |---|---|---|---|
-| FR-019 | P0 | Thêm, đổi số lượng và xóa dòng giỏ | Giỏ thuộc khách; SKU trùng gộp; số lượng không hợp lệ bị từ chối; không tạo reservation |
-| FR-020 | P0 | Xem trước tập dòng sẽ mua | Trả SKU, số lượng, giá từng dòng, nguồn giá và tổng; thông tin chỉ là xem trước, chưa giữ hàng |
-| FR-021 | P0 | Nhận thông tin người nhận cho hàng vật lý | Đề xuất có tên, số điện thoại, địa chỉ dạng văn bản; lưu bản chụp trên đơn; không yêu cầu tích hợp bản đồ/vận chuyển |
+| FR-019 | P0 | Thêm, đổi số lượng và xóa dòng giỏ | Giỏ thuộc khách; tối đa 20 SKU; SKU trùng gộp; số lượng theo cấu hình SKU/chương trình; không tạo reservation |
+| FR-020 | P0 | Xem trước tập dòng sẽ mua | Chỉ dùng tập dòng khách chọn; cho phép dòng thường và flash sale cùng giỏ; trả SKU, số lượng, giá, nguồn giá và tổng; chưa giữ hàng |
+| FR-021 | P0 | Nhận thông tin người nhận cho hàng vật lý | Bắt buộc tên, số điện thoại và địa chỉ dạng văn bản; lưu bản chụp trên đơn; không yêu cầu tích hợp bản đồ/vận chuyển |
 | FR-022 | P0 | Bắt buộc xác nhận lại khi giá/điều kiện đổi | Đặt đơn dựa trên giá cũ trả giá mới và lỗi phù hợp; không tự nhận tổng tiền cao hơn khách đã xác nhận |
-| FR-023 | P1 | Giữ giỏ khi đặt thất bại và cập nhật an toàn sau mua | Không xóa giỏ khi thiếu hàng; không xóa dòng khách vừa sửa hoặc mới thêm trong lúc đơn đang thanh toán |
+| FR-023 | P1 | Giữ giỏ khi đặt thất bại và cập nhật an toàn sau mua | Giữ nguyên giỏ khi đơn chờ; sau xác nhận chỉ xóa dòng đã mua và chưa đổi; không xóa dòng vừa sửa hoặc mới thêm |
 
 ### 9.6. Đặt đơn
 
@@ -59,13 +59,13 @@
 | FR-026 | P0 | Báo mặt hàng không đủ điều kiện | Có mã lỗi, SKU, số lượng yêu cầu và nguyên nhân; không tự mua một phần hoặc đổi sang giá thường |
 | FR-027 | P0 | Chống tạo đơn trùng bằng idempotency | Cùng khóa/nội dung trả cùng kết quả; khác nội dung báo xung đột; hoạt động qua hai instance |
 | FR-028 | P0 | Cho tra cứu kết quả request chưa rõ | Khách tra cứu theo khóa thuộc mình hoặc retry cùng khóa; không lộ kết quả khách khác |
-| FR-029 | P0 | Trả hạn thanh toán và bản chụp giá | Retry không gia hạn; đổi giá sản phẩm sau đặt không sửa tổng đơn |
+| FR-029 | P0 | Trả hạn thanh toán và bản chụp giá | Hạn giữ là 5 phút và được lưu cụ thể trên đơn; retry không gia hạn; tổng tiền VND nguyên không đổi theo giá sản phẩm hiện tại |
 
 ### 9.7. Thanh toán thử nghiệm/mô phỏng
 
 | Mã | Ưu tiên | Yêu cầu | Tiêu chí nghiệm thu |
 |---|---|---|---|
-| FR-030 | P0 | Khởi tạo hoặc lấy lại phiên thanh toán | Đúng chủ đơn, đơn còn đủ điều kiện; phiên có đúng số tiền/tiền tệ; retry không tạo phiên thứ hai |
+| FR-030 | P0 | Khởi tạo hoặc lấy lại phiên thanh toán | Đúng chủ đơn, đơn còn đủ điều kiện; mỗi đơn chỉ có một phiên đúng số tiền/tiền tệ; retry trả phiên cũ |
 | FR-031 | P0 | Bộ mô phỏng phát sự kiện bất đồng bộ | Chủ động tạo thành công, thất bại, chậm, mất phản hồi, lặp và trái thứ tự; có định danh và xác thực nguồn |
 | FR-032 | P0 | Xác minh sự kiện và ghi nhận bền vững | Sai nguồn/phiên/số tiền không xác nhận; sự kiện được truy nguyên; chỉ xác nhận tiếp nhận sau khi lưu |
 | FR-033 | P0 | Thanh toán hợp lệ xác nhận đơn đúng một lần | Chuyển toàn bộ reservation thành bán; cập nhật trạng thái và quota nhất quán; callback lặp không trừ thêm |
@@ -89,7 +89,7 @@
 |---|---|---|---|
 | FR-042 | P0 | Đo và liên kết request, đơn, sự kiện | Theo dõi được thời gian xử lý, kết quả, instance và định danh; không ghi mật khẩu/token/bí mật vào log |
 | FR-043 | P0 | Xuất chỉ số nghiệp vụ và hạ tầng | Phân biệt đơn tạo, đơn xác nhận, thiếu hàng, quota/giới hạn mua, rate limit, timeout và lỗi hệ thống |
-| FR-044 | P1 | Giao diện demo của khách | Có danh sách/chi tiết, chọn SKU, giỏ, xem trước, đặt, thanh toán thử nghiệm, trạng thái đơn và lỗi theo dòng |
+| FR-044 | P1 | Giao diện demo của khách | React + Vite có danh sách/chi tiết, chọn SKU, giỏ, xem trước, đặt, thanh toán thử nghiệm, trạng thái đơn và lỗi theo dòng |
 | FR-045 | P1 | Giao diện demo của quản trị | Quản lý hàng/tồn/chương trình và xem đơn/đối soát đủ cho hành trình 8.1; không cần UI thương mại đầy đủ |
 | FR-046 | P0 | Hướng dẫn kiểm chứng và bàn giao | Có cách dựng môi trường, tạo dữ liệu, chạy các test P0, benchmark và đọc kết quả |
 
@@ -108,4 +108,3 @@
 | Quan sát | Quyền vận hành; khoảng thời gian | Chỉ số, nhật ký liên quan và bằng chứng kiểm thử |
 
 Đường dẫn, HTTP method, cấu trúc request/response và cơ chế xác thực cụ thể được chốt trong đặc tả API. Không đặt thông tin nội bộ database vào luồng người dùng.
-
