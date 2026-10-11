@@ -1,6 +1,6 @@
 ## 10. User stories và các tình huống nghiệm thu chính
 
-US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụng; US-19 và US-20 nghiệm thu giao diện tích hợp các hành vi đó. Các story vẫn cần được tách thành công việc triển khai nhỏ nếu việc thiết kế và kiểm thử vượt quá một phiên làm việc.
+US-01 đến US-18 mô tả hành vi backend; US-19 và US-20 nghiệm thu giao diện; US-21 bổ sung hộp thông báo trạng thái đơn qua RabbitMQ. Các story vẫn cần được tách thành công việc triển khai nhỏ nếu việc thiết kế và kiểm thử vượt quá một phiên làm việc.
 
 ### US-01 — Sử dụng tài khoản khách
 
@@ -191,9 +191,9 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 
 **Câu chuyện:** Là người đánh giá, tôi muốn mua thử qua giao diện để kiểm tra các nghiệp vụ phía khách đã được tích hợp.
 
-**Liên quan:** FR-044.
+**Liên quan:** FR-044, FR-047.
 
-- [ ] Có các màn hình chọn SKU, giỏ, xem trước, đặt, thanh toán và trạng thái đơn.
+- [ ] Có các màn hình chọn SKU, giỏ, xem trước, đặt, thanh toán, trạng thái đơn và hộp thông báo.
 - [ ] Lỗi thiếu hàng/giá thay đổi có thông tin để khách sửa và xác nhận lại.
 - [ ] Kiểm chứng trực tiếp trong trình duyệt, dùng skill `dev-browser` nếu có; nếu không, dùng công cụ trình duyệt hiện có và lưu bằng chứng tương đương.
 
@@ -206,3 +206,14 @@ US-01 đến US-18 mô tả hành vi backend theo từng mục đích sử dụn
 - [ ] Có quản lý hàng/tồn/chương trình và xem đơn/đối soát đủ cho hành trình 8.1.
 - [ ] Không cung cấp nút sửa giá đơn, ép trạng thái thành công hoặc sửa lượng giữ.
 - [ ] Kiểm chứng trực tiếp trong trình duyệt, dùng skill `dev-browser` nếu có; nếu không, dùng công cụ trình duyệt hiện có và lưu bằng chứng tương đương.
+
+
+### US-21 — Theo dõi thông báo trạng thái đơn
+
+**Câu chuyện:** Là khách hàng, tôi muốn xem thông báo khi đơn được giữ hàng, xác nhận, hủy hoặc hết hạn để biết hệ thống đã xử lý đơn của mình đến đâu.
+
+**Liên quan:** FR-047 đến FR-049.
+
+- [ ] Chỉ chủ đơn xem được thông báo và có thể đánh dấu đã đọc.
+- [ ] RabbitMQ tạm dừng không làm mất đơn; thông báo đang chờ xuất hiện sau khi worker gửi bù.
+- [ ] Nếu message được giao lại, chỉ có một thông báo cho cùng event ID.

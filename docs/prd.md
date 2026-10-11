@@ -4,8 +4,8 @@
 
 | Thuộc tính | Nội dung |
 |---|---|
-| Phiên bản | 1.1 — Đã ghi nhận các quyết định triển khai |
-| Ngày cập nhật | 07/10/2026 |
+| Phiên bản | 1.2 — Bổ sung hộp thông báo trạng thái đơn qua RabbitMQ |
+| Ngày cập nhật | 11/10/2026 |
 | Sản phẩm | SaleScale |
 | Đề tài đồ án | Tối ưu hóa tầng API trong hệ thống Flash Sale phân tán sử dụng Go và Gin |
 | Thời gian và nhân sự | 12 tuần, 2 người |
@@ -64,6 +64,7 @@ Backend cần duy trì thời gian phản hồi có thể đo được, đồng 
 | GOAL-04 | Kiểm chứng mở rộng số API instance | So sánh ít nhất cấu hình 1 và 2 instance với điều kiện tài nguyên được ghi rõ |
 | GOAL-05 | Cung cấp bản triển khai cho một doanh nghiệp | Cấu hình cửa hàng và dữ liệu độc lập; có hướng dẫn dựng môi trường và chạy kiểm thử |
 | GOAL-06 | Hoàn thành trong 12 tuần, 2 người | Có các mốc bàn giao tại mục 16; không mở rộng sang nghiệp vụ ngoài mục 4 |
+| GOAL-07 | Thử xử lý tác vụ thông báo ngoài luồng đặt hàng | Khách tra cứu được thông báo trạng thái đơn; RabbitMQ tạm dừng không làm mất đơn hoặc chặn checkout |
 
 ### 2.2. Nguyên tắc ưu tiên
 
@@ -113,6 +114,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 | SCOPE-05 | Thanh toán ở mức thử nghiệm/mô phỏng | Đã xác nhận |
 | SCOPE-06 | Đặt đơn đồng thời là trọng tâm; cache đọc sản phẩm hỗ trợ | Đã xác nhận |
 | SCOPE-07 | Go và Gin; 12 tuần, 2 người | Đã xác nhận |
+| SCOPE-08 | Hộp thông báo trạng thái đơn dùng RabbitMQ; checkout vẫn đồng bộ với PostgreSQL | Đã xác nhận theo yêu cầu mở rộng đồ án |
 
 ### 4.2. Chức năng bắt buộc của bản MVP
 
@@ -128,7 +130,8 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 10. Lịch sử đơn của khách, tra cứu đơn của quản trị và theo dõi bất thường thanh toán.
 11. Giao diện demo tối thiểu cho khách và quản trị.
 12. Tối ưu transaction/truy vấn/pool, chạy nhiều instance, cache đọc, kiểm soát tải và quan sát hệ thống.
-13. Bộ kiểm thử nghiệp vụ đồng thời và báo cáo hiệu năng có dữ liệu gốc.
+13. Hộp thông báo trạng thái đơn, được tạo bất đồng bộ qua RabbitMQ và có thể xem trong ứng dụng.
+14. Bộ kiểm thử nghiệp vụ đồng thời và báo cáo hiệu năng có dữ liệu gốc.
 
 ### 4.3. Ngoài phạm vi
 
@@ -144,6 +147,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 - Đánh giá sản phẩm, chat, gợi ý cá nhân hóa, ứng dụng di động hoặc giao diện thương mại hoàn chỉnh.
 - Kubernetes, tự động scale theo cloud, chia nhiều microservice, sharding hoặc nghiên cứu HA cho database.
 - Đưa toàn bộ checkout vào hàng đợi rồi trả kết quả đặt đơn về sau.
+- Email, SMS, push notification hoặc nền tảng sự kiện dùng chung cho nhiều sản phẩm; MVP chỉ có hộp thông báo trạng thái đơn trong ứng dụng.
 - Chứng nhận sẵn sàng production hoặc cam kết SLA thương mại dựa trên benchmark đồ án.
 
 ## 5. Thuật ngữ và thông tin nghiệp vụ
@@ -164,6 +168,9 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 | Đối soát | Kiểm tra một kết quả thanh toán không thể tự động áp dụng vào đơn |
 | API instance | Một tiến trình backend phục vụ request; nhiều instance dùng cùng dữ liệu nghiệp vụ |
 | Baseline | Phiên bản đúng nghiệp vụ dùng làm mốc so sánh trước tối ưu |
+| Outbox | Bản ghi sự kiện được lưu trong cùng giao dịch với thay đổi đơn, để gửi đi sau mà không mất sự kiện khi broker tạm lỗi |
+| Message queue | Hàng đợi nhận sự kiện và giao cho worker xử lý sau request; RabbitMQ đảm nhiệm phần này trong đồ án |
+| Hộp thông báo đơn | Danh sách thông báo riêng của khách về việc giữ hàng, thanh toán, hủy hoặc hết hạn đơn |
 | p95/p99 | Độ trễ mà 95%/99% mẫu đo không vượt quá |
 
 ### 5.2. Các nhóm thông tin cần quản lý
@@ -184,6 +191,8 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 | Thanh toán | Mã phiên, đơn, số tiền, tiền tệ, kết quả đã xác minh | Một phiên cho một đơn; retry trả phiên cũ |
 | Sự kiện thanh toán | Mã sự kiện, mã giao dịch, thời điểm tiếp nhận, kết quả xử lý | Nhận lại sự kiện không làm lặp tác động |
 | Bất thường | Đơn/phiên, loại vấn đề, bằng chứng, trạng thái rà soát | Không đồng nghĩa với việc đơn đã thanh toán |
+| Sự kiện outbox | Mã sự kiện, đơn, loại thay đổi trạng thái, thời điểm, trạng thái đã gửi | Được lưu cùng giao dịch đổi trạng thái đơn; publisher có thể gửi lại sau khi RabbitMQ phục hồi |
+| Thông báo khách | Chủ sở hữu, đơn, mã sự kiện, nội dung ngắn, trạng thái đã đọc, thời điểm | Khách chỉ xem được thông báo của mình; một sự kiện chỉ tạo tối đa một thông báo |
 | Nhật ký nghiệp vụ | Tác nhân, thao tác, đối tượng, trước/sau, thời điểm | Phục vụ kiểm tra điều chỉnh tồn và tranh chấp trạng thái |
 
 Đây là mô hình thông tin nghiệp vụ, không quy định mỗi đối tượng phải là một bảng database riêng.
@@ -294,6 +303,14 @@ Không vừa giải phóng `reserved` vừa cộng lại `on_hand` khi đơn th�
 | INV-12 | Với mỗi SKU: tồn ban đầu + tổng điều chỉnh hợp lệ − tổng lượng của đơn xác nhận = `on_hand` hiện tại |
 
 INV-03 và INV-08 áp dụng với trạng thái đã commit. Đơn quá hạn còn chờ do worker chưa chạy vẫn chiếm reservation trong sổ tồn, nhưng không được phép xác nhận thanh toán; sau thời hạn giải phóng đã thống nhất phải được chuyển sang hết hạn và trả quyền giữ.
+
+### 6.8. Thông báo trạng thái đơn và hàng đợi
+
+- **BR-46 — Sự kiện tạo thông báo:** khi đơn được tạo, xác nhận, thất bại, hủy hoặc hết hạn, backend tạo thông báo cho chủ đơn. Khách có thể xem danh sách và đánh dấu đã đọc; nội dung thông báo không thay thế trạng thái đơn trong PostgreSQL.
+- **BR-47 — Lưu sự kiện cùng thay đổi đơn:** ở kiến trúc bất đồng bộ, PostgreSQL lưu sự kiện outbox trong cùng transaction với thay đổi trạng thái. Nhờ vậy đơn và yêu cầu gửi thông báo không thể chỉ lưu một nửa.
+- **BR-48 — Checkout không chờ RabbitMQ:** worker gửi sự kiện outbox lên RabbitMQ sau khi transaction kết thúc. Nếu RabbitMQ ngừng hoạt động, đơn vẫn được tạo; sự kiện còn trong PostgreSQL và được gửi lại khi broker hoạt động.
+- **BR-49 — Xử lý lặp an toàn:** publisher chỉ đánh dấu sự kiện đã gửi sau publisher confirm; consumer lưu thông báo theo event ID duy nhất và chỉ ACK sau khi PostgreSQL commit. Nếu sự kiện lỗi liên tục, retry có giới hạn rồi chuyển vào dead-letter queue để người vận hành kiểm tra.
+- **BR-50 — Tách thông báo khỏi quyết định mua:** RabbitMQ chỉ chuyển thông báo trạng thái. Việc giữ hàng, xác nhận thanh toán, hủy và hết hạn vẫn được quyết định bằng trạng thái cùng transaction PostgreSQL.
 
 ## 7. Trạng thái và vòng đời
 
@@ -433,6 +450,7 @@ Phản hồi lỗi có định danh request, mã có thể xử lý bằng chư�
 | NFR-11 | Triển khai | Có cấu hình và hướng dẫn tái lập 1/nhiều API instance; migration và dữ liệu demo có thể dựng lại; không trộn dữ liệu benchmark vào cửa hàng khác |
 | NFR-12 | Giao diện | Demo rõ tổng tiền, SKU, hạn và trạng thái; nút gửi bị khóa lúc chờ giúp giảm click lặp nhưng không thay thế idempotency backend |
 | NFR-13 | Kiểm chứng | Thay đổi nghiệp vụ tiền/tồn có kiểm thử có thể chạy; nghiệm thu frontend bằng trình duyệt; không áp tiêu chí typecheck của ngôn ngữ khác vào Go |
+| NFR-14 | Thông báo bất đồng bộ | Sự kiện trạng thái đơn được lưu trong PostgreSQL trước khi gửi; RabbitMQ lỗi không chặn checkout; consumer chịu được message giao lại và ghi tối đa một thông báo cho mỗi event ID |
 
 NFR-02 không đồng nghĩa đã nghiên cứu database HA hoặc bảo đảm không mất dữ liệu khi toàn bộ hạ tầng lưu trữ bị mất; phạm vi là sự cố và khởi động lại tầng ứng dụng trong môi trường thực nghiệm.
 
@@ -449,13 +467,16 @@ flowchart LR
     A2 --> D
     A1 --> R[(Redis: cache đọc)]
     A2 --> R
-    W[Worker hết hạn] --> D
+    W[Worker hết hạn và outbox] --> D
+    W --> Q[RabbitMQ: thông báo trạng thái đơn]
+    Q --> NW[Notification worker]
+    NW --> D
     A1 --> P[Bộ thanh toán thử nghiệm]
     A2 --> P
     P --> G
 ```
 
-Một ứng dụng backend chia module tài khoản, catalog, chương trình, giỏ, đơn, tồn và thanh toán; không bắt buộc chia thành dịch vụ độc lập. Worker có thể là chế độ chạy khác của cùng mã nguồn; không yêu cầu microservice riêng. Thiết kế chi tiết được xác định trong tài liệu kiến trúc sau PRD.
+Một ứng dụng backend chia module tài khoản, catalog, chương trình, giỏ, đơn, tồn và thanh toán; không bắt buộc chia thành dịch vụ độc lập. Worker hết hạn và outbox publisher dùng cùng mã Go với API nhưng chạy thành tiến trình nền; notification worker tiêu thụ message từ RabbitMQ rồi ghi thông báo vào PostgreSQL. RabbitMQ chỉ phục vụ thông báo trạng thái đơn, không nằm trên đường quyết định checkout. Đây là các tiến trình trong cùng ứng dụng, không phải microservice nghiệp vụ riêng.
 
 ### 13.2. Danh sách hướng tối ưu bắt buộc đánh giá
 
@@ -469,8 +490,9 @@ Một ứng dụng backend chia module tài khoản, catalog, chương trình, g
 | PERF-06 | Kiểm soát tải | Rate limit nhóm endpoint; từ chối sớm; tách ngân sách callback/worker khỏi truy cập mua hàng khi phù hợp | Từ chối không giữ hàng; giới hạn không tự nhân lên theo số instance; không tuyên bố tăng đơn thành công chỉ vì tăng 429 | Mức tải, số bị giới hạn, độ trễ/lỗi còn lại và tác động tới checkout |
 | PERF-07 | Tác vụ nền ngoài đường đặt đơn | Giải phóng đơn hết hạn theo lô; retry an toàn; giữ các thao tác không cần đồng bộ khỏi transaction checkout | Dữ liệu công việc bền vững; không đưa quyết định giữ hàng cả giỏ vào queue để đổi luồng MVP | Độ trễ giải phóng, lượng đơn tồn đọng và test worker khởi động lại |
 | PERF-08 | Đo và phân tích ứng dụng Go | Đo từng giai đoạn; dùng profiling khi có điểm nghẽn CPU/heap/goroutine | Không dùng thay đổi goroutine/GC hoặc thêm thư viện thay bằng chứng đo | Dữ liệu profiling liên quan và lý do thay đổi hoặc lý do không cần thay đổi |
+| PERF-09 | Xử lý thông báo đơn qua RabbitMQ | So sánh ghi thông báo trong luồng API với transactional outbox, RabbitMQ và notification worker; đo ảnh hưởng tới checkout và độ trễ gửi thông báo | PostgreSQL giữ trạng thái đơn và sự kiện; consumer idempotent; queue không được quyết định tồn hoặc thanh toán | p95/p99 checkout, tuổi sự kiện outbox cũ nhất, queue ready/unacked, số retry/DLQ và thời gian từ đổi trạng thái tới lúc thông báo xuất hiện |
 
-PERF-01 đến PERF-04 là trọng tâm. PERF-05, PERF-06 hỗ trợ khả năng phục vụ; PERF-07 bảo đảm nghiệp vụ hết hạn; PERF-08 hỗ trợ tìm nguyên nhân. Mỗi hướng được đánh giá, nhưng chỉ áp thay đổi có căn cứ; báo cáo được phép kết luận một thay đổi không có lợi.
+PERF-01 đến PERF-04 là trọng tâm. PERF-05, PERF-06 hỗ trợ khả năng phục vụ; PERF-07 bảo đảm nghiệp vụ hết hạn; PERF-08 hỗ trợ tìm nguyên nhân; PERF-09 kiểm chứng một nghiệp vụ phù hợp với message queue. Mỗi hướng được đánh giá, nhưng chỉ áp thay đổi có căn cứ; báo cáo được phép kết luận một thay đổi không có lợi.
 
 ### 13.3. Các giới hạn cần ghi rõ
 
@@ -480,6 +502,8 @@ PERF-01 đến PERF-04 là trọng tâm. PERF-05, PERF-06 hỗ trợ khả năng
 - Cache hết TTL đồng thời: phải thử nghiệm tình huống nhiều request cùng cache miss; chỉ thêm biện pháp chống dồn tải khi số liệu chứng minh cần thiết.
 - Cache thông tin ưu đãi không được làm backend tiếp tục hiển thị chương trình như còn hiệu lực sau giờ kết thúc. TTL hoặc kiểm tra thời gian lúc trả dữ liệu phải tôn trọng mốc chương trình; sau cập nhật quản trị, cơ chế vô hiệu hóa phải có hiệu lực với các API instance dùng chung cache. Giá/tồn vẫn được kiểm tra lại khi đặt đơn.
 - Giới hạn tải ở một gateway cần được công bố là phạm vi một gateway. Nếu gateway hoặc limiter được nhân bản, phải bảo đảm giới hạn tổng đúng hoặc nêu rõ thay đổi phạm vi; không gọi giới hạn cục bộ là giới hạn toàn hệ thống.
+- RabbitMQ chỉ giữ và phân phối sự kiện thông báo đơn. PostgreSQL tiếp tục là nguồn chuẩn cho đơn/tồn; message có thể được giao lại nên notification worker phải chống tạo bản ghi trùng.
+- Khi RabbitMQ dừng, checkout vẫn ghi đơn và outbox vào PostgreSQL; thông báo có thể tới trễ nhưng không được báo mất đơn.
 - Không có yêu cầu bảo đảm FIFO hoặc mọi khách đều mua được. Chính sách là cạnh tranh theo điều kiện giữ hàng thành công, trong giới hạn mua đã chốt.
 - Hệ thống không mở rộng backend bằng cách chia giỏ thành những đơn độc lập trái BR-23.
 
@@ -492,6 +516,9 @@ Các nguồn dưới đây dùng để kiểm chứng cơ chế kỹ thuật, kh
 - NGINX hỗ trợ giới hạn tốc độ xử lý request theo khóa được cấu hình: [ngx_http_limit_req_module](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html).
 - Stripe mô tả idempotent requests và xử lý sự kiện webhook trùng: [Idempotent requests](https://docs.stripe.com/api/idempotent_requests), [Webhooks](https://docs.stripe.com/webhooks). Tham khảo này không đồng nghĩa đã chọn Stripe để tích hợp.
 - k6 hỗ trợ arrival-rate executor để phát các lượt thực thi theo nhịp độc lập với thời gian phản hồi: [Constant arrival rate](https://grafana.com/docs/k6/latest/using-k6/scenarios/executors/constant-arrival-rate/).
+- RabbitMQ hướng dẫn work queue và cách chia tác vụ giữa workers bằng thư viện Go: [Work Queues](https://www.rabbitmq.com/tutorials/tutorial-two-go).
+- RabbitMQ mô tả publisher confirms, consumer acknowledgements và prefetch để kiểm soát giao nhận và lượng message đang xử lý: [Confirms and acknowledgements](https://www.rabbitmq.com/docs/confirms), [Reliable publishing with Go](https://www.rabbitmq.com/tutorials/tutorial-seven-go).
+- AWS Prescriptive Guidance giải thích transactional outbox: ghi thay đổi DB và event trong cùng transaction để tránh dual write, đồng thời yêu cầu consumer chịu được message lặp: [Transactional outbox pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
 
 ## 14. Kế hoạch đo lường và thực nghiệm
 
@@ -502,13 +529,14 @@ Các nguồn dưới đây dùng để kiểm chứng cơ chế kỹ thuật, kh
 3. Cache đọc tác động tới năng lực đặt đơn ra sao khi API đọc cùng dùng database?
 4. Rate limiting giảm lỗi/timeout và giúp hệ thống hồi phục ra sao khi tải vượt năng lực?
 5. Các cải tiến có duy trì tất cả bất biến nghiệp vụ trong retry, thanh toán lặp và tranh chấp hết hạn không?
+6. RabbitMQ có giảm công việc đồng bộ trong API khi tạo thông báo đơn không, và queue có xử lý kịp lượng sự kiện tạo ra?
 
 ### 14.2. Các phiên bản so sánh
 
 | Phiên bản | Cấu hình | Mục đích |
 |---|---|---|
 | E0 | 1 API instance, baseline đúng nghiệp vụ; cache chưa bật, bảo vệ tải ở mức không ảnh hưởng tải đo | Mốc so sánh; không cố tình tạo lỗi tồn hoặc code chậm giả |
-| E1 | E0 + thay đổi transaction/truy vấn/pool có bằng chứng | Đo lợi ích xử lý đặt đơn trước tăng instance |
+| E1 | E0 + transactional outbox, RabbitMQ và worker tạo hộp thông báo; sau đó đo riêng các thay đổi transaction/truy vấn/pool | Đo độ trễ checkout và thời gian giao thông báo khi cùng feature chuyển từ ghi trực tiếp sang xử lý bất đồng bộ |
 | E2 | E1 + 2 hoặc nhiều API instance sau load balancer | Đo khả năng scaling và giới hạn tại DB/khóa |
 | E3 | E2 + cache đọc | Đo workload hỗn hợp đọc và đặt đơn |
 | E4 | E3 + chính sách giới hạn tải được cấu hình | Đo hành vi khi quá tải và hồi phục |
@@ -528,6 +556,7 @@ Nếu một nhóm thay đổi gồm nhiều yếu tố, ghi rõ và dùng phép 
 | LOAD-07 | Callback thành công cùng lúc hủy/hết hạn; nhiều worker | Kiểm chứng quyền kết thúc reservation duy nhất |
 | LOAD-08 | Ngắt/khởi động lại API hoặc worker; Redis lỗi | Kiểm chứng khôi phục và phụ thuộc dùng chung |
 | LOAD-09 | Tải vượt năng lực rồi giảm về bình thường | Đo từ chối sớm, backlog và thời gian hồi phục |
+| LOAD-10 | Nhiều đơn liên tục khi RabbitMQ/consumer chậm hoặc tạm dừng | Đo độ trễ checkout, lượng outbox/queue tồn, thời gian thông báo tới khách và khả năng gửi bù sau phục hồi |
 
 Tỷ lệ đọc/ghi, phân bố SKU, số dòng và số lượng/dòng phải công bố theo từng bài đo; không coi một tỷ lệ giả định là hành vi khách hàng đã được xác thực.
 
@@ -550,6 +579,7 @@ Tỷ lệ đọc/ghi, phân bố SKU, số dòng và số lượng/dòng phải 
 | Tài nguyên | CPU, RAM và dấu hiệu bất thường của API, DB, Redis, gateway, worker và generator |
 | Giải phóng quá hạn | Khoảng từ hạn đơn đến lúc reservation được trả; số đơn đang quá hạn chưa xử lý |
 | Vi phạm nghiệp vụ | Số vi phạm từng INV; bắt buộc bằng 0 trong bộ kiểm thử nghiệm thu |
+| Thông báo đơn | Thời gian từ lúc đơn đổi trạng thái tới lúc notification xuất hiện; outbox cũ nhất; RabbitMQ messages_ready/messages_unacknowledged; retry và dead-letter |
 
 ### 14.5. Điều kiện so sánh công bằng
 
@@ -563,7 +593,8 @@ Tỷ lệ đọc/ghi, phân bố SKU, số dòng và số lượng/dòng phải 
 8. Bài đo năng lực xử lý dùng đủ tồn trong cửa sổ đo; bài đo khan hiếm kiểm chứng tranh mua và được báo cáo riêng.
 9. Theo dõi generator; nếu không phát đủ tải phải ghi nhận và điều chỉnh có căn cứ, không coi tải cấu hình là tải thực tế.
 10. Chờ worker xử lý tới hạn theo cửa sổ quy định, rồi chạy kiểm tra tồn/quota/reservation/đơn và đối chiếu nhật ký.
-11. Lưu cấu hình, commit/phiên bản, dữ liệu gốc và kết quả kiểm tra; kết luận chỉ áp dụng trong điều kiện đã đo.
+11. Khi so sánh thông báo trực tiếp với RabbitMQ, giữ nguyên workload và tài nguyên; ghi cấu hình consumer/prefetch, tuổi outbox, queue ready/unacked, retry/DLQ và thời gian thông báo tới khách.
+12. Lưu cấu hình, commit/phiên bản, dữ liệu gốc và kết quả kiểm tra; kết luận chỉ áp dụng trong điều kiện đã đo.
 
 ### 14.6. Mục tiêu hiệu năng, chưa phải SLA
 
@@ -573,6 +604,7 @@ Tỷ lệ đọc/ghi, phân bố SKU, số dòng và số lượng/dòng phải 
 | Lỗi hệ thống | < 1% tại tải tham chiếu; timeout vẫn được tính | Không thay thế yêu cầu bất biến |
 | Trả reservation quá hạn | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu | Đo riêng sự cố worker và quá trình khôi phục |
 | Throughput | Xác định từ baseline và điểm bão hòa; chưa đặt số request/giây cố định | Báo kết quả đo, không tự đặt ngưỡng trước E0 |
+| Thông báo đơn | Đo thời gian giao thông báo và khả năng xử lý lượng event tạo ra tại tải tham chiếu | Chốt ngưỡng sau thử nghiệm E0/E1; broker hỏng có thể làm thông báo trễ nhưng outbox phải được gửi bù |
 | Hiệu quả tối ưu | Cải thiện có thể lặp lại về năng lực hoặc độ trễ ở điều kiện tương đương; giải thích trường hợp không cải thiện | Bắt buộc có dữ liệu; chưa cam kết tỷ lệ phần trăm |
 
 Các mục tiêu cố định không đủ để tuyên bố hệ thống đã đạt nếu thiếu tải tham chiếu, cấu hình, thời lượng và quy tắc tính mẫu trong báo cáo nghiệm thu.
@@ -608,13 +640,18 @@ Các mục tiêu cố định không đủ để tuyên bố hệ thống đã �
 | TEST-23 | Rate limit và retry | Từ chối không giữ hàng; retry đúng khóa; ngưỡng không nhân theo replica | PERF-06; INV-04, INV-05 |
 | TEST-24 | Khách A truy cập dữ liệu B hoặc API quản trị | Bị từ chối, không thay đổi hoặc lộ dữ liệu | FR-003; NFR-05 |
 | TEST-25 | Sửa giỏ trong lúc đơn cũ đang thanh toán | Đơn giữ bản chụp; kết quả thanh toán không xóa nhầm giỏ hiện tại | FR-023; BR-13 |
+| TEST-26 | Đơn đổi trạng thái và hộp thông báo | Chủ đơn xem được thông báo; khách khác không xem được; cùng event ID chỉ tạo một bản ghi | FR-047, FR-049; BR-46, BR-49 |
+| TEST-27 | RabbitMQ dừng sau khi checkout lưu đơn | Đơn vẫn được tạo đúng; outbox còn chờ và thông báo được gửi sau khi broker phục hồi | FR-048, FR-049; BR-47, BR-48 |
+| TEST-28 | Consumer dừng sau khi ghi thông báo nhưng trước ACK | RabbitMQ có thể giao lại message nhưng PostgreSQL chỉ có một notification theo event ID | FR-049; BR-49 |
+| TEST-29 | Consumer gặp message lỗi liên tục | Retry có giới hạn; message lỗi được chuyển dead-letter và người vận hành tra cứu được | FR-049; BR-49 |
 
 Các test tiền/tồn cần kiểm chứng trực tiếp dữ liệu sau thực thi và trường hợp chạy đồng thời, không chỉ kiểm tra HTTP status. Bộ test và dữ liệu phải chạy lại được; không yêu cầu một framework kiểm thử cụ thể.
 
 ### 15.2. Điều kiện nghiệm thu sản phẩm
 
 - Hoàn thành các chức năng P0, luồng demo và các chức năng P1 còn trong phạm vi bản chốt.
-- TEST-01 đến TEST-25 có kết quả kiểm chứng; không phát hiện vi phạm INV-01 đến INV-12 trong bộ test đã chạy.
+- TEST-01 đến TEST-29 có kết quả kiểm chứng; không phát hiện vi phạm INV-01 đến INV-12 trong bộ test đã chạy.
+- TEST-26 đến TEST-29 chứng minh hộp thông báo riêng tư, xử lý message lặp an toàn, giữ outbox khi RabbitMQ hỏng và cách tra cứu message lỗi.
 - Cả hai luồng quản trị và khách hàng được kiểm chứng tích hợp; các tính năng UI được kiểm chứng bằng trình duyệt.
 - Có E0 và các phép đo tương ứng hướng tối ưu; ít nhất có so sánh một và nhiều API instance.
 - Báo cáo phân biệt request, đơn tạo mới, replay, đơn xác nhận, từ chối nghiệp vụ, từ chối tải và lỗi hệ thống.
@@ -631,7 +668,7 @@ Các test tiền/tồn cần kiểm chứng trực tiếp dữ liệu sau thực
 | Giao diện demo | Luồng khách và quản trị đủ chứng minh nghiệp vụ |
 | Tài liệu sản phẩm/API | PRD cập nhật, tài liệu kiến trúc và đặc tả API ở giai đoạn triển khai |
 | Dữ liệu | Danh mục/SKU/chương trình/tài khoản demo và bộ dữ liệu benchmark có thể tạo lại |
-| Kiểm thử | Kịch bản và kiểm chứng nghiệp vụ, đồng thời, lỗi thanh toán và khôi phục |
+| Kiểm thử | Kịch bản và kiểm chứng nghiệp vụ, đồng thời, lỗi thanh toán/RabbitMQ và khôi phục |
 | Báo cáo | Điều kiện đo, dữ liệu gốc, bảng so sánh, phân tích điểm nghẽn, kết luận và giới hạn |
 
 ## 16. Kế hoạch 12 tuần, phụ thuộc và rủi ro
@@ -643,8 +680,8 @@ Các test tiền/tồn cần kiểm chứng trực tiếp dữ liệu sau thực
 | 1–2 | Chốt PRD, vòng đời đơn/giữ hàng, quota, API và thiết kế thực nghiệm | Quy tắc quan trọng không mâu thuẫn; dữ liệu và các test đồng thời được xác định |
 | 3–4 | Tài khoản, catalog, SKU/tồn, flash sale, giỏ và xem trước | Tạo được cửa hàng/chương trình và giỏ demo; có kiểm tra giá/điều kiện |
 | 5–6 | Checkout nguyên tử, idempotency, thanh toán mô phỏng, hủy/hết hạn và giao diện cơ bản | Luồng mua đầu-cuối hoạt động; các test P0 tiền/tồn qua; hình thành baseline E0 |
-| 7–8 | Đo điểm nghẽn; transaction/truy vấn/pool; nhiều API instance | Có E1/E2 và kiểm chứng lại bất biến; xác định giới hạn tăng instance |
-| 9 | Cache đọc, giới hạn tải, tình huống worker/Redis và đo tải hỗn hợp | Có E3/E4 hoặc kết luận có căn cứ; hoàn thiện bộ tình huống lỗi |
+| 7–8 | Đo E0; thêm RabbitMQ cho hộp thông báo; tối ưu transaction/truy vấn/pool và nhiều API instance | Có E1/E2; checkout không chờ broker; kiểm chứng thông báo và bất biến |
+| 9 | Cache đọc, giới hạn tải, RabbitMQ outage, worker/Redis và đo tải hỗn hợp | Có E3/E4 hoặc kết luận có căn cứ; ghi backlog và thời gian phục hồi queue |
 | 10–11 | Chạy các phép đo lặp, phân tích, hoàn thiện demo và tài liệu | Kết quả có thể tái lập; báo cáo không trộn kết quả nghiệp vụ và lỗi |
 | 12 | Nghiệm thu tích hợp, hoàn thiện báo cáo và bàn giao | Đạt mục 15; ghi rõ hạn chế và quyết định còn lại |
 
@@ -654,6 +691,7 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 
 - Môi trường chạy database, cache, nhiều API instance và load generator có tài nguyên được công bố.
 - Bộ mô phỏng thanh toán có thể kiểm soát delay, retry và định danh sự kiện.
+- RabbitMQ và Go client `amqp091-go` chạy trong Docker Compose; queue, retry và dead-letter có thể kiểm chứng tại lab.
 - Cấu hình tải tham chiếu và ngân sách pool được ghi trước phép đo cuối; thời hạn và giới hạn giỏ/mua dùng các quyết định tại mục 17.2.
 - Bản baseline đúng nghiệp vụ phải hoàn thành trước các phép so sánh.
 
@@ -667,6 +705,7 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 | Cache miss/Redis lỗi dồn tải DB | Tải đọc làm checkout chậm | Fallback có giới hạn, TTL hợp lý, phép đo hỗn hợp và kiểm soát tải |
 | Tăng pool theo từng replica | Database hết kết nối | Tính ngân sách tổng, đo chờ pool và giữ cấu hình trong báo cáo |
 | Quy tắc hết hạn không nhất quán | Xác nhận đơn đã trả hàng | Nguồn thời gian có thẩm quyền, guard trạng thái/thời hạn và TEST-15/16 |
+| RabbitMQ hoặc notification worker dừng | Notification tới trễ; backlog tăng và tốn tài nguyên khi gửi bù | Ghi event trong PostgreSQL outbox, giới hạn retry/prefetch và đo oldest event age; checkout không phụ thuộc broker |
 | Giới hạn sản phẩm mở rộng thành sàn thương mại | Không đủ 12 tuần cho tối ưu và báo cáo | Bảo vệ mục 4.3; thay đổi phạm vi phải có đánh giá ảnh hưởng |
 | Mục tiêu tải vượt tài nguyên lab | Không thể kết luận năng lực sản phẩm tổng quát | Chốt cấu hình/tải tham chiếu sau baseline, báo giới hạn thay vì suy rộng |
 
@@ -700,6 +739,7 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 | DEC-13 | Giao diện | React + Vite |
 | DEC-14 | Mục tiêu hiệu năng | p95 checkout ≤ 500 ms, p99 ≤ 1.000 ms tại tải tham chiếu; lỗi hệ thống < 1% |
 | DEC-15 | Chậm giải phóng | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu |
+| DEC-16 | Hộp thông báo trạng thái đơn | Feature P1; RabbitMQ xử lý bất đồng bộ qua PostgreSQL outbox; PostgreSQL vẫn quyết định trạng thái đơn |
 
 ### 17.3. Chi tiết còn mở
 
@@ -707,6 +747,7 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 |---|---|---|
 | OPEN-01 | Tải và cấu hình tham chiếu | Ghi sau baseline E0; không thay đổi các mục tiêu DEC-14 và DEC-15 nếu không qua quy trình thay đổi |
 | OPEN-02 | Cách đối soát thanh toán muộn | Đề xuất chỉ xem bằng chứng/ghi chú, không tự hồi sinh đơn hay hoàn tiền; quyết định trước nghiệm thu thanh toán |
+| OPEN-03 | Thời gian giao thông báo tại tải tham chiếu | Đo E0/E1 rồi chốt mục tiêu từ dữ liệu; thông báo có thể trễ khi broker tạm ngừng nhưng event không được mất |
 
 ### 17.4. Quy tắc quản lý thay đổi phạm vi
 

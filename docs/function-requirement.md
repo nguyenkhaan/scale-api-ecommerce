@@ -89,11 +89,19 @@
 |---|---|---|---|
 | FR-042 | P0 | Đo và liên kết request, đơn, sự kiện | Theo dõi được thời gian xử lý, kết quả, instance và định danh; không ghi mật khẩu/token/bí mật vào log |
 | FR-043 | P0 | Xuất chỉ số nghiệp vụ và hạ tầng | Phân biệt đơn tạo, đơn xác nhận, thiếu hàng, quota/giới hạn mua, rate limit, timeout và lỗi hệ thống |
-| FR-044 | P1 | Giao diện demo của khách | React + Vite có danh sách/chi tiết, chọn SKU, giỏ, xem trước, đặt, thanh toán thử nghiệm, trạng thái đơn và lỗi theo dòng |
+| FR-044 | P1 | Giao diện demo của khách | React + Vite có danh sách/chi tiết, chọn SKU, giỏ, xem trước, đặt, thanh toán thử nghiệm, trạng thái đơn, hộp thông báo và lỗi theo dòng |
 | FR-045 | P1 | Giao diện demo của quản trị | Quản lý hàng/tồn/chương trình và xem đơn/đối soát đủ cho hành trình 8.1; không cần UI thương mại đầy đủ |
 | FR-046 | P0 | Hướng dẫn kiểm chứng và bàn giao | Có cách dựng môi trường, tạo dữ liệu, chạy các test P0, benchmark và đọc kết quả |
 
-### 9.10. Các nhóm thao tác API cần hỗ trợ
+### 9.10. Hộp thông báo trạng thái đơn
+
+| Mã | Ưu tiên | Yêu cầu | Tiêu chí nghiệm thu |
+|---|---|---|---|
+| FR-047 | P1 | Khách xem và đánh dấu thông báo đơn đã đọc | Chỉ xem thông báo thuộc tài khoản; có thông báo khi đơn được giữ, xác nhận, thất bại, hủy hoặc hết hạn; trạng thái đã đọc lưu trong PostgreSQL |
+| FR-048 | P1 | Lưu sự kiện đơn để gửi bất đồng bộ | Khi một trong các trạng thái trên đổi, cùng transaction PostgreSQL lưu một event vào outbox; RabbitMQ dừng không làm checkout mất đơn hoặc thất bại vì thông báo |
+| FR-049 | P1 | Gửi và xử lý sự kiện qua RabbitMQ an toàn | Publisher confirm trước khi đánh dấu event đã gửi; consumer ACK sau khi ghi notification; event ID chống trùng; retry hữu hạn rồi dead-letter |
+
+### 9.11. Các nhóm thao tác API cần hỗ trợ
 
 | Nhóm | Đầu vào nghiệp vụ chính | Kết quả nghiệp vụ chính |
 |---|---|---|
@@ -105,6 +113,7 @@
 | Đặt đơn | Tập dòng đã xác nhận, giá/tổng, người nhận, khóa idempotency | Đơn giữ đủ hàng hoặc lỗi toàn bộ lần đặt |
 | Tra cứu/hủy đơn | Mã đơn hoặc khóa đặt; thông tin xác thực | Trạng thái chính thức, chi tiết hoặc kết quả hủy |
 | Thanh toán | Mã đơn/phiên; sự kiện đã xác thực | Phiên thử nghiệm, kết quả ghi nhận và trạng thái đơn |
+| Hộp thông báo | Mã đơn; phân trang; trạng thái đã đọc | Chỉ trả notification của tài khoản hiện tại và cho phép đánh dấu đã đọc |
 | Quan sát | Quyền vận hành; khoảng thời gian | Chỉ số, nhật ký liên quan và bằng chứng kiểm thử |
 
 Đường dẫn, HTTP method, cấu trúc request/response và cơ chế xác thực cụ thể được chốt trong đặc tả API. Không đặt thông tin nội bộ database vào luồng người dùng.

@@ -2,7 +2,7 @@
 
 **Trạng thái:** Đã xác nhận
 
-**Ngày cập nhật:** 07/10/2026
+**Ngày cập nhật:** 11/10/2026
 
 Các quyết định dưới đây là cơ sở triển khai và nghiệm thu. Thay đổi phải cập nhật đồng thời PRD, kế hoạch, yêu cầu chức năng, user stories và test liên quan.
 
@@ -22,6 +22,7 @@ Các quyết định dưới đây là cơ sở triển khai và nghiệm thu. T
 | Xác thực | Session cookie an toàn; session lưu ở PostgreSQL để dùng được nhiều instance |
 | Frontend | React + Vite |
 | Mục tiêu hiệu năng | p95 checkout ≤ 500 ms, p99 ≤ 1.000 ms tại tải tham chiếu; lỗi hệ thống < 1% |
+| Thông báo đơn | Feature P1 qua RabbitMQ và PostgreSQL outbox; broker lỗi có thể làm thông báo trễ nhưng không làm checkout lỗi hoặc mất trạng thái đơn |
 | Chậm giải phóng | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu |
 
 Tải và cấu hình tham chiếu được ghi sau baseline E0; các mục tiêu hiệu năng trên không tự thay đổi theo baseline.
