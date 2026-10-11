@@ -8,10 +8,10 @@
 
 - [ ] **R02.1 — Tìm hiểu transaction và khóa PostgreSQL.** Đọc tài liệu [khóa hàng](https://www.postgresql.org/docs/current/explicit-locking.html), rồi vẽ thao tác đọc, khóa và ghi tồn. Khóa SKU theo cùng thứ tự để hai giỏ giao nhau ít deadlock hơn và không để lại reservation một phần.
 - [ ] **R02.2 — Thiết kế idempotency cho checkout.** Dùng unique constraint PostgreSQL để gắn idempotency key với tài khoản và nội dung đơn. Nếu khách mất response rồi retry, API trả kết quả cũ thay vì giữ hàng và tạo đơn thứ hai.
-- [ ] **R02.3 — Vẽ trạng thái đơn và thanh toán.** Dùng Mermaid/draw.io mô tả pending, confirmed, failed, canceled và expired. Sơ đồ giúp Go/Gin, payment callback và worker xử lý đúng khi sự kiện tới trễ hoặc nhiều việc cùng kết thúc một đơn.
+- [ ] **R02.3 — Vẽ trạng thái đơn và thanh toán.** Dùng Mermaid/draw.io mô tả pending, confirmed, failed, cancelled và expired. Sơ đồ giúp Go/Gin, payment callback và worker xử lý đúng khi sự kiện tới trễ hoặc nhiều việc cùng kết thúc một đơn.
 - [ ] **R02.4 — Chốt công thức tồn/quota.** Dùng PostgreSQL phân biệt on_hand, reserved, quota_reserved và quota_sold trước khi code. Công thức rõ ràng giúp callback, hủy và worker không cộng/trừ cùng một reservation hai lần.
 - [ ] **R02.5 — Tách timeout khỏi lỗi nghiệp vụ.** Dùng Go context và trạng thái UNKNOWN của payment simulator để xác định khi nào tra cứu kết quả. Mất kết nối không được hiểu nhầm thành hết hàng hoặc thanh toán thất bại.
-- [ ] **R02.6 — Chốt event của thông báo đơn.** Dùng trạng thái đơn trong PRD để chọn các event cần báo: order reserved, payment confirmed/failed, canceled và expired. Event này phục vụ hộp thông báo khách; nó không được dùng thay trạng thái chính thức trong PostgreSQL.
+- [ ] **R02.6 — Chốt event của thông báo đơn.** Thống nhất năm loại event: `order.created` (đơn đã tạo và giữ hàng), `order.confirmed`, `order.failed`, `order.cancelled` và `order.expired`. Event chỉ phục vụ hộp thông báo khách; nó không được dùng thay trạng thái chính thức trong PostgreSQL.
 
 ## Việc triển khai
 

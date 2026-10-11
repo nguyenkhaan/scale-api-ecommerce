@@ -21,6 +21,7 @@ Các quyết định dưới đây là cơ sở triển khai và nghiệm thu. T
 | Giới hạn giỏ | Tối đa 20 SKU; số lượng theo cấu hình SKU/chương trình |
 | Xác thực | Session cookie an toàn; session lưu ở PostgreSQL để dùng được nhiều instance |
 | Frontend | React + Vite |
+| Triển khai cloud | Azure Kubernetes Service (AKS); lab và baseline vẫn dùng Docker Compose; AKS không mặc định bao gồm autoscaling hoặc HA production |
 | Mục tiêu hiệu năng | p95 checkout ≤ 500 ms, p99 ≤ 1.000 ms tại tải tham chiếu; lỗi hệ thống < 1% |
 | Thông báo đơn | Feature P1 qua RabbitMQ và PostgreSQL outbox; broker lỗi có thể làm thông báo trễ nhưng không làm checkout lỗi hoặc mất trạng thái đơn |
 | Chậm giải phóng | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu |

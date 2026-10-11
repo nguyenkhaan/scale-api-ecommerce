@@ -4,7 +4,7 @@
 
 | Thuộc tính | Nội dung |
 |---|---|
-| Phiên bản | 1.2 — Bổ sung hộp thông báo trạng thái đơn qua RabbitMQ |
+| Phiên bản | 1.4 — Chuyển môi trường cloud mục tiêu sang Azure AKS |
 | Ngày cập nhật | 11/10/2026 |
 | Sản phẩm | SaleScale |
 | Đề tài đồ án | Tối ưu hóa tầng API trong hệ thống Flash Sale phân tán sử dụng Go và Gin |
@@ -15,6 +15,7 @@
 | Công nghệ người dùng đã chọn | Go, Gin |
 | Công nghệ giao diện đã chọn | React, Vite |
 | Công nghệ đề xuất cho thực nghiệm | PostgreSQL, Redis, NGINX, k6 |
+| Công nghệ triển khai cloud | Azure Kubernetes Service (AKS); Docker Compose vẫn dùng cho local và baseline |
 | Đầu ra | Backend, giao diện demo tối thiểu, tài liệu API, kiểm thử nghiệp vụ và báo cáo trước/sau tối ưu |
 
 **Cách đọc trạng thái quyết định:**
@@ -115,6 +116,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 | SCOPE-06 | Đặt đơn đồng thời là trọng tâm; cache đọc sản phẩm hỗ trợ | Đã xác nhận |
 | SCOPE-07 | Go và Gin; 12 tuần, 2 người | Đã xác nhận |
 | SCOPE-08 | Hộp thông báo trạng thái đơn dùng RabbitMQ; checkout vẫn đồng bộ với PostgreSQL | Đã xác nhận theo yêu cầu mở rộng đồ án |
+| SCOPE-09 | Bản triển khai cloud mục tiêu dùng Azure Kubernetes Service (AKS); lab và baseline vẫn dùng Docker Compose | Đã xác nhận |
 
 ### 4.2. Chức năng bắt buộc của bản MVP
 
@@ -145,7 +147,7 @@ Không xây vai trò người bán độc lập, cộng tác viên, nhân viên 
 - Theo dõi giao vận, đổi trả sau mua, kế toán, hóa đơn điện tử hoặc tính thuế phức tạp.
 - Chỉnh sửa/hủy đơn đã thanh toán để trả hàng tự động trong MVP.
 - Đánh giá sản phẩm, chat, gợi ý cá nhân hóa, ứng dụng di động hoặc giao diện thương mại hoàn chỉnh.
-- Kubernetes, tự động scale theo cloud, chia nhiều microservice, sharding hoặc nghiên cứu HA cho database.
+- Tự động scale theo cloud, chia nhiều microservice, sharding hoặc nghiên cứu HA cho database; AKS chỉ là nền tảng orchestration của bản cloud mục tiêu.
 - Đưa toàn bộ checkout vào hàng đợi rồi trả kết quả đặt đơn về sau.
 - Email, SMS, push notification hoặc nền tảng sự kiện dùng chung cho nhiều sản phẩm; MVP chỉ có hộp thông báo trạng thái đơn trong ứng dụng.
 - Chứng nhận sẵn sàng production hoặc cam kết SLA thương mại dựa trên benchmark đồ án.
@@ -447,7 +449,7 @@ Phản hồi lỗi có định danh request, mã có thể xử lý bằng chư�
 | NFR-08 | Khôi phục | Worker hết hạn có thể chạy lại, xử lý theo lô hữu hạn và không nhân đôi tác động; có test ngắt/khởi động lại tiến trình |
 | NFR-09 | Tài nguyên | Phân trang và giới hạn giỏ/payload; pool, thời gian chờ, goroutine và retry có giới hạn được công bố |
 | NFR-10 | Quan sát | Có số liệu endpoint, kết quả nghiệp vụ, lỗi, tài nguyên và định danh liên kết; không dùng order ID/user ID làm nhãn metrics gây tăng số chuỗi không giới hạn |
-| NFR-11 | Triển khai | Có cấu hình và hướng dẫn tái lập 1/nhiều API instance; migration và dữ liệu demo có thể dựng lại; không trộn dữ liệu benchmark vào cửa hàng khác |
+| NFR-11 | Triển khai | Có Docker Compose để tái lập baseline và cấu hình AKS cho cloud target với 1/nhiều API pod; migration và dữ liệu demo có thể dựng lại; không trộn dữ liệu benchmark vào cửa hàng khác |
 | NFR-12 | Giao diện | Demo rõ tổng tiền, SKU, hạn và trạng thái; nút gửi bị khóa lúc chờ giúp giảm click lặp nhưng không thay thế idempotency backend |
 | NFR-13 | Kiểm chứng | Thay đổi nghiệp vụ tiền/tồn có kiểm thử có thể chạy; nghiệm thu frontend bằng trình duyệt; không áp tiêu chí typecheck của ngôn ngữ khác vào Go |
 | NFR-14 | Thông báo bất đồng bộ | Sự kiện trạng thái đơn được lưu trong PostgreSQL trước khi gửi; RabbitMQ lỗi không chặn checkout; consumer chịu được message giao lại và ghi tối đa một thông báo cho mỗi event ID |
@@ -458,25 +460,9 @@ NFR-02 không đồng nghĩa đã nghiên cứu database HA hoặc bảo đảm 
 
 ### 13.1. Kiến trúc định hướng
 
-```mermaid
-flowchart LR
-    C[Khách và giao diện demo] --> G[NGINX: cổng vào và cân bằng tải]
-    G --> A1[API Go + Gin: instance 1]
-    G --> A2[API Go + Gin: instance 2 hoặc nhiều hơn]
-    A1 --> D[(PostgreSQL: dữ liệu nghiệp vụ)]
-    A2 --> D
-    A1 --> R[(Redis: cache đọc)]
-    A2 --> R
-    W[Worker hết hạn và outbox] --> D
-    W --> Q[RabbitMQ: thông báo trạng thái đơn]
-    Q --> NW[Notification worker]
-    NW --> D
-    A1 --> P[Bộ thanh toán thử nghiệm]
-    A2 --> P
-    P --> G
-```
+Sơ đồ công nghệ cloud mục tiêu, vai trò từng khối và giới hạn triển khai được duy trì tại [architecture.md](architecture.md). Quyết định chọn AKS được ghi tại [ADR-002](decisions/002-use-aks-for-cloud-target.md).
 
-Một ứng dụng backend chia module tài khoản, catalog, chương trình, giỏ, đơn, tồn và thanh toán; không bắt buộc chia thành dịch vụ độc lập. Worker hết hạn và outbox publisher dùng cùng mã Go với API nhưng chạy thành tiến trình nền; notification worker tiêu thụ message từ RabbitMQ rồi ghi thông báo vào PostgreSQL. RabbitMQ chỉ phục vụ thông báo trạng thái đơn, không nằm trên đường quyết định checkout. Đây là các tiến trình trong cùng ứng dụng, không phải microservice nghiệp vụ riêng.
+Một ứng dụng backend chia module tài khoản, catalog, chương trình, giỏ, đơn, tồn và thanh toán; không bắt buộc chia thành dịch vụ độc lập. Hai backend instance Go/Gin chạy trong AKS, cùng dùng PostgreSQL primary và Redis. Worker và RabbitMQ vẫn thuộc kiến trúc nhưng được tách khỏi sơ đồ tổng quan để mô tả trong sơ đồ luồng chi tiết.
 
 ### 13.2. Danh sách hướng tối ưu bắt buộc đánh giá
 
@@ -740,6 +726,7 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 | DEC-14 | Mục tiêu hiệu năng | p95 checkout ≤ 500 ms, p99 ≤ 1.000 ms tại tải tham chiếu; lỗi hệ thống < 1% |
 | DEC-15 | Chậm giải phóng | 95% reservation được giải phóng trong 30 giây sau hạn tại tải tham chiếu |
 | DEC-16 | Hộp thông báo trạng thái đơn | Feature P1; RabbitMQ xử lý bất đồng bộ qua PostgreSQL outbox; PostgreSQL vẫn quyết định trạng thái đơn |
+| DEC-17 | Triển khai cloud | Azure AKS; NGINX Gateway Fabric đứng sau Azure Standard Load Balancer; Docker Compose vẫn là lab/baseline |
 
 ### 17.3. Chi tiết còn mở
 
@@ -757,7 +744,7 @@ Việc bổ sung marketplace, nhiều doanh nghiệp chung nền tảng, thanh t
 
 ### 17.5. Checklist chốt dự án
 
-- [ ] Xác nhận phạm vi SCOPE-01 đến SCOPE-07 và danh sách ngoài phạm vi.
+- [ ] Xác nhận phạm vi SCOPE-01 đến SCOPE-09 và danh sách ngoài phạm vi.
 - [ ] Rà soát các quy tắc BR, vòng đời đơn và quy ước tồn/quota.
 - [ ] Ghi tải/cấu hình tham chiếu tại OPEN-01 sau E0 và trước benchmark cuối.
 - [ ] Quyết định OPEN-02 trước nghiệm thu thanh toán.

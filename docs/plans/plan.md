@@ -17,7 +17,7 @@
 
 Xây backend flash sale đúng nghiệp vụ trước, rồi đo từng thay đổi để biết cách nào tăng số đơn hợp lệ hoặc giảm thời gian phản hồi. Mỗi phase kết hợp đọc tài liệu công nghệ với thực nghiệm trên SaleScale; kết quả có thể dùng để giải thích lựa chọn kiến trúc khi báo cáo.
 
-Dùng Go/Gin cho API; React/Vite cho giao diện demo; PostgreSQL làm nguồn dữ liệu chính cho tài khoản, giá, tồn, đơn và trạng thái thanh toán; Redis làm bản sao đọc nhanh cho danh sách sản phẩm công khai; NGINX làm cổng nhận request, chia tải và giới hạn request; k6 tạo tải thử. RabbitMQ phục vụ một feature backend cụ thể: chuyển sự kiện trạng thái đơn sang worker để ghi vào hộp thông báo khách hàng mà không bắt checkout chờ việc này. Payment simulator tạo kết quả thanh toán thử nghiệm; worker Go xử lý đơn hết hạn và gửi outbox event.
+Dùng Go/Gin cho API; React/Vite cho giao diện demo; PostgreSQL làm nguồn dữ liệu chính cho tài khoản, giá, tồn, đơn và trạng thái thanh toán; Redis làm bản sao đọc nhanh cho danh sách sản phẩm công khai; NGINX làm cổng nhận request, chia tải và giới hạn request; k6 tạo tải thử. RabbitMQ phục vụ một feature backend cụ thể: chuyển sự kiện trạng thái đơn sang notification worker để ghi vào hộp thông báo khách hàng mà không bắt checkout chờ việc này. Payment simulator tạo kết quả thanh toán thử nghiệm; expiry worker xử lý đơn hết hạn, còn outbox publisher gửi các event đã commit.
 
 RabbitMQ không quyết định đơn có được tạo, thanh toán, hủy hay hết hạn. Trạng thái đơn và sự kiện cần gửi được lưu trong PostgreSQL; nếu RabbitMQ dừng, checkout vẫn trả kết quả DB và thông báo sẽ tới sau khi worker gửi lại event.
 
@@ -57,20 +57,25 @@ E0 có hộp thông báo để so sánh cùng một feature về sau, nhưng ch�
                   |    |       |          ^
                   +--> Redis (catalog)   |
                                           |
-    Worker hết hạn + outbox publisher ----+
-                  |
-                  v
-              RabbitMQ (order status events)
-                  |
-                  v
-          Notification worker
-                  |
-                  +---------------------> PostgreSQL (hộp thông báo)
+    Expiry worker -----------------------> PostgreSQL
+                                             |
+                                      PostgreSQL outbox
+                                             |
+                                             v
+                                     Outbox publisher
+                                             |
+                                             v
+                                  RabbitMQ (order status events)
+                                             |
+                                             v
+                                   Notification worker
+                                             |
+                                             +--> PostgreSQL (hộp thông báo)
 
     Payment simulator --HTTP--> API/NGINX
     k6 --> tải; Prometheus --> chỉ số; Grafana --> biểu đồ
 
-CDN chỉ phục vụ file tĩnh và request GET công khai có header cache phù hợp. Nếu lab không có CDN thật, thử NGINX proxy_cache và ghi rõ đây không mô phỏng khoảng cách mạng hay nhiều khu vực. Không cần dịch vụ trả phí. Không đưa Kubernetes, microservice, sharding, database HA hay thanh toán thật vào phạm vi.
+Sơ đồ cloud tổng quan được duy trì tại [kiến trúc mục tiêu](../architecture.md): Cloudflare đi qua Azure Standard Load Balancer và NGINX Gateway Fabric tới hai backend instance Go/Gin trong AKS; hai instance dùng chung Azure Database for PostgreSQL, Upstash Redis và Cloudflare R2. Expiry worker, outbox publisher và notification worker chạy bằng Deployment riêng; RabbitMQ cloud demo chạy một node nội bộ bằng StatefulSet/PVC, không nằm trong pod backend và không được coi là HA. Lab và các baseline E0–E4 vẫn chạy bằng Docker Compose để tái lập được.
 
 ## Công nghệ gắn với chức năng backend
 
@@ -81,6 +86,7 @@ CDN chỉ phục vụ file tĩnh và request GET công khai có header cache ph�
 | Redis/go-redis | Cache GET catalog công khai | Giảm truy vấn đọc DB; xác nhận checkout luôn đọc giá/tồn từ PostgreSQL |
 | RabbitMQ/amqp091-go | Chuyển order status event tới notification worker | Tách ghi thông báo khỏi checkout; đo độ trễ giao thông báo, backlog, retry và phục hồi broker |
 | NGINX | Reverse proxy, chia tải API và rate limit | Đo 1→N API, cách chia request, keepalive, timeout và hành vi khi một API dừng |
+| AKS/Azure Standard Load Balancer | Chạy cloud target với hai API replica và các worker tách biệt | Smoke test đường vào L4 → NGINX L7; báo riêng kết quả cloud, không dùng AKS thay baseline local |
 | CDN hoặc NGINX proxy_cache | File tĩnh và GET catalog công khai | Đo khả năng giảm lượt đọc; kiểm tra không lưu giỏ, đơn, tài khoản hay thông báo riêng |
 | k6 | Tải đủ hàng, SKU nóng, cache và broker chậm | Phát cùng workload để so sánh các kiến trúc trong điều kiện cố định |
 | Prometheus/Grafana | Chỉ số request, DB, Redis, RabbitMQ, worker và hạ tầng | Tìm nơi đang nghẽn trước khi tăng pool, số API hoặc CPU/RAM |
@@ -94,7 +100,8 @@ CDN chỉ phục vụ file tĩnh và request GET công khai có header cache ph�
 | API ↔ PostgreSQL | pgxpool | Checkout, session, đơn và notification inbox; thời gian chờ pool, query, khóa và transaction |
 | API ↔ Redis | go-redis | GET catalog; thời gian Redis, hit/miss và thời gian fallback DB |
 | API ↔ payment simulator | Go net/http Transport | Mở phiên và nhận kết quả thanh toán; thời gian chờ kết nối, timeout và reuse |
-| Order worker ↔ PostgreSQL/RabbitMQ | pgxpool, amqp091-go | Trả hàng hết hạn và gửi outbox event; số event chờ, confirm và lỗi publish |
+| Expiry worker ↔ PostgreSQL | pgxpool | Trả hàng hết hạn theo lô; thời gian trễ, lock và số reservation được giải phóng |
+| Outbox publisher ↔ PostgreSQL/RabbitMQ | pgxpool, amqp091-go | Đọc event đã commit và publish; số event chờ, publisher confirm và lỗi publish |
 | RabbitMQ ↔ notification worker ↔ PostgreSQL | AMQP consumer, pgxpool | Ghi thông báo cho khách; ACK, prefetch, event trùng, backlog và độ trễ giao |
 
 Các module trong Go gọi nhau trực tiếp trong cùng tiến trình; không tách thành dịch vụ riêng. Payment simulator là lời gọi HTTP bên ngoài. RabbitMQ chỉ được thêm cho feature hộp thông báo, không chuyển quyết định giữ hàng hoặc thanh toán vào queue.
@@ -138,7 +145,7 @@ Dùng upstream keepalive để tái sử dụng kết nối rảnh tới API; đ
 | 7–8 | 04 | RabbitMQ/outbox, các pool và kết quả E1 |
 | 8–9 | 05 | NGINX, nhiều API và kết quả E2 |
 | 9–10 | 06 | Redis/CDN và kết quả E3 |
-| 10–11 | 07 | Quá tải, lỗi dịch vụ, queue recovery và tăng tài nguyên |
+| 10–11 | 07 | Quá tải, queue recovery, tăng tài nguyên và cloud smoke test trên AKS |
 | 12 | 08 | Báo cáo, demo, hướng dẫn tái lập và bảo vệ |
 
 Đồ án hoàn thành khi P0 chạy đúng; TEST-01..29 có bằng chứng; INV-01..12 không vi phạm trong các kịch bản đã chạy; có E0/E1/E2 và kết quả E3/E4/I1 hoặc ghi rõ giới hạn. Báo cáo phải tách request, đơn hợp lệ, lỗi nghiệp vụ, lỗi hệ thống, 429, backlog RabbitMQ và độ trễ thông báo. Không kết luận hệ thống mở rộng tuyến tính, sẵn sàng production hay đạt SLA nếu chưa kiểm chứng ngoài cấu hình lab.
