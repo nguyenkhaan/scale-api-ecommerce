@@ -1,0 +1,16 @@
+# Dependencies and build output
+node_modules
+dist
+dist-ssr
+
+# Environment overrides
+.env
+.env.local
+*.local
+
+# Logs and editor files
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
