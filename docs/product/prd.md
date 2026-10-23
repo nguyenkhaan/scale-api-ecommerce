@@ -4,8 +4,8 @@
 
 | Thuộc tính | Nội dung |
 |---|---|
-| Phiên bản | 1.4 — Chuyển môi trường cloud mục tiêu sang Azure AKS |
-| Ngày cập nhật | 11/10/2026 |
+| Phiên bản | 1.5 — Hợp nhất research và khởi tạo hợp đồng SDD |
+| Ngày cập nhật | 18/10/2026 |
 | Sản phẩm | SaleScale |
 | Đề tài đồ án | Tối ưu hóa tầng API trong hệ thống Flash Sale phân tán sử dụng Go và Gin |
 | Thời gian và nhân sự | 12 tuần, 2 người |
@@ -24,7 +24,17 @@
 - **Đề xuất MVP:** quy tắc bổ sung để tài liệu đủ cụ thể cho thiết kế và nghiệm thu; chưa phải xác nhận của chủ sản phẩm.
 - **Cần chốt:** chi tiết còn mở ngoài các quyết định đã xác nhận; được tập hợp tại mục 17.3.
 
-Các quyết định tại mục 17.2 là cơ sở triển khai và nghiệm thu. Khi có thay đổi, phải cập nhật quy tắc liên quan, tiêu chí nghiệm thu và kịch bản kiểm thử cùng nhau. Tài liệu này xác định sản phẩm và hành vi cần đạt; thiết kế bảng dữ liệu, cấu trúc mã nguồn và hợp đồng API chi tiết thuộc tài liệu triển khai sau đó.
+Các quyết định tại mục 17.2 là cơ sở triển khai và nghiệm thu. Khi có thay đổi, phải cập nhật quy tắc liên quan, tiêu chí nghiệm thu và kịch bản kiểm thử cùng nhau. Tài liệu này xác định sản phẩm và hành vi cần đạt; thiết kế bảng dữ liệu, cấu trúc mã nguồn và hợp đồng API chi tiết thuộc các tài liệu kỹ thuật liên kết bên dưới.
+
+**Quyền tài liệu và thứ tự cập nhật:**
+
+1. PRD là nguồn sự thật cho mục tiêu, phạm vi, `BR`, `FR`, `INV`, `NFR`, `PERF`, `TEST` và quyết định sản phẩm.
+2. [Ma trận truy vết](../technical/traceability.md) nối yêu cầu với domain, schema, API và test; không tự tạo yêu cầu mới.
+3. [Mô hình miền](../technical/domain-model.md), [mô hình dữ liệu](../technical/data-model.md), [OpenAPI](../technical/api/openapi.yaml) và [test specification](../technical/testing.md) hiện thực hóa hợp đồng của PRD.
+4. [Project spec](../spec.md) quy định cách làm việc, commands, code style và boundaries; không được ghi đè nghiệp vụ.
+5. `docs/research/` là đầu vào và lịch sử nghiên cứu. Nội dung research chỉ có hiệu lực sau khi được hợp nhất vào PRD hoặc ADR được chấp nhận; cách xử lý các điểm mâu thuẫn hiện tại nằm tại mục 17.4.
+
+Khi thay đổi nghiệp vụ, cập nhật PRD và traceability trước, rồi cập nhật domain/schema/OpenAPI/test. Quyết định kiến trúc tốn kém nếu đảo ngược phải được ghi bằng ADR; xem [ADR-003](../decisions/003-document-authority.md).
 
 ## 1. Tóm tắt sản phẩm dành cho doanh nghiệp
 
@@ -460,7 +470,7 @@ NFR-02 không đồng nghĩa đã nghiên cứu database HA hoặc bảo đảm 
 
 ### 13.1. Kiến trúc định hướng
 
-Sơ đồ công nghệ cloud mục tiêu, vai trò từng khối và giới hạn triển khai được duy trì tại [architecture.md](architecture.md). Quyết định chọn AKS được ghi tại [ADR-002](decisions/002-use-aks-for-cloud-target.md).
+Sơ đồ công nghệ cloud mục tiêu, vai trò từng khối và giới hạn triển khai được duy trì tại [architecture.md](../technical/architecture.md). Quyết định chọn AKS được ghi tại [ADR-006](../decisions/006-aks-cloud-target.md).
 
 Một ứng dụng backend chia module tài khoản, catalog, chương trình, giỏ, đơn, tồn và thanh toán; không bắt buộc chia thành dịch vụ độc lập. Hai backend instance Go/Gin chạy trong AKS, cùng dùng PostgreSQL primary và Redis. Worker và RabbitMQ vẫn thuộc kiến trúc nhưng được tách khỏi sơ đồ tổng quan để mô tả trong sơ đồ luồng chi tiết.
 
@@ -736,13 +746,30 @@ Phân công gợi ý: một người phụ trách catalog/flash sale/giỏ và d
 | OPEN-02 | Cách đối soát thanh toán muộn | Đề xuất chỉ xem bằng chứng/ghi chú, không tự hồi sinh đơn hay hoàn tiền; quyết định trước nghiệm thu thanh toán |
 | OPEN-03 | Thời gian giao thông báo tại tải tham chiếu | Đo E0/E1 rồi chốt mục tiêu từ dữ liệu; thông báo có thể trễ khi broker tạm ngừng nhưng event không được mất |
 
-### 17.4. Quy tắc quản lý thay đổi phạm vi
+### 17.4. Hợp nhất tài liệu research
+
+Các tài liệu trong `docs/research/` giải thích quá trình hình thành ý tưởng nhưng có một số quyết định cũ. Bảng dưới đây ghi rõ cách xử lý để coding agent không tự chọn phiên bản thuận tiện hơn.
+
+| Mã | Nội dung research | Quyết định hiện hành | Xử lý |
+|---|---|---|---|
+| RES-01 | Reservation hết hạn sau 10 phút | 5 phút, lưu `expires_at`, retry không gia hạn | Thay thế bởi DEC-01, BR-25, FR-029 |
+| RES-02 | Session có thể dùng cookie hoặc JWT; Project Charter yêu cầu JWT | Opaque session cookie, session lưu PostgreSQL | Thay thế bởi DEC-12 và ADR-005 |
+| RES-03 | Thanh toán có thể dùng PayOS sandbox | Chỉ dùng payment simulator do dự án kiểm soát, không tiền thật/provider sandbox | Thay thế bởi DEC-07 và BR-38 |
+| RES-04 | Cam kết 320 → 1.150 RPS, tăng 2,5×/3,5× hoặc lỗi < 0,5% | Chưa đặt RPS/tỷ lệ scale trước E0; p95/p99 và lỗi < 1% chỉ áp tại tải tham chiếu được công bố | Thay thế bởi DEC-14 và mục 14.6 |
+| RES-05 | MVP không dùng Kubernetes | Docker Compose vẫn là lab/baseline; AKS là cloud target, không mặc định có HA/autoscaling | Làm rõ bởi DEC-17 và ADR-006 |
+| RES-06 | “AWS K6” là dịch vụ bắt buộc | Dùng k6 làm công cụ workload; nơi chạy generator phải được công bố và không làm sai tải | Làm rõ bởi mục 14.5; không khóa nhà cung cấp |
+| RES-07 | RabbitMQ và transactional outbox cho notification | Giữ là feature P1; PostgreSQL vẫn quyết định order/tồn | Chấp nhận qua DEC-16, FR-047–FR-049 |
+| RES-08 | Read replica, singleflight, HTTP pool và các con số cấu hình cụ thể là giải pháp bắt buộc | Chỉ áp dụng sau khi query/metric/profile chứng minh; cache/HTTP pool có giới hạn nhưng không tự chọn giá trị | Giữ làm giả thuyết kỹ thuật cho PERF-02, PERF-03, PERF-05, PERF-08 |
+
+Nếu research cung cấp phát hiện mới, nhóm có thể điều chỉnh PRD, nhưng phải ghi lý do, mã bị ảnh hưởng và bằng chứng; không sửa domain/schema/API trước rồi hợp thức hóa PRD sau.
+
+### 17.5. Quy tắc quản lý thay đổi phạm vi
 
 Mọi thay đổi phải ghi: lý do kinh doanh, quy tắc/yêu cầu bị ảnh hưởng, tác động đến trạng thái tiền/tồn, kiểm thử, thời gian và điều kiện đo. Thay đổi ảnh hưởng giỏ, quota, giữ hàng hoặc thanh toán phải cập nhật BR, INV, FR và TEST tương ứng trước triển khai.
 
 Việc bổ sung marketplace, nhiều doanh nghiệp chung nền tảng, thanh toán thật, ERP, vận chuyển hoặc checkout bất đồng bộ toàn bộ được xem là thay đổi phạm vi dự án, không phải hoàn thiện nhỏ của MVP.
 
-### 17.5. Checklist chốt dự án
+### 17.6. Checklist chốt dự án
 
 - [ ] Xác nhận phạm vi SCOPE-01 đến SCOPE-09 và danh sách ngoài phạm vi.
 - [ ] Rà soát các quy tắc BR, vòng đời đơn và quy ước tồn/quota.

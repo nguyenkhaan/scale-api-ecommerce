@@ -1,0 +1,1570 @@
+openapi: 3.1.0
+info:
+  title: SaleScale API
+  version: 0.1.0-draft
+  description: |
+    Hợp đồng HTTP cho SaleScale. P0 được mô tả đủ để triển khai; operation P1
+    được đánh dấu bằng `x-priority: P1`. PRD là nguồn sự thật cho hành vi.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+tags:
+  - name: Auth
+  - name: Catalog
+  - name: Cart
+  - name: Checkout
+  - name: Orders
+  - name: Payments
+  - name: Admin Catalog
+  - name: Admin Inventory
+  - name: Admin Flash Sale
+  - name: Reconciliation
+  - name: Notifications
+
+paths:
+  /v1/auth/register:
+    post:
+      tags: [Auth]
+      operationId: registerCustomer
+      x-priority: P0
+      x-requirements: [FR-001]
+      summary: Đăng ký tài khoản khách
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Đăng ký thành công và cấp session
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      x-priority: P0
+      x-requirements: [FR-002]
+      summary: Đăng nhập và cấp opaque session cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      x-priority: P0
+      x-requirements: [FR-002]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      responses:
+        '204': { description: Session đã revoke; cookie được xóa }
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /v1/auth/me:
+    get:
+      tags: [Auth]
+      operationId: getCurrentUser
+      x-priority: P0
+      x-requirements: [FR-002, FR-003]
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200':
+          description: Danh tính hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /v1/products:
+    get:
+      tags: [Catalog]
+      operationId: listProducts
+      x-priority: P0
+      x-requirements: [FR-008, FR-016]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: category_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: query
+          in: query
+          schema: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Catalog công khai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPage'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/products/{productId}:
+    get:
+      tags: [Catalog]
+      operationId: getProduct
+      x-priority: P0
+      x-requirements: [FR-008, FR-016]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product và các SKU đang hiển thị
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/flash-sales:
+    get:
+      tags: [Catalog]
+      operationId: listPublicFlashSales
+      x-priority: P0
+      x-requirements: [FR-016]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          schema: { type: string, enum: [scheduled, active, ended] }
+      responses:
+        '200':
+          description: Các chương trình công khai theo thời gian server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSalePage'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/flash-sales/{flashSaleId}:
+    get:
+      tags: [Catalog]
+      operationId: getPublicFlashSale
+      x-priority: P0
+      x-requirements: [FR-016]
+      parameters:
+        - $ref: '#/components/parameters/FlashSaleId'
+      responses:
+        '200':
+          description: Chương trình và SKU công khai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/cart:
+    get:
+      tags: [Cart]
+      operationId: getCart
+      x-priority: P0
+      x-requirements: [FR-019]
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200':
+          description: Giỏ hiện tại; không phải cam kết giữ hàng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /v1/cart/items/{skuId}:
+    put:
+      tags: [Cart]
+      operationId: upsertCartItem
+      x-priority: P0
+      x-requirements: [FR-019]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/SkuId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertCartItemRequest'
+      responses:
+        '200':
+          description: Cart sau cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Cart]
+      operationId: removeCartItem
+      x-priority: P0
+      x-requirements: [FR-019]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/SkuId'
+      responses:
+        '204': { description: Dòng đã xóa hoặc vốn không tồn tại }
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /v1/checkout/preview:
+    post:
+      tags: [Checkout]
+      operationId: previewCheckout
+      x-priority: P0
+      x-requirements: [FR-020, FR-021, FR-022]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutSelection'
+      responses:
+        '200':
+          description: Báo giá hiện tại; chưa giữ inventory/quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPreview'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '409':
+          description: Một hoặc nhiều dòng không còn đủ điều kiện
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/orders:
+    post:
+      tags: [Checkout]
+      operationId: placeOrder
+      x-priority: P0
+      x-requirements: [FR-024, FR-025, FR-026, FR-027, FR-029]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+      responses:
+        '201':
+          description: Order mới hoặc replay cùng kết quả đã tạo
+          headers:
+            Idempotency-Replayed:
+              schema: { type: boolean }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '409':
+          description: Giá/tồn/quota/limit/idempotency conflict; không tạo partial order
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    get:
+      tags: [Orders]
+      operationId: listMyOrders
+      x-priority: P0
+      x-requirements: [FR-037]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+      responses:
+        '200':
+          description: Order của user hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /v1/idempotency/orders/{idempotencyKey}:
+    get:
+      tags: [Checkout]
+      operationId: getOrderAttempt
+      x-priority: P0
+      x-requirements: [FR-028]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: idempotencyKey
+          in: path
+          required: true
+          schema: { type: string, minLength: 8, maxLength: 255 }
+      responses:
+        '200':
+          description: Kết quả checkout đã lưu của chính user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyResult'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getMyOrder
+      x-priority: P0
+      x-requirements: [FR-037]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order thuộc user hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/orders/{orderId}/cancel:
+    post:
+      tags: [Orders]
+      operationId: cancelMyOrder
+      x-priority: P0
+      x-requirements: [FR-038, FR-040]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order sau thao tác; gọi lặp không giải phóng hai lần
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/orders/{orderId}/payment-session:
+    post:
+      tags: [Payments]
+      operationId: createOrGetPaymentSession
+      x-priority: P0
+      x-requirements: [FR-030]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Session đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentSession'
+        '201':
+          description: Session vừa tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentSession'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/payment-simulator/events:
+    post:
+      tags: [Payments]
+      operationId: scheduleSimulatorEvent
+      x-priority: P0
+      x-requirements: [FR-031]
+      summary: Điều khiển simulator trong môi trường test
+      security: [{ operatorKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchedulePaymentEventRequest'
+      responses:
+        '202':
+          description: Event đã được simulator lên lịch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledPaymentEvent'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/payment-callbacks/simulator:
+    post:
+      tags: [Payments]
+      operationId: receiveSimulatorCallback
+      x-priority: P0
+      x-requirements: [FR-032, FR-033, FR-034, FR-035, FR-040]
+      security: [{ simulatorSignature: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCallback'
+      responses:
+        '202':
+          description: Event đã lưu bền vững; có thể applied, duplicate, late hoặc rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentEventReceipt'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/products:
+    get:
+      tags: [Admin Catalog]
+      operationId: listAdminProducts
+      x-priority: P0
+      x-requirements: [FR-006, FR-007, FR-009]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, inactive] }
+      responses:
+        '200':
+          description: Catalog quản trị, gồm cả hàng inactive theo bộ lọc
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin Catalog]
+      operationId: createProduct
+      x-priority: P0
+      x-requirements: [FR-006, FR-007]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Product và SKU ban đầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/products/{productId}:
+    get:
+      tags: [Admin Catalog]
+      operationId: getAdminProduct
+      x-priority: P0
+      x-requirements: [FR-006, FR-007, FR-009]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product quản trị, gồm SKU inactive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Admin Catalog]
+      operationId: updateProduct
+      x-priority: P0
+      x-requirements: [FR-006, FR-009]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: Product hiện tại; order snapshot cũ không đổi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/products/{productId}/skus:
+    post:
+      tags: [Admin Catalog]
+      operationId: createSku
+      x-priority: P0
+      x-requirements: [FR-007]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSkuInput'
+      responses:
+        '201':
+          description: SKU và inventory ban đầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sku'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/skus/{skuId}:
+    patch:
+      tags: [Admin Catalog]
+      operationId: updateSku
+      x-priority: P0
+      x-requirements: [FR-007, FR-009]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/SkuId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkuRequest'
+      responses:
+        '200':
+          description: SKU hiện tại; order snapshot cũ không đổi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sku'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/inventories:
+    get:
+      tags: [Admin Inventory]
+      operationId: listInventories
+      x-priority: P0
+      x-requirements: [FR-011]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: on_hand, reserved và available theo SKU
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/admin/inventories/{skuId}/adjustments:
+    post:
+      tags: [Admin Inventory]
+      operationId: adjustInventory
+      x-priority: P0
+      x-requirements: [FR-010, FR-013]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/SkuId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryAdjustmentRequest'
+      responses:
+        '200':
+          description: Inventory sau điều chỉnh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inventory'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/flash-sales:
+    get:
+      tags: [Admin Flash Sale]
+      operationId: listAdminFlashSales
+      x-priority: P0
+      x-requirements: [FR-014, FR-015, FR-016]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, scheduled, active, stopped, ended] }
+      responses:
+        '200':
+          description: Campaign ở mọi trạng thái
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSalePage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin Flash Sale]
+      operationId: createFlashSale
+      x-priority: P0
+      x-requirements: [FR-014]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFlashSaleRequest'
+      responses:
+        '201':
+          description: Campaign draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/flash-sales/{flashSaleId}:
+    get:
+      tags: [Admin Flash Sale]
+      operationId: getAdminFlashSale
+      x-priority: P0
+      x-requirements: [FR-014, FR-015, FR-016]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/FlashSaleId'
+      responses:
+        '200':
+          description: Campaign quản trị
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Admin Flash Sale]
+      operationId: updateDraftFlashSale
+      x-priority: P0
+      x-requirements: [FR-014, FR-015]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/FlashSaleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFlashSaleRequest'
+      responses:
+        '200':
+          description: Campaign draft sau cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /v1/admin/flash-sales/{flashSaleId}/schedule:
+    post:
+      tags: [Admin Flash Sale]
+      operationId: scheduleFlashSale
+      x-priority: P0
+      x-requirements: [FR-015]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/FlashSaleId'
+      responses:
+        '200':
+          description: Campaign scheduled và cấu hình bị khóa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/admin/flash-sales/{flashSaleId}/cancel-schedule:
+    post:
+      tags: [Admin Flash Sale]
+      operationId: cancelFlashSaleSchedule
+      x-priority: P0
+      x-requirements: [FR-015]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/FlashSaleId'
+      responses:
+        '200':
+          description: Campaign trở lại draft nếu chưa bắt đầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/admin/flash-sales/{flashSaleId}/stop:
+    post:
+      tags: [Admin Flash Sale]
+      operationId: stopFlashSale
+      x-priority: P1
+      x-requirements: [FR-018]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - $ref: '#/components/parameters/FlashSaleId'
+      responses:
+        '200':
+          description: Ngừng nhận order mới; reservation cũ không bị phá
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashSale'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/admin/payment-reconciliations:
+    get:
+      tags: [Reconciliation]
+      operationId: listPaymentReconciliations
+      x-priority: P1
+      x-requirements: [FR-036]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Event cần rà soát
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/notifications:
+    get:
+      tags: [Notifications]
+      operationId: listMyNotifications
+      x-priority: P1
+      x-requirements: [FR-047, FR-049]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Notification của user hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /v1/notifications/{notificationId}/read:
+    post:
+      tags: [Notifications]
+      operationId: markMyNotificationRead
+      x-priority: P1
+      x-requirements: [FR-047]
+      security: [{ cookieAuth: [], csrfToken: [] }]
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Đã đánh dấu đọc; gọi lặp an toàn }
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: salescale_session
+      description: Opaque HttpOnly Secure SameSite cookie; state lưu PostgreSQL.
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: Token được cấp cùng session và kiểm tra hash phía server cho mutation dùng cookie.
+    simulatorSignature:
+      type: apiKey
+      in: header
+      name: X-Simulator-Signature
+    operatorKey:
+      type: apiKey
+      in: header
+      name: X-Operator-Key
+
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string, maxLength: 500 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 8, maxLength: 255 }
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SkuId:
+      name: skuId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    FlashSaleId:
+      name: flashSaleId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    ValidationError:
+      description: Payload hoặc tham số không hợp lệ
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthenticated:
+      description: Session/callback signature không hợp lệ
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: Không có role hoặc quyền sở hữu cần thiết
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Resource không tồn tại hoặc không được phép tiết lộ
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      description: Xung đột trạng thái hoặc quy tắc nghiệp vụ
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Vượt giới hạn tải
+      headers:
+        Retry-After:
+          schema: { type: integer, minimum: 1 }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    User:
+      type: object
+      required: [id, email, role]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        role: { type: string, enum: [customer, admin] }
+
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 8, maxLength: 128 }
+
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 1, maxLength: 128 }
+
+    AuthResult:
+      type: object
+      required: [user, expires_at, csrf_token]
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        expires_at: { type: string, format: date-time }
+        csrf_token: { type: string, minLength: 32 }
+
+    Sku:
+      type: object
+      required: [id, code, attributes, regular_price, active]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        attributes: { type: object, additionalProperties: true }
+        regular_price: { type: integer, format: int64, minimum: 1 }
+        active: { type: boolean }
+        current_offer:
+          oneOf:
+            - $ref: '#/components/schemas/CurrentOffer'
+            - { type: 'null' }
+
+    CurrentOffer:
+      type: object
+      required: [flash_sale_item_id, price, starts_at, ends_at, purchase_limit]
+      properties:
+        flash_sale_item_id: { type: string, format: uuid }
+        price: { type: integer, format: int64, minimum: 1 }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        purchase_limit: { type: integer, minimum: 1 }
+
+    Product:
+      type: object
+      required: [id, name, active, skus]
+      properties:
+        id: { type: string, format: uuid }
+        category_id:
+          oneOf:
+            - { type: string, format: uuid }
+            - { type: 'null' }
+        name: { type: string }
+        description: { type: string }
+        image_url:
+          oneOf:
+            - { type: string, format: uri }
+            - { type: 'null' }
+        active: { type: boolean }
+        skus:
+          type: array
+          items: { $ref: '#/components/schemas/Sku' }
+
+    ProductPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Product' }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
+
+    UpsertCartItemRequest:
+      type: object
+      additionalProperties: false
+      required: [quantity, price_source]
+      properties:
+        quantity: { type: integer, minimum: 1 }
+        price_source: { type: string, enum: [regular, flash_sale] }
+        flash_sale_item_id:
+          oneOf:
+            - { type: string, format: uuid }
+            - { type: 'null' }
+
+    CartItem:
+      type: object
+      required: [id, sku_id, quantity, version, price_source]
+      properties:
+        id: { type: string, format: uuid }
+        sku_id: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        version: { type: integer, format: int64, minimum: 1 }
+        price_source: { type: string, enum: [regular, flash_sale] }
+        flash_sale_item_id:
+          oneOf:
+            - { type: string, format: uuid }
+            - { type: 'null' }
+
+    Cart:
+      type: object
+      required: [id, items]
+      properties:
+        id: { type: string, format: uuid }
+        items:
+          type: array
+          maxItems: 20
+          items: { $ref: '#/components/schemas/CartItem' }
+
+    SelectedCartItem:
+      type: object
+      additionalProperties: false
+      required: [cart_item_id, version]
+      properties:
+        cart_item_id: { type: string, format: uuid }
+        version: { type: integer, format: int64, minimum: 1 }
+
+    CheckoutSelection:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/SelectedCartItem' }
+
+    Recipient:
+      type: object
+      additionalProperties: false
+      required: [name, phone, address]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        phone: { type: string, minLength: 8, maxLength: 20 }
+        address: { type: string, minLength: 1, maxLength: 500 }
+
+    CheckoutLine:
+      type: object
+      required: [cart_item_id, cart_item_version, sku_id, quantity, unit_price, subtotal, price_source]
+      properties:
+        cart_item_id: { type: string, format: uuid }
+        cart_item_version: { type: integer, format: int64 }
+        sku_id: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        unit_price: { type: integer, format: int64, minimum: 1 }
+        subtotal: { type: integer, format: int64, minimum: 1 }
+        price_source: { type: string, enum: [regular, flash_sale] }
+        flash_sale_item_id:
+          oneOf:
+            - { type: string, format: uuid }
+            - { type: 'null' }
+
+    CheckoutPreview:
+      type: object
+      required: [currency, total_amount, lines, previewed_at]
+      properties:
+        currency: { type: string, const: VND }
+        total_amount: { type: integer, format: int64, minimum: 1 }
+        lines:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/CheckoutLine' }
+        previewed_at: { type: string, format: date-time }
+
+    PlaceOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [lines, currency, expected_total, recipient]
+      properties:
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { $ref: '#/components/schemas/CheckoutLine' }
+        currency: { type: string, const: VND }
+        expected_total: { type: integer, format: int64, minimum: 1 }
+        recipient: { $ref: '#/components/schemas/Recipient' }
+
+    OrderStatus:
+      type: string
+      enum: [pending_payment, confirmed, payment_failed, cancelled, expired]
+
+    OrderItem:
+      type: object
+      required: [id, sku_id, sku_code, product_name, quantity, unit_price, subtotal, price_source]
+      properties:
+        id: { type: string, format: uuid }
+        sku_id: { type: string, format: uuid }
+        sku_code: { type: string }
+        product_name: { type: string }
+        sku_attributes: { type: object, additionalProperties: true }
+        quantity: { type: integer, minimum: 1 }
+        unit_price: { type: integer, format: int64, minimum: 1 }
+        subtotal: { type: integer, format: int64, minimum: 1 }
+        price_source: { type: string, enum: [regular, flash_sale] }
+
+    Order:
+      type: object
+      required: [id, order_number, status, currency, total_amount, recipient, items, created_at, expires_at]
+      properties:
+        id: { type: string, format: uuid }
+        order_number: { type: string }
+        status: { $ref: '#/components/schemas/OrderStatus' }
+        currency: { type: string, const: VND }
+        total_amount: { type: integer, format: int64, minimum: 1 }
+        recipient: { $ref: '#/components/schemas/Recipient' }
+        items:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/OrderItem' }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        payable: { type: boolean, description: Tính từ state và database-authoritative expiry }
+
+    OrderPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Order' }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
+
+    IdempotencyResult:
+      type: object
+      required: [idempotency_key, response_status, response_body, completed_at]
+      properties:
+        idempotency_key: { type: string }
+        response_status: { type: integer }
+        response_body: { type: object, additionalProperties: true }
+        completed_at: { type: string, format: date-time }
+
+    PaymentSession:
+      type: object
+      required: [id, order_id, status, amount, currency, simulator_reference]
+      properties:
+        id: { type: string, format: uuid }
+        order_id: { type: string, format: uuid }
+        status: { type: string, enum: [pending, unknown, succeeded, failed] }
+        amount: { type: integer, format: int64, minimum: 1 }
+        currency: { type: string, const: VND }
+        simulator_reference: { type: string }
+
+    SchedulePaymentEventRequest:
+      type: object
+      additionalProperties: false
+      required: [payment_session_id, event_type]
+      properties:
+        payment_session_id: { type: string, format: uuid }
+        event_type: { type: string, enum: [succeeded, failed] }
+        delay_ms: { type: integer, minimum: 0, maximum: 600000, default: 0 }
+        repeat_count: { type: integer, minimum: 1, maximum: 10, default: 1 }
+        drop_delivery: { type: boolean, default: false }
+        event_id:
+          type: string
+          format: uuid
+          description: Dùng lại ID để tạo delivery lặp có kiểm soát.
+        amount_override:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Chỉ dùng trong test xác minh sai số tiền.
+        currency_override:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: Chỉ dùng trong test xác minh sai tiền tệ.
+        signature_mode:
+          type: string
+          enum: [valid, invalid]
+          default: valid
+
+    ScheduledPaymentEvent:
+      type: object
+      required: [event_id, scheduled_at]
+      properties:
+        event_id: { type: string, format: uuid }
+        scheduled_at: { type: string, format: date-time }
+
+    PaymentCallback:
+      type: object
+      additionalProperties: false
+      required: [event_id, payment_session_id, event_type, amount, currency, occurred_at]
+      properties:
+        event_id: { type: string, format: uuid }
+        payment_session_id: { type: string, format: uuid }
+        event_type: { type: string, enum: [succeeded, failed] }
+        amount: { type: integer, format: int64, minimum: 1 }
+        currency: { type: string, const: VND }
+        occurred_at: { type: string, format: date-time }
+
+    PaymentEventReceipt:
+      type: object
+      required: [event_id, result]
+      properties:
+        event_id: { type: string, format: uuid }
+        result: { type: string, enum: [applied, duplicate, rejected, late, conflict] }
+        order_status: { $ref: '#/components/schemas/OrderStatus' }
+        reconciliation_required: { type: boolean }
+
+    CreateProductRequest:
+      type: object
+      additionalProperties: false
+      required: [name, skus]
+      properties:
+        category_id: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, maxLength: 5000 }
+        image_url: { type: string, format: uri }
+        skus:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreateSkuInput'
+
+    UpdateProductRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        category_id:
+          oneOf:
+            - { type: string, format: uuid }
+            - { type: 'null' }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, maxLength: 5000 }
+        image_url:
+          oneOf:
+            - { type: string, format: uri }
+            - { type: 'null' }
+        active: { type: boolean }
+
+    CreateSkuInput:
+      type: object
+      additionalProperties: false
+      required: [code, regular_price, max_quantity_per_order, initial_on_hand]
+      properties:
+        code: { type: string, minLength: 1, maxLength: 100 }
+        attributes: { type: object, additionalProperties: true }
+        regular_price: { type: integer, format: int64, minimum: 1 }
+        max_quantity_per_order: { type: integer, minimum: 1 }
+        initial_on_hand: { type: integer, format: int64, minimum: 0 }
+
+    UpdateSkuRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        regular_price: { type: integer, format: int64, minimum: 1 }
+        max_quantity_per_order: { type: integer, minimum: 1 }
+        active: { type: boolean }
+      minProperties: 1
+
+    Inventory:
+      type: object
+      required: [sku_id, on_hand, reserved, available, version]
+      properties:
+        sku_id: { type: string, format: uuid }
+        on_hand: { type: integer, format: int64, minimum: 0 }
+        reserved: { type: integer, format: int64, minimum: 0 }
+        available: { type: integer, format: int64, minimum: 0 }
+        version: { type: integer, format: int64, minimum: 0 }
+
+    InventoryPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Inventory' }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
+
+    InventoryAdjustmentRequest:
+      type: object
+      additionalProperties: false
+      required: [delta, reason]
+      properties:
+        delta: { type: integer, format: int64, not: { const: 0 } }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+
+    CreateFlashSaleItem:
+      type: object
+      additionalProperties: false
+      required: [sku_id, sale_price, quota_total, purchase_limit]
+      properties:
+        sku_id: { type: string, format: uuid }
+        sale_price: { type: integer, format: int64, minimum: 1 }
+        quota_total: { type: integer, format: int64, minimum: 1 }
+        purchase_limit: { type: integer, minimum: 1 }
+
+    CreateFlashSaleRequest:
+      type: object
+      additionalProperties: false
+      required: [name, starts_at, ends_at, items]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        items:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/CreateFlashSaleItem' }
+
+    UpdateFlashSaleRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        items:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          description: Thay toàn bộ item của campaign khi còn draft.
+          items: { $ref: '#/components/schemas/CreateFlashSaleItem' }
+
+    FlashSale:
+      type: object
+      required: [id, name, status, starts_at, ends_at, items]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        status: { type: string, enum: [draft, scheduled, active, stopped, ended] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CreateFlashSaleItem' }
+
+    FlashSalePage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/FlashSale' }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
+
+    ReconciliationPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, order_id, payment_event_id, reason, status]
+            properties:
+              id: { type: string, format: uuid }
+              order_id: { type: string, format: uuid }
+              payment_event_id: { type: string, format: uuid }
+              reason: { type: string }
+              status: { type: string, enum: [open, reviewed] }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
+
+    NotificationPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, order_id, type, body, created_at]
+            properties:
+              id: { type: string, format: uuid }
+              order_id: { type: string, format: uuid }
+              type: { type: string }
+              body: { type: string }
+              created_at: { type: string, format: date-time }
+              read_at:
+                oneOf:
+                  - { type: string, format: date-time }
+                  - { type: 'null' }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
+
+    FieldViolation:
+      type: object
+      required: [field, reason]
+      properties:
+        field: { type: string }
+        reason: { type: string }
+
+    LineProblem:
+      type: object
+      required: [sku_id, requested_quantity, code]
+      properties:
+        sku_id: { type: string, format: uuid }
+        requested_quantity: { type: integer, minimum: 1 }
+        code:
+          type: string
+          enum: [ITEM_UNAVAILABLE, PRICE_CHANGED, SALE_NOT_ACTIVE, SALE_QUOTA_EXCEEDED, PURCHASE_LIMIT_EXCEEDED, INSUFFICIENT_STOCK]
+        available_quantity: { type: integer, minimum: 0 }
+        current_unit_price: { type: integer, format: int64, minimum: 1 }
+
+    Problem:
+      type: object
+      required: [type, title, status, code, request_id]
+      properties:
+        type: { type: string, format: uri-reference }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        code:
+          type: string
+          enum:
+            - VALIDATION_ERROR
+            - UNAUTHENTICATED
+            - FORBIDDEN
+            - RESOURCE_NOT_FOUND
+            - PRICE_CHANGED
+            - ITEM_UNAVAILABLE
+            - INSUFFICIENT_STOCK
+            - SALE_NOT_ACTIVE
+            - SALE_QUOTA_EXCEEDED
+            - PURCHASE_LIMIT_EXCEEDED
+            - IDEMPOTENCY_CONFLICT
+            - IDEMPOTENCY_IN_PROGRESS
+            - ORDER_NOT_PAYABLE
+            - STATE_TRANSITION_CONFLICT
+            - RATE_LIMITED
+            - INTERNAL_ERROR
+        detail: { type: string }
+        request_id: { type: string }
+        violations:
+          type: array
+          items: { $ref: '#/components/schemas/FieldViolation' }
+        line_errors:
+          type: array
+          items: { $ref: '#/components/schemas/LineProblem' }
+

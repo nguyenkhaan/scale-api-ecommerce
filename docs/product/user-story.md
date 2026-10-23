@@ -1,5 +1,7 @@
 ## 10. User stories và các tình huống nghiệm thu chính
 
+> **Góc nhìn dẫn xuất:** [PRD](prd.md) là nguồn sự thật. File này diễn đạt yêu cầu theo hành trình người dùng; thay đổi `FR/BR/INV` phải được thực hiện trong PRD trước. Đồng bộ gần nhất: 18/10/2026.
+
 US-01 đến US-18 mô tả hành vi backend; US-19 và US-20 nghiệm thu giao diện; US-21 bổ sung hộp thông báo trạng thái đơn qua RabbitMQ. Các story vẫn cần được tách thành công việc triển khai nhỏ nếu việc thiết kế và kiểm thử vượt quá một phiên làm việc.
 
 ### US-01 — Sử dụng tài khoản khách

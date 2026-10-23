@@ -1,5 +1,7 @@
 ## 9. Yêu cầu chức năng và tiêu chí nghiệm thu
 
+> **Góc nhìn dẫn xuất:** [PRD](prd.md) là nguồn sự thật. File này giúp đọc riêng nhóm `FR`; không chỉnh yêu cầu độc lập tại đây. Nếu có khác biệt, cập nhật PRD trước rồi đồng bộ lại file này. Đồng bộ gần nhất: 18/10/2026.
+
 **Mức ưu tiên:** P0 là bắt buộc để nghiệm thu luồng nghiệp vụ và nghiên cứu; P1 là hỗ trợ tối thiểu nằm trong kế hoạch MVP. Giảm P1 phải được ghi nhận, không được ngầm bỏ chức năng đã xác nhận.
 
 ### 9.1. Tài khoản và cửa hàng
