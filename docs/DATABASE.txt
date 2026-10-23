@@ -1,0 +1,283 @@
+table store_settings {
+  id int PK
+  name TEXT
+  short_description TEXT
+  logo_url string
+  contact_info TEXT
+  timezone TEXT
+}
+enum AccountStatus {
+  ACTIVE
+  DISABLED
+}
+table users {
+  id uuid PK
+  email string unique
+  password string
+  full_name string
+  role string //customer or admin
+  account_status AccountStatus
+  created_at timestampz
+}
+table session {
+  id uuid PK
+  user_id uuid //not null
+  token_hash string
+  expires_at timestampz
+  revoked_at timestampz
+  created_at timestampz
+  //index(user_id, expires_at)
+}
+enum CategoryStatus {
+  ACTIVE
+  HIDDEN
+}
+table category {
+  id uuid PK
+  name string
+  slug string
+  short_description TEXT
+  status CategoryStatus
+  created_at timestampz
+  updated_at timestampz
+}
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+table product {
+  id uuid PK
+  category_id uuid
+  name string
+  description TEXT
+  image_url string
+  status ProductStatus
+  created_at timestsamp
+  updated_at timestampz
+  //index(category_id, status)
+}
+table sku {
+  id uuid PK
+  product_id uuid
+  sku_code string unique
+  attribute JSONB
+  price_vnd BIGINT
+  max_per_order int
+  is_active boolean
+  created_at timestampz
+}
+table inventory {
+  sku_id uuid
+  on_hand int
+  reversed int
+  updated_at datetime
+}
+table inventory_adjustment {
+  id uuid PK
+  sku_id uuid
+  actor_user_id uuid
+  delta_quantity int
+  before_on_hand BIGINT
+  after_on_hand BIGINT
+  created_at timestampz
+    //  check(after_on_hand = before_on_hand + delta_quantity)
+    // index(sku_id, created_at)
+}
+table flash_sale_campaigns {
+  id uuid PK
+  name string
+  status string // draft, scheduled, stopped
+  starts_at timestamptz
+  ends_at timestamptz
+  created_at timestamptz
+  updated_at timestamptz
+  // ACTIVE and ENDED are derived from status and database time.
+  // CHECK (status IN ('draft', 'scheduled', 'stopped'))
+  // CHECK (ends_at > starts_at)
+}
+table flash_sale_items {
+  id uuid PK
+  campaign_id uuid FK
+  sku_id uuid FK
+  sale_price BIGINT
+  quota_total BIGINT
+  quota_reserved BIGINT
+  quota_sold BIGINT
+  purchase_limit integer
+  created_at timestamptz
+  updated_at timestamptz
+  // UNIQUE (campaign_id, sku_id)
+  // CHECK (sale_price > 0 AND quota_total > 0 AND purchase_limit > 0)
+  // CHECK (quota_reserved >= 0 AND quota_sold >= 0)
+  // CHECK (quota_reserved + quota_sold <= quota_total)
+}
+table flash_sale_customer_usage {
+  flash_sale_item_id uuid FK
+  user_id uuid FK
+  reserved_quantity BIGINT
+  sold_quantity BIGINT
+  updated_at timestamptz
+  // PRIMARY KEY (flash_sale_item_id, user_id)
+  // CHECK (reserved_quantity >= 0 AND sold_quantity >= 0)
+}
+table carts {
+    id uuid pk
+    user_id UUID FK
+    status string // active, archived
+    created_at timestamptz
+    updated_at timestamptz
+    // CHECK (status IN ('active', 'archived'))
+    // UNIQUE (user_id) WHERE status = 'active'
+}
+table cart_items {
+    id uuid pk
+    cart_id uuid FK
+    sku_id uuid FK
+    quantity integer
+    intended_price_source string // regular or flash_sale
+    flash_sale_item_id uuid FK
+    version BIGINT
+    created_at timestamptz
+    updated_at timestamptz
+    // UNIQUE (cart_id, sku_id)
+    // CHECK (quantity > 0)
+    // CHECK ((intended_price_source = 'regular' AND flash_sale_item_id IS NULL) OR (intended_price_source = 'flash_sale' AND flash_sale_item_id IS NOT NULL))
+}
+table orders {
+    id uuid PK
+    order_number string unique
+    user_id uuid FK
+    status string // pending_payment, confirmed, payment_failed, cancelled, expired
+    currency char(3)
+    total_amount BIGINT
+    recipient_name string
+    recipient_phone string
+    recipient_address string
+    expires_at timestamptz
+    confirmed_at timestamptz
+    terminal_at timestamptz
+    version BIGINT
+    created_at timestamptz
+    updated_at timestamptz
+    // CHECK (status IN ('pending_payment', 'confirmed', 'payment_failed', 'cancelled', 'expired'))
+    // CHECK (currency = 'VND' AND total_amount > 0 AND expires_at > created_at)
+    // INDEX (user_id, created_at DESC, id DESC)
+    // INDEX (expires_at, id) WHERE status = 'pending_payment'
+}
+table order_items {
+  id uuid PK
+  order_id uuid FK
+  line_number smallint
+  sku_id uuid FK
+  cart_item_id uuid FK
+  cart_item_version BIGINT
+  sku_code_snapshot text
+  product_name_snapshot string
+  sku_attributes_snapshot JSONB
+  quantity int
+  unit_price BIGINT
+  subtotal BIGINT
+  price_source string // regular or flash_sale
+  flash_sale_item_id uuid FK
+  created_at timestamptz
+  updated_at timestamptz
+  // UNIQUE (order_id, line_number)
+  // UNIQUE (order_id, sku_id)
+  // CHECK (quantity > 0 AND unit_price > 0 AND subtotal = quantity * unit_price)
+  // CHECK ((price_source = 'regular' AND flash_sale_item_id IS NULL) OR (price_source = 'flash_sale' AND flash_sale_item_id IS NOT NULL))
+}
+enum ReservationStatus {
+  HELD
+  CONSUMED
+  RELEASED
+}
+table reservation {
+  id uuid PK
+  order_item_id uuid
+  quantity int
+  status ReservationStatus
+  end_reason TEXT
+  created_at timestampz
+  ended_at timestampz //nullable
+}
+table idempotency_requests {
+  id uuid PK
+  user_id uuid FK
+  operation string // place_order in P0
+  idempotency_key string
+  request_hash char(64)
+  state string // processing, completed
+  order_id uuid FK
+  response_status integer
+  response_body JSONB
+  created_at timestamptz
+  completed_at timestamptz
+  // UNIQUE (user_id, operation, idempotency_key)
+  // CHECK (char_length(idempotency_key) BETWEEN 8 AND 255)
+  // CHECK (state IN ('processing', 'completed'))
+  // CHECK (state = 'processing' OR (completed_at IS NOT NULL AND response_status IS NOT NULL AND response_body IS NOT NULL))
+}
+table payment_sessions {
+  id uuid PK
+  order_id uuid FK unique
+  status string // pending, unknown, succeeded, failed
+  amount BIGINT
+  currency char(3)
+  simulator_reference string unique
+  created_at timestamptz
+  updated_at timestamptz
+  // CHECK (status IN ('pending', 'unknown', 'succeeded', 'failed'))
+  // CHECK (amount > 0 AND currency = 'VND')
+}
+table payment_events {
+  id uuid PK
+  payment_session_id uuid FK
+  event_type string // succeeded, failed
+  source_verified boolean
+  amount BIGINT
+  currency char(3)
+  payload_hash char(64)
+  result string // received, applied, duplicate, rejected, late, conflict
+  reason_code TEXT
+  received_at timestamptz
+  processed_at timestamptz
+  // CHECK (event_type IN ('succeeded', 'failed'))
+  // CHECK (result IN ('received', 'applied', 'duplicate', 'rejected', 'late', 'conflict'))
+  // INDEX (payment_session_id, received_at)
+}
+table payment_reconciliations {
+  id uuid PK
+  payment_event_id uuid FK unique
+  order_id uuid FK
+  reason TEXT
+  status string // open, reviewed
+  reviewed_by UUID FK
+  review_note TEXT
+  created_at timestamptz
+  reviewed_at timestamptz
+  // CHECK (status IN ('open', 'reviewed'))
+}
+// P1 only: do not create these migrations during Phase 00.
+table outbox_events {
+    event_id uuid PK
+    aggregate_type TEXT
+    aggregate_id uuid
+    event_type TEXT
+    payload JSONB
+    occurred_at timestamptz
+    published_at timestamptz
+    attempts INTEGER
+    next_attempt_at timestamptz
+    // INDEX (next_attempt_at) WHERE published_at IS NULL
+}
+table notifications {
+    id uuid PK
+    event_id UUID unique
+    user_id UUID FK
+    order_id UUID FK
+    type TEXT
+    body TEXT
+    read_at timestamptz
+    created_at timestamptz
+    // INDEX (user_id, created_at)
+}
