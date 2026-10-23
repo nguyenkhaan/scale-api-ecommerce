@@ -1,4 +1,4 @@
-# Phase 06 — Phần sản phẩm P1
+# Phase 06 — Phần sản phẩm P1 (An)
 
 **Phụ thuộc:** 05. Trước mỗi task, chi tiết hóa OpenAPI/traceability cho contract P1 chưa đủ. **Mục tiêu:** `FR-004/005/018/023/036/041/047–049`, `TEST-26–29`.
 

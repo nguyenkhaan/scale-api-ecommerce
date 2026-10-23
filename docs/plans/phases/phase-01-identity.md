@@ -1,4 +1,4 @@
-# Phase 01 — Tài khoản và quyền truy cập
+# Phase 01 — Tài khoản và quyền truy cập (Lân)
 
 **Phụ thuộc:** 00. **Mục tiêu:** `FR-001–003`, `NFR-03–05`, `TEST-24`.
 
@@ -8,7 +8,7 @@
 - [ ] FE: form đăng ký/đăng nhập và trạng thái người dùng theo `/v1/auth/*`.
 - [ ] Kiểm: input sai/đúng, cookie flags, password không lọt log/response.
 
-## Step 2 — Logout, CSRF, quyền sở hữu
+## Step 2 — Logout, CSRF, quyền sở hữu 
 
 - [ ] BE: revoke session, middleware role/owner và CSRF cho mutation dùng cookie; admin seed riêng.
 - [ ] FE: route guard hiển thị phù hợp, gửi CSRF và logout; không coi route guard là quyền server.

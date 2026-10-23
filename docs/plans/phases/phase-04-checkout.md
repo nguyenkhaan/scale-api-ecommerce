@@ -1,4 +1,4 @@
-# Phase 04 — Checkout nhiều SKU nguyên tử
+# Phase 04 — Checkout nhiều SKU nguyên tử (An)
 
 **Phụ thuộc:** 03. **Mục tiêu:** `FR-021–029`, `INV-01–05/09–11`, `TEST-01–10/25`. Đây là lát cắt rủi ro cao nhất.
 

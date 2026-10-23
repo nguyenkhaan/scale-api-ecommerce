@@ -1,4 +1,4 @@
-# Phase 05 — Thanh toán mô phỏng và vòng đời đơn
+# Phase 05 — Thanh toán mô phỏng và vòng đời đơn (Lân)
 
 **Phụ thuộc:** 04; chốt TECH-02 và OPEN-02 trước nghiệm thu. **Mục tiêu:** `FR-030–040`, `INV-06–08/11/12`, `TEST-11–19/25`.
 

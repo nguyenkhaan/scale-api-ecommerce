@@ -1,4 +1,4 @@
-# Phase 02 — Hàng hóa và tồn kho
+# Phase 02 — Hàng hóa và tồn kho (An)
 
 **Phụ thuộc:** 01. **Mục tiêu:** `FR-006–013`, `INV-01/02/12`, `TEST-21`. Category admin P1 được để phase 06 nếu chưa cần UI.
 

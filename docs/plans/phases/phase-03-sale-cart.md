@@ -1,4 +1,4 @@
-# Phase 03 — Flash sale và giỏ hàng
+# Phase 03 — Flash sale và giỏ hàng (Lân)
 
 **Phụ thuộc:** 02. **Mục tiêu:** `FR-014–020`, `INV-09/10`, `TEST-09/10/20`.
 

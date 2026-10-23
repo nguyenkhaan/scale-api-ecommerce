@@ -1,4 +1,4 @@
-# Phase 07 — Đo, tối ưu và mở rộng
+# Phase 07 — Đo, tối ưu và mở rộng (Lân)
 
 **Phụ thuộc:** 05 để chạy E0; 06 để chạy E1. **Mục tiêu:** `PERF-01–09`, `LOAD-01–10`, `DEC-14/15`.
 
