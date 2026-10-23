@@ -93,7 +93,18 @@ app/
   backend/
     cmd/api/              API process
     cmd/expiry-worker/    worker giải phóng đơn hết hạn
-    internal/             domain, application, adapters và transport
+    internal/
+      auth/               controller, service và DTO xác thực
+      catalog/            controller, service và DTO catalog
+      inventory/          controller, service và DTO tồn kho
+      flashsale/          controller, service và DTO flash sale
+      cart/               controller, service và DTO giỏ hàng
+      order/              controller, service và DTO đơn/checkout
+      payment/            controller, service và DTO thanh toán
+      model/              model ORM dùng chung
+      httpserver/         router, middleware và HTTP response chung
+      bootstrap/          khởi tạo và gắn dependency thủ công
+      config/             cấu hình ứng dụng
     migrations/           PostgreSQL migrations
   frontend/               React + Vite demo
 docs/                     PRD, spec, architecture, contracts và ADR
@@ -111,7 +122,9 @@ tests/
 ## Code style
 
 - Package và biến dùng tên ngắn nhưng thể hiện nghiệp vụ; tránh tên chung như `utils`, `manager`, `data`.
-- Handler chỉ chuyển đổi HTTP; transaction và quy tắc nghiệp vụ nằm ở application/domain service.
+- Mỗi module API có `controller.go`, `service.go` và `dto.go`; model ORM nằm trong `internal/model/`.
+- Handler chỉ chuyển đổi HTTP; transaction và quy tắc nghiệp vụ nằm ở service.
+- Service dùng ORM đã chọn trực tiếp; chỉ tạo abstraction truy cập dữ liệu khi một use case thực sự cần nó.
 - Truyền `context.Context` làm tham số đầu tiên cho I/O; không cất context trong struct.
 - Tiền dùng số nguyên VND (`int64` trong Go, `BIGINT` trong PostgreSQL).
 - Thời gian lưu UTC dưới dạng `timestamptz`; quyết định hết hạn dùng giờ database trong transaction.
