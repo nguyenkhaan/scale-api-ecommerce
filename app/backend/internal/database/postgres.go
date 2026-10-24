@@ -56,9 +56,15 @@ func configurePool(pool *sql.DB) {
 func (database *Database) ORM() *gorm.DB {
 	return database.orm
 }
+
+func (database *Database) SQL() *sql.DB {
+	return database.pool
+}
+
 func (database *Database) Ping(ctx context.Context) error {
 	return database.pool.PingContext(ctx)
 }
+
 func (database *Database) Close() error {
 	return database.pool.Close()
 }

@@ -39,20 +39,20 @@ Người dùng trực tiếp của đặc tả là hai thành viên dự án và
 - Redis catalog cache và bảo vệ cache stampede.
 - Rate limiting/overload protection.
 - Benchmark k6 và so sánh E0–E4.
-- Docker Compose hoàn chỉnh và triển khai AKS.
+- Hạ tầng triển khai AKS.
 - Frontend demo React + Vite ngoài các payload cần cho API contract.
 
 ## Tech stack
 
 | Lớp | Quyết định | Trạng thái |
 |---|---|---|
-| Backend | Go `1.27.1`, Gin | Go đã khai báo; Gin chưa được thêm dependency |
-| Frontend | React + Vite | Đã chốt sản phẩm; chưa bootstrap |
-| Primary data | PostgreSQL | Đã chốt; schema P0 ở `technical/data-model.md` |
+| Backend | Go `1.27.1`, Gin `1.12.0`, GORM `1.31.2`, Goose `3.29.0` | Đã bootstrap; xem ADR-007 |
+| Frontend | React `19.3.1` + Vite `8.3.x` | Đã bootstrap bằng Bun |
+| Primary data | Neon PostgreSQL | Đã chốt; schema P0 ở `technical/data-model.md` |
 | Cache | Redis cache-aside cho catalog công khai | Boundary P1 |
 | Message broker | RabbitMQ cho notification qua outbox | Boundary P1 |
 | Edge/gateway | Cloudflare; Azure Load Balancer; NGINX Gateway Fabric | Cloud target |
-| Local lab | Docker Compose | File hiện là placeholder |
+| Development database | Neon database/branch qua `DATABASE_URL` | Không chạy PostgreSQL local |
 | Observability | Prometheus, Grafana, structured logs | Contract trước, cấu hình sau |
 | Load test | k6 | Kịch bản trong PRD; script sau baseline |
 
@@ -64,23 +64,28 @@ Không khóa phiên bản dependency chưa xuất hiện trong `go.mod` hoặc m
 
 ```bash
 cd app/backend
-go run .
+go run ./cmd/api
+go run ./cmd/migrate status
+go run ./cmd/migrate up
 go build ./...
 go test ./...
 go vet ./...
 gofmt -w .
+
+cd ../frontend
+bun install
+bun run dev
+bun run build
+bun run lint
+bun run test
+bun run typecheck
 ```
 
 ### Hợp đồng lệnh phải có sau bootstrap
 
 ```bash
-docker compose up --build
-docker compose down
 cd app/backend && go test ./... -race -cover
 cd app/backend && golangci-lint run
-cd app/frontend && npm run dev
-cd app/frontend && npm run build
-cd app/frontend && npm test
 k6 run tests/load/<scenario>.js
 ```
 
@@ -105,14 +110,13 @@ app/
       httpserver/         router, middleware và HTTP response chung
       bootstrap/          khởi tạo và gắn dependency thủ công
       config/             cấu hình ứng dụng
-    migrations/           PostgreSQL migrations
+    migrations/           Neon PostgreSQL migrations
   frontend/               React + Vite demo
 docs/                     PRD, spec, architecture, contracts và ADR
 deploy/
-  compose/                local/baseline
   aks/                    cloud target
 tests/
-  integration/            test PostgreSQL/Redis/RabbitMQ theo boundary
+  integration/            test Neon PostgreSQL/Redis/RabbitMQ theo boundary
   contract/               kiểm tra OpenAPI và event contract
   load/                   k6 workloads và seed/reset
 ```
@@ -206,6 +210,6 @@ Không đặt coverage phần trăm làm tiêu chí duy nhất. Mọi nhánh tha
 | OPEN-01 | Tải và cấu hình tham chiếu | Sau baseline E0, trước benchmark cuối |
 | OPEN-02 | Quy trình thao tác sau khi đối soát thanh toán muộn | Trước nghiệm thu payment P0 |
 | OPEN-03 | Mục tiêu thời gian giao notification | Sau E0/E1, trước nghiệm thu P1 |
-| TECH-01 | Thư viện migration, PostgreSQL driver/query layer và router middleware cụ thể | Trước PLAN cho bootstrap backend |
+| TECH-01 | Goose + GORM/PostgreSQL (pgx) + Gin middleware; xem ADR-007 | Đã chốt 24/10/2026 |
 | TECH-02 | Cơ chế ký/xác thực callback của payment simulator | Trước triển khai payment simulator |
 

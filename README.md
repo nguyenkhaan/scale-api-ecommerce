@@ -70,10 +70,28 @@ go vet ./...
 go build ./...
 ```
 
-The default test run does not connect to Neon. To run the database smoke test, set `TEST_DATABASE_URL` to the connection string of a dedicated Neon test database or branch, then run:
+Apply or inspect migrations on the database referenced by `DATABASE_URL`:
 
 ```bash
-go test ./test -run '^TestNeonDatabaseConnection$' -v
+go run ./cmd/migrate status
+go run ./cmd/migrate up
 ```
 
-Database migration, seed, and reset tooling has not been implemented in the current Phase 00 state, so the repository does not yet provide valid commands for those tasks.
+Seed the initial admin only in development or test. The password must contain at least 12 characters:
+
+```bash
+ALLOW_ADMIN_SEED=true \
+ADMIN_EMAIL='admin@example.com' \
+ADMIN_PASSWORD='<STRONG_PASSWORD>' \
+go run ./cmd/seed-admin
+```
+
+Reset is destructive and is restricted to an explicitly configured test environment. The command refuses to run unless both guards are present:
+
+```bash
+ENV=test \
+ALLOW_DATABASE_RESET=true \
+go run ./cmd/migrate reset
+```
+
+This project does not run PostgreSQL locally and does not require Docker Compose for Phase 00.
