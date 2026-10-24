@@ -1,46 +1,79 @@
 # SaleScale
 
-SaleScale là backend flash sale cho một cửa hàng doanh nghiệp, tập trung vào checkout nhiều SKU đúng dưới tải đồng thời. Dự án nghiên cứu transaction, idempotency, reservation, payment event, expiry worker và khả năng mở rộng nhiều API instance mà vẫn bảo toàn tồn kho.
+## Overview
 
-Repository có đặc tả draft và kế hoạch triển khai đề xuất theo SDD. Mã nguồn mới là chương trình Go tối thiểu; Docker Compose, frontend và các service chưa được bootstrap.
+SaleScale is a web application that models a flash-sale system. The backend focuses on correct multi-SKU checkout under concurrent load: PostgreSQL is the authoritative data store, while the API must preserve inventory, quotas, idempotency, and order lifecycle rules.
 
-## Đọc trước khi phát triển
+The repository currently contains a Go/Gin backend connected to Neon PostgreSQL through GORM and a React/Vite frontend. The backend includes health checks, request ID propagation, request logs that omit query strings and headers, and the initial Phase 00 test suite.
 
-- [PRD](docs/product/prd.md) — nguồn sự thật nghiệp vụ.
-- [Mục lục SDD](docs/CONTENT.md) — thứ tự đọc và cây tài liệu.
-- [Kế hoạch](docs/plans/plan.md) — các phase FE/BE và checkpoint.
-- [OpenAPI](docs/technical/api/openapi.yaml) — hợp đồng HTTP P0/P1.
-- [ADRs](docs/decisions/) — quyết định kiến trúc và lý do.
+## Tech Badges
 
-## Chạy trạng thái hiện tại
+![Go 1.27.1](https://img.shields.io/badge/Go-1.27.1-00ADD8?logo=go&logoColor=white)
+![Gin 1.12.0](https://img.shields.io/badge/Gin-1.12.0-008ECF?logo=gin&logoColor=white)
+![GORM 1.31.2](https://img.shields.io/badge/GORM-1.31.2-00ADD8)
+![PostgreSQL on Neon](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)
+![React 19.3.1](https://img.shields.io/badge/React-19.3.1-61DAFB?logo=react&logoColor=black)
+![Vite 8.3.4](https://img.shields.io/badge/Vite-8.3.4-646CFF?logo=vite&logoColor=white)
 
-Yêu cầu Go `1.27.1` theo `app/backend/go.mod`.
+## Backend
+
+### How to Setup
+
+Prerequisites:
+
+- Go `1.27.1` or later in the `1.27` release line.
+- A Neon database and its connection string.
+- Air for hot reload. Air is installed globally in the current development environment.
+
+From the repository root:
 
 ```bash
 cd app/backend
-go run .
+cp .env.example .env
+go mod download
 ```
 
-Các kiểm tra hiện có:
+Update `.env` with the connection string from Neon:
+
+```dotenv
+DATABASE_URL=<NEON_CONNECTION_STRING>
+PORT=4000
+ENV=dev
+```
+
+Do not commit `.env` or write the connection string to logs. Start the API with hot reload:
 
 ```bash
-cd app/backend
-go build ./...
+air
+```
+
+Or run it directly with Go:
+
+```bash
+go run ./cmd/api
+```
+
+The API listens on `http://localhost:4000` by default. Check its health endpoints:
+
+```bash
+curl http://localhost:4000/api/health/liveness
+curl http://localhost:4000/api/health/ready
+```
+
+Run the backend quality checks:
+
+```bash
+gofmt -w .
 go test ./...
+go test ./test -race -coverpkg=./...
 go vet ./...
+go build ./...
 ```
 
-## Cấu trúc hiện tại
+The default test run does not connect to Neon. To run the database smoke test, set `TEST_DATABASE_URL` to the connection string of a dedicated Neon test database or branch, then run:
 
-```text
-app/backend/        chương trình Go tối thiểu
-docs/               nguồn nghiệp vụ và đặc tả SDD
-docker-compose.yaml placeholder, chưa dùng được
-Dockerfile          placeholder, chưa dùng được
+```bash
+go test ./test -run '^TestNeonDatabaseConnection$' -v
 ```
 
-## Trạng thái SDD
-
-`SPECIFY → PLAN → TASKS → IMPLEMENT`
-
-Đặc tả và kế hoạch cần được hai thành viên duyệt trước khi tách task và triển khai tính năng.
+Database migration, seed, and reset tooling has not been implemented in the current Phase 00 state, so the repository does not yet provide valid commands for those tasks.

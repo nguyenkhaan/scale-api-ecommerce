@@ -11,20 +11,21 @@ import (
 )
 
 type Database struct {
-	orm *gorm.DB
+	orm  *gorm.DB
 	pool *sql.DB
 }
+
 func Open(
 	ctx context.Context, connectionString string,
 ) (*Database, error) {
 	orm, err := gorm.Open(
 		postgres.New(postgres.Config{
-			DSN: connectionString,
+			DSN:                  connectionString,
 			PreferSimpleProtocol: true,
-		}), 
+		}),
 		&gorm.Config{
-			DisableAutomaticPing: true, //Tat hanh vi nay de tu goi Ping(ctx Context)
-			TranslateError: true,
+			DisableAutomaticPing: true,
+			TranslateError:       true,
 		},
 	)
 	if err != nil {
@@ -41,7 +42,7 @@ func Open(
 		return nil, fmt.Errorf("ping Neon PostgreSQL: %w", err)
 	}
 	return &Database{
-		orm: orm, 
+		orm:  orm,
 		pool: pool,
 	}, nil
 }
@@ -51,13 +52,12 @@ func configurePool(pool *sql.DB) {
 	pool.SetConnMaxIdleTime(5 * time.Minute)
 	pool.SetConnMaxLifetime(30 * time.Minute)
 }
-//receiver function, thuong su dung con tro
-func (database *Database) ORM() *gorm.DB {
-	return database.orm //Contro struct tu dong deference khi truy cap gia tri => Khong can dung (*database) van duoc
-} 
-func (database *Database) Ping(ctx context.Context) error {
-	return database.pool.PingContext(ctx) //Trong Go, khong dung con tro tro den interface, tru khi co li do dac biet 
 
+func (database *Database) ORM() *gorm.DB {
+	return database.orm
+}
+func (database *Database) Ping(ctx context.Context) error {
+	return database.pool.PingContext(ctx)
 }
 func (database *Database) Close() error {
 	return database.pool.Close()
