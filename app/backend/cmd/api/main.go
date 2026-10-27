@@ -1,34 +1,20 @@
 package main
 
 import (
+	"cloudian/cloudian-scale/internal/auth"
 	"cloudian/cloudian-scale/internal/config"
 	"cloudian/cloudian-scale/internal/database"
-	"cloudian/cloudian-scale/internal/health"
-	"cloudian/cloudian-scale/internal/httpserver/middleware"
+	"cloudian/cloudian-scale/internal/httpserver"
 	"context"
 	"fmt"
 	"log"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func registerRoutes(database *database.Database) *gin.Engine {
-	router := gin.New()
-	router.Use(
-		middleware.RequestIDMiddleware(),
-		gin.LoggerWithFormatter(middleware.RequestLogFormatter),
-		gin.Recovery(),
-	)
-	api := router.Group("/api")
-	health.RegisterRoutes(api, database)
-	return router
 }
 
 func run() error {
@@ -46,5 +32,14 @@ func run() error {
 	}
 	defer postgresDatabase.Close()
 
-	return registerRoutes(postgresDatabase).Run(fmt.Sprintf(":%v", applicationConfig.Port))
+	authService, err := auth.NewService(postgresDatabase.ORM(), auth.DefaultPasswordCost)
+	if err != nil {
+		return err
+	}
+	router := httpserver.NewRouter(httpserver.Dependencies{
+		Database:      postgresDatabase,
+		AuthService:   authService,
+		SecureCookies: !config.IsLocalEnvironment(applicationConfig.Env),
+	})
+	return router.Run(fmt.Sprintf(":%v", applicationConfig.Port))
 }

@@ -40,6 +40,18 @@ func TestLoadConfigTrimsEnvironmentValues(t *testing.T) {
 	}
 }
 
+// The API sets the Secure cookie flag everywhere except these plain-HTTP environments.
+func TestIsLocalEnvironmentOnlyMatchesDevelopmentAndTest(t *testing.T) {
+	for environment, wantLocal := range map[string]bool{
+		"dev": true, " Development ": true, "test": true,
+		"": false, "production": false, "staging": false,
+	} {
+		if got := config.IsLocalEnvironment(environment); got != wantLocal {
+			t.Errorf("IsLocalEnvironment(%q) = %t, want %t", environment, got, wantLocal)
+		}
+	}
+}
+
 func TestLoadConfigRejectsMissingDatabaseURL(t *testing.T) {
 	t.Setenv("DATABASE_URL", "")
 	t.Setenv("PORT", "4000")

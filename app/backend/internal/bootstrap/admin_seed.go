@@ -11,13 +11,11 @@ import (
 	"unicode/utf8"
 	"uuid"
 
+	"cloudian/cloudian-scale/internal/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
-	adminPasswordMinLength = 12
-	adminPasswordHashCost  = 12
-)
+const adminPasswordMinLength = 12
 
 type AdminSeedConfig struct {
 	Email           string
@@ -56,7 +54,7 @@ func SeedAdmin(ctx context.Context, database *sql.DB, adminConfig AdminSeedConfi
 	}
 	passwordHash, err := bcrypt.GenerateFromPassword(
 		[]byte(adminConfig.password),
-		adminPasswordHashCost,
+		auth.DefaultPasswordCost,
 	)
 	if err != nil {
 		return fmt.Errorf("hash admin password: %w", err)

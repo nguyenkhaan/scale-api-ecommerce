@@ -73,6 +73,25 @@ UNIQUE (email_normalized)
 
 Index phục vụ xóa session hết hạn: `sessions (expires_at) WHERE revoked_at IS NULL`. Session hợp lệ khi chưa revoke, chưa hết hạn và user vẫn active.
 
+Chi tiết đã triển khai (migration `00002`):
+
+- Token session và CSRF là 32 byte ngẫu nhiên; cột chỉ lưu HMAC-SHA256 với nhãn mục đích riêng (`salescale/session-token/v1`, `salescale/csrf-token/v1`), có `CHECK (octet_length(...) = 32)`.
+- `expires_at = now() + 7 ngày` tính bằng giờ database lúc tạo; kiểm tra hết hạn cũng dùng `now()` của database.
+- `last_seen_at` chỉ được cập nhật khi đã cũ hơn 5 phút để tránh ghi database ở mọi request.
+- Thêm index `sessions (user_id)` cho FK.
+
+### `login_throttles`
+
+| Cột | Kiểu | Ràng buộc |
+|---|---|---|
+| `email_normalized` | `text` | PK |
+| `failure_count` | `integer` | NOT NULL, `CHECK (failure_count > 0)` |
+| `window_started_at` | `timestamptz` | NOT NULL |
+
+Đếm số lần đăng nhập chưa thành công theo email chuẩn hóa (kể cả email chưa đăng ký) để giới hạn có hiệu lực qua mọi API instance (NFR-03, NFR-04). Mỗi lần thử được giữ chỗ bằng một câu `INSERT ... ON CONFLICT DO UPDATE ... RETURNING` *trước* khi kiểm mật khẩu, nên request song song bị giới hạn giống request tuần tự. Quá 5 lần trong 15 phút, các lần tiếp theo cho email đó (kể cả đúng mật khẩu) trả `429 RATE_LIMITED` kèm `Retry-After` mà không chạy bcrypt; đăng nhập thành công xóa row.
+
+Bảng `login_throttles` và session hết hạn/đã revoke chưa có tác vụ dọn; cần thêm vào worker định kỳ.
+
 ## Catalog và inventory
 
 ### `categories`
