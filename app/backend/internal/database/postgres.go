@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Database struct {
@@ -26,6 +29,7 @@ func Open(
 		&gorm.Config{
 			DisableAutomaticPing: true,
 			TranslateError:       true,
+			Logger:               newQueryLogger(),
 		},
 	)
 	if err != nil {
@@ -46,6 +50,18 @@ func Open(
 		pool: pool,
 	}, nil
 }
+
+// newQueryLogger logs failed and slow statements without their bound values, so emails, password hashes
+// and token hashes never reach the logs. Missing rows are expected (unknown emails) and are not logged.
+func newQueryLogger() logger.Interface {
+	return logger.New(log.New(os.Stdout, "", log.LstdFlags), logger.Config{
+		SlowThreshold:             200 * time.Millisecond,
+		LogLevel:                  logger.Warn,
+		IgnoreRecordNotFoundError: true,
+		ParameterizedQueries:      true,
+	})
+}
+
 func configurePool(pool *sql.DB) {
 	pool.SetMaxOpenConns(10)
 	pool.SetMaxIdleConns(2)

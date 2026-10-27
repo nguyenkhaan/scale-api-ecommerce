@@ -1,5 +1,13 @@
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthNav } from './auth/AuthNav'
+import { AuthProvider } from './auth/AuthProvider'
+import { RequireAuth } from './auth/RequireAuth'
+import { RequireRole } from './auth/RequireRole'
+import { AccountPage } from './pages/AccountPage'
+import { AdminPage } from './pages/AdminPage'
 import { HealthPage } from './pages/HealthPage'
+import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
 
 function HomePage() {
   return (
@@ -26,6 +34,10 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/health" element={<HealthPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/account" element={<RequireAuth><AccountPage /></RequireAuth>} />
+      <Route path="/admin" element={<RequireRole role="admin"><AdminPage /></RequireRole>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
@@ -39,10 +51,11 @@ function AppLayout() {
           <Link to="/" className="font-bold tracking-tight outline-offset-4 focus-visible:outline-2 focus-visible:outline-amber-500">
             SaleScale
           </Link>
-          <nav aria-label="Primary navigation">
-            <Link to="/health" className="text-sm font-semibold text-slate-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-amber-500">
+          <nav aria-label="Primary navigation" className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
+            <Link to="/health" className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-amber-500">
               System health
             </Link>
+            <AuthNav />
           </nav>
         </div>
       </header>
@@ -56,7 +69,9 @@ function AppLayout() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppLayout />
+      <AuthProvider>
+        <AppLayout />
+      </AuthProvider>
     </BrowserRouter>
   )
 }

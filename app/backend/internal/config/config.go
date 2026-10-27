@@ -23,6 +23,15 @@ func loadDotEnv() error {
 	return fmt.Errorf("load .env: %w", err)
 }
 
+// IsLocalEnvironment reports whether the API runs on plain-HTTP developer or test machines.
+func IsLocalEnvironment(environment string) bool {
+	switch strings.ToLower(strings.TrimSpace(environment)) {
+	case "dev", "development", "test":
+		return true
+	}
+	return false
+}
+
 func Load() (Config, error) {
 	if err := loadDotEnv(); err != nil {
 		return Config{}, err
