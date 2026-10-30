@@ -5,6 +5,8 @@ import (
 	"cloudian/cloudian-scale/internal/database"
 	"cloudian/cloudian-scale/internal/httpserver"
 	"cloudian/cloudian-scale/internal/module/auth"
+	"cloudian/cloudian-scale/internal/module/catalog"
+	"cloudian/cloudian-scale/internal/module/inventory"
 	"context"
 	"fmt"
 	"log"
@@ -36,10 +38,20 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	catalogService, err := catalog.NewService(postgresDatabase.ORM())
+	if err != nil {
+		return err
+	}
+	inventoryService, err := inventory.NewService(postgresDatabase.ORM())
+	if err != nil {
+		return err
+	}
 	//Khoi tao dependencies 
 	router := httpserver.NewRouter(httpserver.Dependencies{
 		Database:      postgresDatabase,
 		AuthService:   authService,
+		CatalogService: catalogService,
+		InventoryService: inventoryService,
 		SecureCookies: !config.IsLocalEnvironment(applicationConfig.Env),
 	})
 	return router.Run(fmt.Sprintf(":%v", applicationConfig.Port))
