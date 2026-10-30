@@ -1,9 +1,9 @@
 package httpserver
 
 import (
+	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/module/health"
-	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,5 +27,6 @@ func NewRouter(dependencies Dependencies) *gin.Engine {
 		auth.NewController(dependencies.AuthService, dependencies.SecureCookies),
 		middleware.RequireSession(dependencies.AuthService),
 	)
+	//Thuc hien RegisterRoute o day 
 	return router
 }

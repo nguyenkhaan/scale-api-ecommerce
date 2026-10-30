@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/database"
 	"cloudian/cloudian-scale/internal/httpserver"
 	"cloudian/cloudian-scale/internal/httpserver/problem"
 	"cloudian/cloudian-scale/internal/migration"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"

@@ -100,13 +100,15 @@ app/
     cmd/api/              API process
     cmd/expiry-worker/    worker giải phóng đơn hết hạn
     internal/
-      auth/               controller, service và DTO xác thực
-      catalog/            controller, service và DTO catalog
+      module/
+        auth/             controller, service và DTO xác thực
+        cart/             controller, service và DTO giỏ hàng
+        catalog/          controller, service và DTO catalog
+        flashsale/        controller, service và DTO flash sale
+        health/           health endpoint
+        order/            controller, service và DTO đơn/checkout
+        payment/          controller, service và DTO thanh toán
       inventory/          controller, service và DTO tồn kho
-      flashsale/          controller, service và DTO flash sale
-      cart/               controller, service và DTO giỏ hàng
-      order/              controller, service và DTO đơn/checkout
-      payment/            controller, service và DTO thanh toán
       model/              model ORM dùng chung
       httpserver/         router, middleware và HTTP response chung
       bootstrap/          khởi tạo và gắn dependency thủ công
@@ -127,7 +129,7 @@ tests/
 ## Code style
 
 - Package và biến dùng tên ngắn nhưng thể hiện nghiệp vụ; tránh tên chung như `utils`, `manager`, `data`.
-- Mỗi module API có `controller.go`, `service.go` và `dto.go`; model ORM nằm trong `internal/model/`.
+- Mỗi module API trong `internal/module/` có `controller.go`, `service.go` và `dto.go`; model ORM nằm trong `internal/model/`.
 - Handler chỉ chuyển đổi HTTP; transaction và quy tắc nghiệp vụ nằm ở service.
 - Service dùng ORM đã chọn trực tiếp; chỉ tạo abstraction truy cập dữ liệu khi một use case thực sự cần nó.
 - Truyền `context.Context` làm tham số đầu tiên cho I/O; không cất context trong struct.

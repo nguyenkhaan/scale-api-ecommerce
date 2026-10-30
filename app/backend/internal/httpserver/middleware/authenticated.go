@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/httpserver/problem"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"github.com/gin-gonic/gin"
 )
 

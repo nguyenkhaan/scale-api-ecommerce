@@ -1,10 +1,10 @@
 package main
 
 import (
-	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/config"
 	"cloudian/cloudian-scale/internal/database"
 	"cloudian/cloudian-scale/internal/httpserver"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"context"
 	"fmt"
 	"log"
@@ -31,11 +31,12 @@ func run() error {
 		return err
 	}
 	defer postgresDatabase.Close()
-
+	//Khoi tao service moi o day, sau do tien hanh truyen vao ben trong depedency
 	authService, err := auth.NewService(postgresDatabase.ORM(), auth.DefaultPasswordCost)
 	if err != nil {
 		return err
 	}
+	//Khoi tao dependencies 
 	router := httpserver.NewRouter(httpserver.Dependencies{
 		Database:      postgresDatabase,
 		AuthService:   authService,
