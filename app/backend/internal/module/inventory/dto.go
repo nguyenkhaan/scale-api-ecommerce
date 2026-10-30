@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"cloudian/cloudian-scale/internal/httpserver/problem"
@@ -23,10 +24,42 @@ type AdjustmentRequest struct {
 
 type InventoryResponse struct {
 	SKUID     string `json:"sku_id"`
+	SKUCode   string `json:"sku_code,omitempty"`
 	OnHand    int64  `json:"on_hand"`
 	Reserved  int64  `json:"reserved"`
 	Available int64  `json:"available"`
 	Version   int64  `json:"version"`
+}
+
+type InventoryPageResponse struct {
+	Items      []InventoryResponse `json:"items"`
+	NextCursor *string             `json:"next_cursor"`
+}
+
+type ListInventoriesQuery struct {
+	Cursor string
+	Limit  int
+}
+
+type InventoryAdjustmentResponse struct {
+	ID           string    `json:"id"`
+	SKUID        string    `json:"sku_id"`
+	ActorUserID  string    `json:"actor_user_id"`
+	Delta        int64     `json:"delta"`
+	OnHandBefore int64     `json:"on_hand_before"`
+	OnHandAfter  int64     `json:"on_hand_after"`
+	Reason       string    `json:"reason"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+type InventoryAdjustmentPageResponse struct {
+	Items      []InventoryAdjustmentResponse `json:"items"`
+	NextCursor *string                       `json:"next_cursor"`
+}
+
+type ListAdjustmentHistoryQuery struct {
+	Cursor string
+	Limit  int
 }
 
 func decodeAdjustment(
@@ -101,5 +134,18 @@ func newInventoryResponse(inventory model.Inventory) InventoryResponse {
 		Reserved:  inventory.Reserved,
 		Available: inventory.OnHand - inventory.Reserved,
 		Version:   inventory.Version,
+	}
+}
+
+func newInventoryAdjustmentResponse(adjustment model.InventoryAdjustment) InventoryAdjustmentResponse {
+	return InventoryAdjustmentResponse{
+		ID:           adjustment.ID,
+		SKUID:        adjustment.SKUID,
+		ActorUserID:  adjustment.ActorUserID,
+		Delta:        adjustment.Delta,
+		OnHandBefore: adjustment.OnHandBefore,
+		OnHandAfter:  adjustment.OnHandAfter,
+		Reason:       adjustment.Reason,
+		CreatedAt:    adjustment.CreatedAt,
 	}
 }
