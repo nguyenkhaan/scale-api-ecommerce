@@ -1,10 +1,13 @@
 package backend_test
 
 import (
+	"reflect"
 	"sync"
 	"testing"
 
 	"cloudian/cloudian-scale/internal/model"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
@@ -82,5 +85,38 @@ func TestCatalogModelsMapToExpectedTablesAndColumns(t *testing.T) {
 	}
 	if attributes := sku.LookUpField("attributes"); attributes == nil || attributes.DataType != "jsonb" {
 		t.Errorf("attributes data type = %q, want jsonb", attributes.DataType)
+	}
+}
+
+func TestCategoryCreatePreservesExplicitInvisible(t *testing.T) {
+	database, err := gorm.Open(
+		postgres.New(postgres.Config{DSN: "postgres://unused@127.0.0.1:1/unused"}),
+		&gorm.Config{DryRun: true, DisableAutomaticPing: true, SkipDefaultTransaction: true},
+	)
+	if err != nil {
+		t.Fatalf("open dry-run database: %v", err)
+	}
+
+	category := model.Category{Name: "Ẩn", Slug: "an"}
+	visibility := reflect.ValueOf(&category).Elem().FieldByName("IsVisible")
+	switch visibility.Kind() {
+	case reflect.Bool:
+		visibility.SetBool(false)
+	case reflect.Pointer:
+		hidden := false
+		visibility.Set(reflect.ValueOf(&hidden))
+	default:
+		t.Fatalf("IsVisible kind = %s, want bool or pointer", visibility.Kind())
+	}
+
+	if err := database.Create(&category).Error; err != nil {
+		t.Fatalf("dry-run create category: %v", err)
+	}
+	visibility = reflect.ValueOf(&category).Elem().FieldByName("IsVisible")
+	if visibility.Kind() == reflect.Bool && visibility.Bool() {
+		t.Fatal("explicit false visibility was replaced with true")
+	}
+	if visibility.Kind() == reflect.Pointer && (!visibility.IsNil() && visibility.Elem().Bool()) {
+		t.Fatal("explicit false visibility was replaced with true")
 	}
 }

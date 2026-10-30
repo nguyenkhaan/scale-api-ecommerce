@@ -26,7 +26,7 @@ CREATE TABLE inventory_adjustments (
     CONSTRAINT inventory_adjustments_balance_check
         CHECK (on_hand_after = on_hand_before + delta),
     CONSTRAINT inventory_adjustments_reason_check
-        CHECK (char_length(btrim(reason)) BETWEEN 1 AND 500)
+        CHECK (char_length(reason) <= 500 AND reason ~ '[^[:space:]]')
 );
 
 CREATE INDEX inventory_adjustments_history

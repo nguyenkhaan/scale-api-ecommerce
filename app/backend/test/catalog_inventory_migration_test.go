@@ -188,15 +188,17 @@ func TestInventoryMigrationEnforcesCountersAndLedger(t *testing.T) {
 		}
 	})
 
-	t.Run("ledger reason cannot be blank", func(t *testing.T) {
-		err := database.Exec(
-			`INSERT INTO inventory_adjustments
-			 (sku_id, actor_user_id, delta, on_hand_before, on_hand_after, reason)
-			 VALUES (?, ?, ?, ?, ?, ?)`,
-			skuID, actorID, 2, 5, 7, "   ",
-		).Error
-		if err == nil {
-			t.Fatal("insert blank-reason adjustment succeeded")
+	t.Run("ledger reason must contain a visible character", func(t *testing.T) {
+		for _, reason := range []string{"   ", "\t", "\n", " \t\n "} {
+			err := database.Exec(
+				`INSERT INTO inventory_adjustments
+				 (sku_id, actor_user_id, delta, on_hand_before, on_hand_after, reason)
+				 VALUES (?, ?, ?, ?, ?, ?)`,
+				skuID, actorID, 2, 5, 7, reason,
+			).Error
+			if err == nil {
+				t.Fatalf("insert whitespace-only adjustment reason %q succeeded", reason)
+			}
 		}
 	})
 
