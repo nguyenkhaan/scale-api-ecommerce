@@ -1,8 +1,8 @@
 package httpserver
 
 import (
-	"cloudian/cloudian-scale/internal/auth"
-	"cloudian/cloudian-scale/internal/health"
+	"cloudian/cloudian-scale/internal/module/auth"
+	"cloudian/cloudian-scale/internal/module/health"
 	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"github.com/gin-gonic/gin"
 )

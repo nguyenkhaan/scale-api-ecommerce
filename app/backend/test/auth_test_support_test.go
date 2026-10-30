@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"cloudian/cloudian-scale/internal/auth"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/database"
 	"cloudian/cloudian-scale/internal/httpserver"
 	"cloudian/cloudian-scale/internal/httpserver/problem"
@@ -58,7 +58,9 @@ func openIntegrationDatabase(t *testing.T) *database.Database {
 	if err := migration.Run(ctx, testDatabase.SQL(), migration.CommandUp); err != nil {
 		t.Fatalf("migrate test database: %v", err)
 	}
-	if err := testDatabase.ORM().Exec("TRUNCATE login_throttles, sessions, users").Error; err != nil {
+	if err := testDatabase.ORM().Exec(
+		"TRUNCATE flash_sale_customer_usage, flash_sale_items, flash_sale_campaigns, login_throttles, sessions, users",
+	).Error; err != nil {
 		t.Fatalf("truncate test database: %v", err)
 	}
 	return testDatabase

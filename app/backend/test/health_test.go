@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cloudian/cloudian-scale/internal/health"
+	"cloudian/cloudian-scale/internal/module/health"
 	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"github.com/gin-gonic/gin"
 )

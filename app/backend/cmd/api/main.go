@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cloudian/cloudian-scale/internal/auth"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/config"
 	"cloudian/cloudian-scale/internal/database"
 	"cloudian/cloudian-scale/internal/httpserver"

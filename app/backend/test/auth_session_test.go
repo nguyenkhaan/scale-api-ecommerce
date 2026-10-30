@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"cloudian/cloudian-scale/internal/auth"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/bootstrap"
 	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"cloudian/cloudian-scale/internal/httpserver/problem"
