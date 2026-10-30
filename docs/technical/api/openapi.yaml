@@ -682,6 +682,29 @@ paths:
           $ref: '#/components/responses/Forbidden'
 
   /v1/admin/inventories/{skuId}/adjustments:
+    get:
+      tags: [Admin Inventory]
+      operationId: listInventoryAdjustments
+      x-priority: P0
+      x-requirements: [FR-010, INV-12]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/SkuId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Ledger điều chỉnh tồn kho, mới nhất trước
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryAdjustmentPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     post:
       tags: [Admin Inventory]
       operationId: adjustInventory
@@ -705,6 +728,8 @@ paths:
                 $ref: '#/components/schemas/Inventory'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
         '422':
@@ -1408,6 +1433,7 @@ components:
       required: [sku_id, on_hand, reserved, available, version]
       properties:
         sku_id: { type: string, format: uuid }
+        sku_code: { type: string }
         on_hand: { type: integer, format: int64, minimum: 0 }
         reserved: { type: integer, format: int64, minimum: 0 }
         available: { type: integer, format: int64, minimum: 0 }
@@ -1432,6 +1458,31 @@ components:
       properties:
         delta: { type: integer, format: int64, not: { const: 0 } }
         reason: { type: string, minLength: 1, maxLength: 500 }
+
+    InventoryAdjustment:
+      type: object
+      required: [id, sku_id, actor_user_id, delta, on_hand_before, on_hand_after, reason, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        sku_id: { type: string, format: uuid }
+        actor_user_id: { type: string, format: uuid }
+        delta: { type: integer, format: int64, not: { const: 0 } }
+        on_hand_before: { type: integer, format: int64, minimum: 0 }
+        on_hand_after: { type: integer, format: int64, minimum: 0 }
+        reason: { type: string, maxLength: 500 }
+        created_at: { type: string, format: date-time }
+
+    InventoryAdjustmentPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/InventoryAdjustment' }
+        next_cursor:
+          oneOf:
+            - { type: string }
+            - { type: 'null' }
 
     CreateFlashSaleItem:
       type: object

@@ -50,6 +50,18 @@ func publicFilterFingerprint(query string, categoryID *string) string {
 	if categoryID != nil {
 		category = *categoryID
 	}
-	sum := sha256.Sum256([]byte(strings.Join([]string{"public", query, category}, "\x00")))
+	return cursorFilterFingerprint("public", query, category)
+}
+
+func adminProductFilterFingerprint(status *string) string {
+	value := ""
+	if status != nil {
+		value = *status
+	}
+	return cursorFilterFingerprint("admin-products", value)
+}
+
+func cursorFilterFingerprint(parts ...string) string {
+	sum := sha256.Sum256([]byte(strings.Join(parts, "\x00")))
 	return hex.EncodeToString(sum[:])
 }

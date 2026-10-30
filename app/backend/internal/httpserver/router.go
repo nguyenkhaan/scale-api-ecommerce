@@ -12,18 +12,18 @@ import (
 )
 
 type Dependencies struct {
-	Database      health.DatabasePinger
-	AuthService   *auth.Service
+	Database         health.DatabasePinger
+	AuthService      *auth.Service
 	InventoryService *inventory.Service
-	CatalogService *catalog.Service
-	SecureCookies bool
+	CatalogService   *catalog.Service
+	SecureCookies    bool
 }
 
 func NewRouter(dependencies Dependencies) *gin.Engine {
-	//Khai bao middleware function d su dung 
+	//Khai bao middleware function d su dung
 	requireSession := middleware.RequireSession(dependencies.AuthService)
 	requireAdmin := middleware.RequireRole(model.RoleAdmin)
-	//Bat dau khai bao router 
+	//Bat dau khai bao router
 	router := gin.New()
 	router.Use(
 		middleware.RequestIDMiddleware(),
@@ -37,16 +37,15 @@ func NewRouter(dependencies Dependencies) *gin.Engine {
 		auth.NewController(dependencies.AuthService, dependencies.SecureCookies),
 		middleware.RequireSession(dependencies.AuthService),
 	)
-	catalog.RegisterRoutes(
-		api,
-		catalog.NewController(dependencies.CatalogService),
-	)
+	catalogController := catalog.NewController(dependencies.CatalogService)
+	catalog.RegisterRoutes(api, catalogController)
+	catalog.RegisterAdminRoutes(api, catalogController, requireSession, requireAdmin)
 	inventory.RegisterRoutes(
-		api, 
+		api,
 		inventory.NewController(dependencies.InventoryService),
 		requireSession,
 		requireAdmin,
 	)
-	//Thuc hien RegisterRoute o day 
+	//Thuc hien RegisterRoute o day
 	return router
 }
