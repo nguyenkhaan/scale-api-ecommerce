@@ -1,9 +1,10 @@
-package model
+package backend_test
 
 import (
 	"sync"
 	"testing"
 
+	"cloudian/cloudian-scale/internal/model"
 	"gorm.io/gorm/schema"
 )
 
@@ -16,7 +17,7 @@ func TestCatalogModelsMapToExpectedTablesAndColumns(t *testing.T) {
 	}{
 		{
 			name:  "category",
-			model: &Category{},
+			model: &model.Category{},
 			table: "categories",
 			columns: []string{
 				"id", "name", "slug", "is_visible", "created_at", "updated_at",
@@ -24,7 +25,7 @@ func TestCatalogModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		},
 		{
 			name:  "product",
-			model: &Product{},
+			model: &model.Product{},
 			table: "products",
 			columns: []string{
 				"id", "category_id", "name", "description", "image_url", "status", "created_at", "updated_at",
@@ -32,7 +33,7 @@ func TestCatalogModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		},
 		{
 			name:  "sku",
-			model: &SKU{},
+			model: &model.SKU{},
 			table: "skus",
 			columns: []string{
 				"id", "product_id", "code", "attributes", "regular_price", "max_quantity_per_order", "status", "created_at", "updated_at",
@@ -64,7 +65,7 @@ func TestCatalogModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		})
 	}
 
-	product, err := schema.Parse(&Product{}, &sync.Map{}, schema.NamingStrategy{})
+	product, err := schema.Parse(&model.Product{}, &sync.Map{}, schema.NamingStrategy{})
 	if err != nil {
 		t.Fatalf("parse product schema: %v", err)
 	}
@@ -75,7 +76,7 @@ func TestCatalogModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		}
 	}
 
-	sku, err := schema.Parse(&SKU{}, &sync.Map{}, schema.NamingStrategy{})
+	sku, err := schema.Parse(&model.SKU{}, &sync.Map{}, schema.NamingStrategy{})
 	if err != nil {
 		t.Fatalf("parse SKU schema: %v", err)
 	}

@@ -1,14 +1,15 @@
-package model
+package backend_test
 
 import (
 	"sync"
 	"testing"
 
+	"cloudian/cloudian-scale/internal/model"
 	"gorm.io/gorm/schema"
 )
 
 func TestInventoryModelsMapToExpectedTablesAndColumns(t *testing.T) {
-	inventory, err := schema.Parse(&Inventory{}, &sync.Map{}, schema.NamingStrategy{})
+	inventory, err := schema.Parse(&model.Inventory{}, &sync.Map{}, schema.NamingStrategy{})
 	if err != nil {
 		t.Fatalf("parse inventory schema: %v", err)
 	}
@@ -27,7 +28,7 @@ func TestInventoryModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		t.Error("available must be derived, not persisted")
 	}
 
-	adjustment, err := schema.Parse(&InventoryAdjustment{}, &sync.Map{}, schema.NamingStrategy{})
+	adjustment, err := schema.Parse(&model.InventoryAdjustment{}, &sync.Map{}, schema.NamingStrategy{})
 	if err != nil {
 		t.Fatalf("parse inventory adjustment schema: %v", err)
 	}
