@@ -11,7 +11,7 @@ import (
 	"unicode/utf8"
 	"uuid"
 
-	"cloudian/cloudian-scale/internal/auth"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 

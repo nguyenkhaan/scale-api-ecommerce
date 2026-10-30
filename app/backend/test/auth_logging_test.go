@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"cloudian/cloudian-scale/internal/auth"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"github.com/gin-gonic/gin"
 )
 

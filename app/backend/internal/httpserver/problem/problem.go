@@ -8,14 +8,17 @@ import (
 )
 
 const (
-	ContentType = "application/problem+json"
-
+	ContentType                = "application/problem+json"
+	CodeResourceNotFound       = "RESOURCE_NOT_FOUND"
+	CodeNotFound               = CodeResourceNotFound
 	CodeValidation             = "VALIDATION_ERROR"
 	CodeUnauthenticated        = "UNAUTHENTICATED"
 	CodeForbidden              = "FORBIDDEN"
 	CodeEmailAlreadyRegistered = "EMAIL_ALREADY_REGISTERED"
 	CodeRateLimited            = "RATE_LIMITED"
 	CodeInternal               = "INTERNAL_ERROR"
+	CodeInventoryBelowReserved = "INVENTORY_BELOW_RESERVED"
+	CodeSKUAlreadyExists       = "SKU_CODE_ALREADY_EXISTS"
 
 	// Set on the response by the request ID middleware before any handler runs.
 	requestIDHeader = "X-Request-ID"

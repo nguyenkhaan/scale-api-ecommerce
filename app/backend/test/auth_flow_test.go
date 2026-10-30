@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"cloudian/cloudian-scale/internal/auth"
 	"cloudian/cloudian-scale/internal/httpserver/problem"
+	"cloudian/cloudian-scale/internal/module/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
