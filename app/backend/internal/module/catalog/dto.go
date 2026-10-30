@@ -1,8 +1,9 @@
 package catalog
 
 import (
-	"cloudian/cloudian-scale/internal/model"
 	"encoding/json"
+
+	"cloudian/cloudian-scale/internal/model"
 )
 
 type SKUResponse struct {
@@ -22,6 +23,19 @@ type ProductResponse struct {
 	Active      bool          `json:"active"`
 	SKUs        []SKUResponse `json:"skus"`
 }
+
+type ProductPageResponse struct {
+	Items      []ProductResponse `json:"items"`
+	NextCursor *string           `json:"next_cursor"`
+}
+
+type ListPublicProductsQuery struct {
+	Query      string
+	CategoryID *string
+	Cursor     string
+	Limit      int
+}
+
 func newProductResponse(product model.Product, skus []model.SKU) ProductResponse {
 	response := ProductResponse{
 		ID:          product.ID,
