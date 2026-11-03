@@ -77,3 +77,7 @@ export async function errorFromResponse(response: Response): Promise<ApiError> {
     retryAfterSeconds,
   })
 }
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError
+}

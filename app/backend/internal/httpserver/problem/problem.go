@@ -19,6 +19,7 @@ const (
 	CodeInternal               = "INTERNAL_ERROR"
 	CodeInventoryBelowReserved = "INVENTORY_BELOW_RESERVED"
 	CodeSKUAlreadyExists       = "SKU_CODE_ALREADY_EXISTS"
+	CodeConflict               = "CONFLICT"
 
 	// Set on the response by the request ID middleware before any handler runs.
 	requestIDHeader = "X-Request-ID"

@@ -4,7 +4,9 @@ import (
 	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"cloudian/cloudian-scale/internal/model"
 	"cloudian/cloudian-scale/internal/module/auth"
+	"cloudian/cloudian-scale/internal/module/cart"
 	"cloudian/cloudian-scale/internal/module/catalog"
+	"cloudian/cloudian-scale/internal/module/flashsale"
 	"cloudian/cloudian-scale/internal/module/health"
 	"cloudian/cloudian-scale/internal/module/inventory"
 
@@ -16,6 +18,8 @@ type Dependencies struct {
 	AuthService      *auth.Service
 	InventoryService *inventory.Service
 	CatalogService   *catalog.Service
+	FlashSaleService *flashsale.Service
+	CartService      *cart.Service
 	SecureCookies    bool
 }
 
@@ -46,6 +50,14 @@ func NewRouter(dependencies Dependencies) *gin.Engine {
 		requireSession,
 		requireAdmin,
 	)
+	if dependencies.FlashSaleService != nil {
+		flashSaleController := flashsale.NewController(dependencies.FlashSaleService)
+		flashsale.RegisterRoutes(api, flashSaleController, requireSession, requireAdmin)
+	}
+	if dependencies.CartService != nil {
+		cartController := cart.NewController(dependencies.CartService)
+		cart.RegisterRoutes(api, cartController, requireSession)
+	}
 	//Thuc hien RegisterRoute o day
 	return router
 }
