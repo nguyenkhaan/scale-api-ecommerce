@@ -4,225 +4,93 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"cloudian/cloudian-scale/internal/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"uuid"
 )
 
 const MaxCartItems = 20
 
-var (
-	ErrCartLimitExceeded       = errors.New("cart cannot contain more than 20 distinct items")
-	ErrInvalidQuantity         = errors.New("quantity must be greater than zero")
-	ErrInvalidPriceSource      = errors.New("price_source must be regular or flash_sale")
-	ErrFlashSaleItemRequired   = errors.New("flash_sale_item_id is required for flash_sale price source")
-	ErrFlashSaleItemForbidden  = errors.New("flash_sale_item_id must be null for regular price source")
-	ErrSKUNotActive            = errors.New("sku does not exist or is not active")
-	ErrExceedsMaxQuantity      = errors.New("quantity exceeds maximum allowed per order")
-	ErrFlashSaleItemInvalid    = errors.New("flash sale item does not exist or is not applicable")
-)
-
 type Service struct {
 	database *gorm.DB
-	nowFunc  func() time.Time
 }
 
 func NewService(database *gorm.DB) (*Service, error) {
 	if database == nil {
 		return nil, errors.New("cart database is required")
 	}
-	return &Service{
-		database: database,
-		nowFunc:  time.Now,
-	}, nil
-}
-
-func (s *Service) WithNowFunc(fn func() time.Time) *Service {
-	s.nowFunc = fn
-	return s
-}
-
-func (s *Service) now() time.Time {
-	if s.nowFunc != nil {
-		return s.nowFunc()
-	}
-	return time.Now()
+	return &Service{database: database}, nil
 }
 
 func (s *Service) GetCart(ctx context.Context, userID string) (CartResponse, error) {
 	db := s.database.WithContext(ctx)
-
-	cart, err := s.getOrCreateActiveCart(db, userID)
+	cart, err := activeCart(db, userID, false)
 	if err != nil {
 		return CartResponse{}, fmt.Errorf("get or create cart: %w", err)
 	}
-
-	var items []model.CartItem
-	if err := db.Where("cart_id = ?", cart.ID).Order("created_at ASC, id ASC").Find(&items).Error; err != nil {
-		return CartResponse{}, fmt.Errorf("find cart items: %w", err)
-	}
-
-	return newCartResponse(cart, items), nil
+	return loadCartView(db, cart.ID)
 }
 
-func (s *Service) UpsertCartItem(ctx context.Context, userID, skuID string, req UpsertCartItemRequest) (CartResponse, error) {
-	if req.Quantity <= 0 {
-		return CartResponse{}, ErrInvalidQuantity
-	}
-
-	if req.PriceSource != model.PriceSourceRegular && req.PriceSource != model.PriceSourceFlashSale {
-		return CartResponse{}, ErrInvalidPriceSource
-	}
-
-	if req.PriceSource == model.PriceSourceRegular && req.FlashSaleItemID != nil {
-		return CartResponse{}, ErrFlashSaleItemForbidden
-	}
-
-	if req.PriceSource == model.PriceSourceFlashSale && (req.FlashSaleItemID == nil || *req.FlashSaleItemID == "") {
-		return CartResponse{}, ErrFlashSaleItemRequired
-	}
-
-	db := s.database.WithContext(ctx)
-
-	// Validate SKU is active
-	var sku model.SKU
-	if err := db.Where("id = ? AND status = ?", skuID, model.SKUStatusActive).First(&sku).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return CartResponse{}, ErrSKUNotActive
-		}
-		return CartResponse{}, err
-	}
-
-	if req.PriceSource == model.PriceSourceRegular {
-		if req.Quantity > sku.MaxQuantityPerOrder {
-			return CartResponse{}, ErrExceedsMaxQuantity
-		}
-	} else {
-		// Validate flash sale item
-		var fsItem model.FlashSaleItem
-		if err := db.Where("id = ? AND sku_id = ?", *req.FlashSaleItemID, skuID).First(&fsItem).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return CartResponse{}, ErrFlashSaleItemInvalid
-			}
-			return CartResponse{}, err
-		}
-
-		var campaign model.FlashSaleCampaign
-		if err := db.Where("id = ?", fsItem.CampaignID).First(&campaign).Error; err != nil {
-			return CartResponse{}, err
-		}
-		if campaign.Status == "stopped" || campaign.Status == "draft" {
-			return CartResponse{}, ErrFlashSaleItemInvalid
-		}
-		if req.Quantity > fsItem.PurchaseLimit {
-			return CartResponse{}, ErrExceedsMaxQuantity
-		}
-	}
-
-	var cart model.Cart
-	var items []model.CartItem
-
-	err := db.Transaction(func(tx *gorm.DB) error {
-		var err error
-		cart, err = s.getOrCreateActiveCart(tx, userID)
-		if err != nil {
-			return err
-		}
-
-		var existing model.CartItem
-		err = tx.Where("cart_id = ? AND sku_id = ?", cart.ID, skuID).First(&existing).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// Check 20 distinct items limit
-			var count int64
-			if err := tx.Model(&model.CartItem{}).Where("cart_id = ?", cart.ID).Count(&count).Error; err != nil {
-				return err
-			}
-			if count >= MaxCartItems {
-				return ErrCartLimitExceeded
-			}
-
-			newItem := model.CartItem{
-				ID:                  uuid.NewV4().String(),
-				CartID:              cart.ID,
-				SKUID:               skuID,
-				Quantity:            req.Quantity,
-				IntendedPriceSource: req.PriceSource,
-				FlashSaleItemID:     req.FlashSaleItemID,
-				Version:             1,
-				CreatedAt:           s.now(),
-				UpdatedAt:           s.now(),
-			}
-			if err := tx.Create(&newItem).Error; err != nil {
-				return err
-			}
-		} else if err != nil {
-			return err
-		} else {
-			// Update existing item with incremented version
-			existing.Quantity = req.Quantity
-			existing.IntendedPriceSource = req.PriceSource
-			existing.FlashSaleItemID = req.FlashSaleItemID
-			existing.Version = existing.Version + 1
-			existing.UpdatedAt = s.now()
-			if err := tx.Save(&existing).Error; err != nil {
-				return err
-			}
-		}
-
-		return tx.Where("cart_id = ?", cart.ID).Order("created_at ASC, id ASC").Find(&items).Error
-	})
-	if err != nil {
-		return CartResponse{}, err
-	}
-
-	return newCartResponse(cart, items), nil
-}
-
+// RemoveCartItem deletes the user's line for a SKU; a missing line or cart is not an error.
 func (s *Service) RemoveCartItem(ctx context.Context, userID, skuID string) error {
-	db := s.database.WithContext(ctx)
-
-	var cart model.Cart
-	if err := db.Where("user_id = ? AND status = 'active'", userID).First(&cart).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
-		}
-		return err
-	}
-
-	return db.Where("cart_id = ? AND sku_id = ?", cart.ID, skuID).Delete(&model.CartItem{}).Error
+	return s.database.WithContext(ctx).Exec(`
+		DELETE FROM cart_items
+		WHERE sku_id = ?
+		  AND cart_id IN (SELECT id FROM carts WHERE user_id = ? AND status = 'active')`,
+		skuID, userID).Error
 }
 
-func (s *Service) getOrCreateActiveCart(tx *gorm.DB, userID string) (model.Cart, error) {
-	var cart model.Cart
-	err := tx.Where("user_id = ? AND status = 'active'", userID).First(&cart).Error
-	if err == nil {
-		return cart, nil
+// activeCart returns the user's active cart, creating it on first use. With lock set the row is
+// locked FOR UPDATE until the surrounding transaction ends, which serializes writers of that cart.
+func activeCart(db *gorm.DB, userID string, lock bool) (model.Cart, error) {
+	cart, found, err := findActiveCart(db, userID, lock)
+	if err != nil || found {
+		return cart, err
 	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	// Racing creators hit the partial unique index; the loser's insert is a no-op and it re-reads.
+	if err := db.Exec(`
+		INSERT INTO carts (user_id, status) VALUES (?, 'active')
+		ON CONFLICT (user_id) WHERE status = 'active' DO NOTHING`, userID).Error; err != nil {
 		return model.Cart{}, err
 	}
-
-	cart = model.Cart{
-		ID:        uuid.NewV4().String(),
-		UserID:    userID,
-		Status:    "active",
-		CreatedAt: s.now(),
-		UpdatedAt: s.now(),
-	}
-
-	if err := tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "user_id"}},
-		Where:     clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "status = 'active'"}}},
-		DoNothing: true,
-	}).Create(&cart).Error; err != nil {
+	cart, found, err = findActiveCart(db, userID, lock)
+	if err != nil {
 		return model.Cart{}, err
 	}
-
-	if err := tx.Where("user_id = ? AND status = 'active'", userID).First(&cart).Error; err != nil {
-		return model.Cart{}, err
+	if !found {
+		return model.Cart{}, errors.New("active cart missing after creation")
 	}
 	return cart, nil
+}
+
+func findActiveCart(db *gorm.DB, userID string, lock bool) (model.Cart, bool, error) {
+	var cart model.Cart
+	query := db
+	if lock {
+		query = query.Clauses(clause.Locking{Strength: "UPDATE"})
+	}
+	result := query.Where("user_id = ? AND status = ?", userID, model.CartStatusActive).Limit(1).Find(&cart)
+	return cart, result.RowsAffected > 0, result.Error
+}
+
+// loadCartView reads a cart's lines with product and price context in one join query.
+func loadCartView(db *gorm.DB, cartID string) (CartResponse, error) {
+	items := []CartItemResponse{}
+	err := db.Raw(`
+		SELECT ci.id, ci.sku_id, ci.quantity, ci.version,
+		       ci.intended_price_source AS price_source, ci.flash_sale_item_id,
+		       p.name AS product_name, s.code AS sku_code,
+		       CASE WHEN ci.intended_price_source = 'flash_sale' AND fi.id IS NOT NULL
+		            THEN fi.sale_price ELSE s.regular_price END AS reference_unit_price
+		FROM cart_items ci
+		JOIN skus s ON s.id = ci.sku_id
+		JOIN products p ON p.id = s.product_id
+		LEFT JOIN flash_sale_items fi ON fi.id = ci.flash_sale_item_id
+		WHERE ci.cart_id = ?
+		ORDER BY ci.created_at, ci.id`, cartID).Scan(&items).Error
+	if err != nil {
+		return CartResponse{}, fmt.Errorf("load cart items: %w", err)
+	}
+	return CartResponse{ID: cartID, Items: items}, nil
 }

@@ -2,169 +2,157 @@ package cart
 
 import (
 	"context"
-	"errors"
+	"database/sql"
+	"strconv"
 	"time"
 
-	"cloudian/cloudian-scale/internal/model"
+	"cloudian/cloudian-scale/internal/httpserver/problem"
 	"gorm.io/gorm"
 )
 
-var (
-	ErrCartItemNotFound     = errors.New("cart item was not found in active cart")
-	ErrCartItemVersionMismatch = errors.New("cart item version mismatch; item was modified")
-	ErrFlashSaleNotActive   = errors.New("flash sale campaign is not currently active")
-	ErrQuotaExhausted       = errors.New("flash sale quota is exhausted")
-	ErrPurchaseLimitExceeded = errors.New("flash sale purchase limit exceeded")
-)
-
-type SelectedCartItem struct {
-	CartItemID string `json:"cart_item_id"`
-	Version    int64  `json:"version"`
-}
-
-type CheckoutSelection struct {
-	Items []SelectedCartItem `json:"items"`
-}
-
-type CheckoutLineResponse struct {
-	CartItemID      string  `json:"cart_item_id"`
-	CartItemVersion int64   `json:"cart_item_version"`
-	SKUID           string  `json:"sku_id"`
-	Quantity        int     `json:"quantity"`
-	UnitPrice       int64   `json:"unit_price"`
-	Subtotal        int64   `json:"subtotal"`
-	PriceSource     string  `json:"price_source"`
-	FlashSaleItemID *string `json:"flash_sale_item_id"`
-}
-
-type CheckoutPreviewResponse struct {
-	Currency    string                 `json:"currency"`
-	TotalAmount int64                  `json:"total_amount"`
-	Lines       []CheckoutLineResponse `json:"lines"`
-	PreviewedAt string                 `json:"previewed_at"`
-}
-
+// PreviewCheckout quotes the selected cart lines from current data. It never writes: no inventory,
+// quota or usage row is touched and the read-only snapshot keeps all lines consistent with one clock.
 func (s *Service) PreviewCheckout(ctx context.Context, userID string, selection CheckoutSelection) (CheckoutPreviewResponse, error) {
-	if len(selection.Items) == 0 {
-		return CheckoutPreviewResponse{}, errors.New("items must contain at least one item")
+	var preview CheckoutPreviewResponse
+	err := s.database.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var err error
+		preview, err = previewInSnapshot(tx, userID, selection)
+		return err
+	}, &sql.TxOptions{Isolation: sql.LevelRepeatableRead, ReadOnly: true})
+	if err != nil {
+		return CheckoutPreviewResponse{}, err
 	}
-	if len(selection.Items) > MaxCartItems {
-		return CheckoutPreviewResponse{}, errors.New("items cannot exceed 20 items")
+	return preview, nil
+}
+
+func previewInSnapshot(tx *gorm.DB, userID string, selection CheckoutSelection) (CheckoutPreviewResponse, error) {
+	now, err := dbNow(tx)
+	if err != nil {
+		return CheckoutPreviewResponse{}, err
 	}
-
-	db := s.database.WithContext(ctx)
-
-	var cart model.Cart
-	if err := db.Where("user_id = ? AND status = 'active'", userID).First(&cart).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return CheckoutPreviewResponse{}, ErrCartItemNotFound
-		}
+	lines, err := loadSelectedLines(tx, userID, selection)
+	if err != nil {
+		return CheckoutPreviewResponse{}, err
+	}
+	contexts, err := loadLineContexts(tx, userID, lines)
+	if err != nil {
 		return CheckoutPreviewResponse{}, err
 	}
 
-	var cartItems []model.CartItem
-	if err := db.Where("cart_id = ?", cart.ID).Find(&cartItems).Error; err != nil {
-		return CheckoutPreviewResponse{}, err
-	}
-
-	cartItemMap := make(map[string]model.CartItem)
-	for _, it := range cartItems {
-		cartItemMap[it.ID] = it
-	}
-
-	now := s.now()
-	var lines []CheckoutLineResponse
-	var totalAmount int64
-
-	for _, sel := range selection.Items {
-		item, exists := cartItemMap[sel.CartItemID]
-		if !exists {
-			return CheckoutPreviewResponse{}, ErrCartItemNotFound
+	var (
+		responses  = make([]CheckoutLineResponse, 0, len(lines))
+		lineErrors []problem.LineProblem
+		total      int64
+	)
+	for _, line := range lines {
+		unitPrice, lineProblem := evaluateLine(line, contexts[line.ID], now)
+		if lineProblem != nil {
+			lineErrors = append(lineErrors, *lineProblem)
+			continue
 		}
-		if item.Version != sel.Version {
-			return CheckoutPreviewResponse{}, ErrCartItemVersionMismatch
-		}
-
-		var sku model.SKU
-		if err := db.Where("id = ? AND status = ?", item.SKUID, model.SKUStatusActive).First(&sku).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return CheckoutPreviewResponse{}, ErrSKUNotActive
-			}
-			return CheckoutPreviewResponse{}, err
-		}
-
-		var unitPrice int64
-		if item.IntendedPriceSource == model.PriceSourceRegular {
-			if item.Quantity > sku.MaxQuantityPerOrder {
-				return CheckoutPreviewResponse{}, ErrExceedsMaxQuantity
-			}
-			unitPrice = sku.RegularPrice
-		} else {
-			if item.FlashSaleItemID == nil {
-				return CheckoutPreviewResponse{}, ErrFlashSaleItemInvalid
-			}
-
-			var fsItem model.FlashSaleItem
-			if err := db.Where("id = ? AND sku_id = ?", *item.FlashSaleItemID, item.SKUID).First(&fsItem).Error; err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					return CheckoutPreviewResponse{}, ErrFlashSaleItemInvalid
-				}
-				return CheckoutPreviewResponse{}, err
-			}
-
-			var campaign model.FlashSaleCampaign
-			if err := db.Where("id = ?", fsItem.CampaignID).First(&campaign).Error; err != nil {
-				return CheckoutPreviewResponse{}, err
-			}
-
-			// Must be scheduled and within active time window
-			if campaign.Status != "scheduled" || now.Before(campaign.StartsAt) || !now.Before(campaign.EndsAt) {
-				return CheckoutPreviewResponse{}, ErrFlashSaleNotActive
-			}
-
-			// Check available quota
-			availableQuota := fsItem.QuotaTotal - fsItem.QuotaReserved - fsItem.QuotaSold
-			if int64(item.Quantity) > availableQuota {
-				return CheckoutPreviewResponse{}, ErrQuotaExhausted
-			}
-
-			// Check customer usage purchase limit
-			var usage model.FlashSaleCustomerUsage
-			err := db.Where("flash_sale_item_id = ? AND user_id = ?", fsItem.ID, userID).First(&usage).Error
-			usedQuantity := int64(0)
-			if err == nil {
-				usedQuantity = usage.ReservedQuantity + usage.SoldQuantity
-			} else if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return CheckoutPreviewResponse{}, err
-			}
-
-			remainingLimit := int64(fsItem.PurchaseLimit) - usedQuantity
-			if int64(item.Quantity) > remainingLimit {
-				return CheckoutPreviewResponse{}, ErrPurchaseLimitExceeded
-			}
-
-			unitPrice = fsItem.SalePrice
-		}
-
-		subtotal := int64(item.Quantity) * unitPrice
-		totalAmount += subtotal
-
-		lines = append(lines, CheckoutLineResponse{
-			CartItemID:      item.ID,
-			CartItemVersion: item.Version,
-			SKUID:           item.SKUID,
-			Quantity:        item.Quantity,
+		subtotal := unitPrice * int64(line.Quantity)
+		total += subtotal
+		responses = append(responses, CheckoutLineResponse{
+			CartItemID:      line.ID,
+			CartItemVersion: line.Version,
+			SKUID:           line.SKUID,
+			Quantity:        line.Quantity,
 			UnitPrice:       unitPrice,
 			Subtotal:        subtotal,
-			PriceSource:     item.IntendedPriceSource,
-			FlashSaleItemID: item.FlashSaleItemID,
+			PriceSource:     line.PriceSource,
+			FlashSaleItemID: line.FlashSaleItemID,
 		})
 	}
-
+	if len(lineErrors) > 0 {
+		return CheckoutPreviewResponse{}, &LineErrors{Lines: lineErrors}
+	}
 	return CheckoutPreviewResponse{
 		Currency:    "VND",
-		TotalAmount: totalAmount,
-		Lines:       lines,
+		TotalAmount: total,
+		Lines:       responses,
 		PreviewedAt: now.UTC().Format(time.RFC3339),
 	}, nil
+}
+
+// loadSelectedLines resolves the selection against the user's active cart in one query and returns
+// the lines in selection order. Unknown ids yield a 422 that cannot reveal other customers' carts;
+// a stale version yields ErrCartItemChanged before any line is judged.
+func loadSelectedLines(tx *gorm.DB, userID string, selection CheckoutSelection) ([]selectedLine, error) {
+	ids := make([]string, len(selection.Items))
+	for i, item := range selection.Items {
+		ids[i] = item.CartItemID
+	}
+	var rows []selectedLine
+	err := tx.Raw(`
+		SELECT ci.id, ci.sku_id, ci.quantity, ci.version, ci.intended_price_source, ci.flash_sale_item_id
+		FROM cart_items ci
+		JOIN carts c ON c.id = ci.cart_id AND c.user_id = ? AND c.status = 'active'
+		WHERE ci.id IN ?`, userID, ids).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	byID := make(map[string]selectedLine, len(rows))
+	for _, row := range rows {
+		byID[row.ID] = row
+	}
+
+	var violations []problem.Violation
+	lines := make([]selectedLine, 0, len(ids))
+	stale := false
+	for i, item := range selection.Items {
+		line, ok := byID[item.CartItemID]
+		if !ok {
+			violations = append(violations, problem.Violation{
+				Field:  "items[" + strconv.Itoa(i) + "].cart_item_id",
+				Reason: "not found in your cart",
+			})
+			continue
+		}
+		stale = stale || line.Version != item.Version
+		lines = append(lines, line)
+	}
+	if len(violations) > 0 {
+		return nil, &ValidationError{Violations: violations}
+	}
+	if stale {
+		return nil, ErrCartItemChanged
+	}
+	return lines, nil
+}
+
+// loadLineContexts batch-loads SKU, stock, flash sale and customer usage data for all lines.
+func loadLineContexts(tx *gorm.DB, userID string, lines []selectedLine) (map[string]lineContext, error) {
+	skuIDs := make([]string, 0, len(lines))
+	var flashIDs []string
+	for _, line := range lines {
+		skuIDs = append(skuIDs, line.SKUID)
+		if line.isFlashSale() && line.FlashSaleItemID != nil {
+			flashIDs = append(flashIDs, *line.FlashSaleItemID)
+		}
+	}
+	skus, err := loadSKUInfos(tx, skuIDs)
+	if err != nil {
+		return nil, err
+	}
+	flashItems, err := loadFlashInfos(tx, flashIDs)
+	if err != nil {
+		return nil, err
+	}
+	used, err := loadUsedQuantities(tx, userID, flashIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	contexts := make(map[string]lineContext, len(lines))
+	for _, line := range lines {
+		lineCtx := lineContext{sku: skus[line.SKUID]}
+		if line.isFlashSale() && line.FlashSaleItemID != nil {
+			if item, ok := flashItems[*line.FlashSaleItemID]; ok {
+				lineCtx.flash = &item
+				lineCtx.used = used[item.ID]
+			}
+		}
+		contexts[line.ID] = lineCtx
+	}
+	return contexts, nil
 }

@@ -94,6 +94,38 @@ func TestCartControllerValidation(t *testing.T) {
 			wantStatus: http.StatusUnprocessableEntity,
 			wantCode:   problem.CodeValidation,
 		},
+		{
+			name:       "regular price source with flash sale item",
+			method:     http.MethodPut,
+			path:       "/api/v1/cart/items/53000000-0000-4000-8000-000000000001",
+			body:       `{"quantity":1,"flash_sale_item_id":"54000000-0000-4000-8000-000000000001"}`,
+			wantStatus: http.StatusUnprocessableEntity,
+			wantCode:   problem.CodeValidation,
+		},
+		{
+			name:       "expected version below one",
+			method:     http.MethodPut,
+			path:       "/api/v1/cart/items/53000000-0000-4000-8000-000000000001",
+			body:       `{"quantity":1,"expected_version":0}`,
+			wantStatus: http.StatusUnprocessableEntity,
+			wantCode:   problem.CodeValidation,
+		},
+		{
+			name:       "preview version below one",
+			method:     http.MethodPost,
+			path:       "/api/v1/checkout/preview",
+			body:       `{"items":[{"cart_item_id":"55000000-0000-4000-8000-000000000001","version":0}]}`,
+			wantStatus: http.StatusUnprocessableEntity,
+			wantCode:   problem.CodeValidation,
+		},
+		{
+			name:       "preview duplicate cart item",
+			method:     http.MethodPost,
+			path:       "/api/v1/checkout/preview",
+			body:       `{"items":[{"cart_item_id":"55000000-0000-4000-8000-000000000001","version":1},{"cart_item_id":"55000000-0000-4000-8000-000000000001","version":1}]}`,
+			wantStatus: http.StatusUnprocessableEntity,
+			wantCode:   problem.CodeValidation,
+		},
 	}
 
 	for _, tc := range testCases {
