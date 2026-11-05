@@ -1,10 +1,6 @@
 package flashsale
 
-import (
-	"time"
-
-	"cloudian/cloudian-scale/internal/model"
-)
+import "time"
 
 type CreateFlashSaleItem struct {
 	SKUID         string `json:"sku_id"`
@@ -30,6 +26,9 @@ type UpdateFlashSaleRequest struct {
 type FlashSaleItemResponse struct {
 	ID            string `json:"id"`
 	SKUID         string `json:"sku_id"`
+	SKUCode       string `json:"sku_code"`
+	ProductName   string `json:"product_name"`
+	RegularPrice  int64  `json:"regular_price"`
 	SalePrice     int64  `json:"sale_price"`
 	QuotaTotal    int64  `json:"quota_total"`
 	PurchaseLimit int    `json:"purchase_limit"`
@@ -55,46 +54,18 @@ type ListFlashSalesQuery struct {
 	Limit  int
 }
 
+// DeriveEffectiveStatus maps a stored status and the campaign window to the contract status.
+// now must come from the database clock.
 func DeriveEffectiveStatus(status string, startsAt, endsAt, now time.Time) string {
-	if status == "stopped" {
-		return "stopped"
+	if status != "scheduled" {
+		return status
 	}
-	if status == "draft" {
-		return "draft"
-	}
-	if status == "scheduled" {
-		if now.Before(startsAt) {
-			return "scheduled"
-		}
-		if now.Before(endsAt) {
-			return "active"
-		}
+	switch {
+	case now.Before(startsAt):
+		return "scheduled"
+	case now.Before(endsAt):
+		return "active"
+	default:
 		return "ended"
-	}
-	return status
-}
-
-func deriveEffectiveStatus(campaign model.FlashSaleCampaign, now time.Time) string {
-	return DeriveEffectiveStatus(campaign.Status, campaign.StartsAt, campaign.EndsAt, now)
-}
-
-func newFlashSaleResponse(campaign model.FlashSaleCampaign, items []model.FlashSaleItem, now time.Time) FlashSaleResponse {
-	itemResponses := make([]FlashSaleItemResponse, len(items))
-	for i, item := range items {
-		itemResponses[i] = FlashSaleItemResponse{
-			ID:            item.ID,
-			SKUID:         item.SKUID,
-			SalePrice:     item.SalePrice,
-			QuotaTotal:    item.QuotaTotal,
-			PurchaseLimit: item.PurchaseLimit,
-		}
-	}
-	return FlashSaleResponse{
-		ID:       campaign.ID,
-		Name:     campaign.Name,
-		Status:   deriveEffectiveStatus(campaign, now),
-		StartsAt: campaign.StartsAt.UTC().Format(time.RFC3339),
-		EndsAt:   campaign.EndsAt.UTC().Format(time.RFC3339),
-		Items:    itemResponses,
 	}
 }

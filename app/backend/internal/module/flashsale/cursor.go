@@ -5,12 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"time"
 	"uuid"
 )
-
-var ErrInvalidCursor = errors.New("invalid flash sale cursor")
 
 type flashSaleCursor struct {
 	CreatedAt time.Time `json:"created_at"`

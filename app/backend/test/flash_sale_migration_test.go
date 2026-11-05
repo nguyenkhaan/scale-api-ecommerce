@@ -3,6 +3,8 @@ package backend_test
 import (
 	"testing"
 	"time"
+
+	"cloudian/cloudian-scale/internal/model"
 )
 
 func TestFlashSaleMigrationGeneratesCampaignAndItemIDs(t *testing.T) {
@@ -23,13 +25,16 @@ func TestFlashSaleMigrationGeneratesCampaignAndItemIDs(t *testing.T) {
 		t.Fatal("generated campaign id is empty")
 	}
 
+	_, productID := seedCatalogProduct(t, database, true, model.ProductStatusActive)
+	skuID := seedCatalogSKU(t, database, productID, "GEN-SKU", model.SKUStatusActive, 100_000, 10, 100)
+
 	var itemID string
 	if err := database.Raw(
 		`INSERT INTO flash_sale_items
 			(campaign_id, sku_id, sale_price, quota_total, purchase_limit)
 		 VALUES (?, ?, ?, ?, ?)
 		 RETURNING id`,
-		campaignID, "30000000-0000-4000-8000-000000000099", 90_000, 10, 2,
+		campaignID, skuID, 90_000, 10, 2,
 	).Scan(&itemID).Error; err != nil {
 		t.Fatalf("insert item without id: %v", err)
 	}
@@ -44,9 +49,11 @@ func TestFlashSaleMigrationEnforcesCampaignAndItemConstraints(t *testing.T) {
 
 	campaignID := "10000000-0000-4000-8000-000000000001"
 	itemID := "20000000-0000-4000-8000-000000000001"
-	skuID := "30000000-0000-4000-8000-000000000001"
 	startsAt := time.Date(2026, time.October, 30, 10, 0, 0, 0, time.UTC)
 	endsAt := startsAt.Add(time.Hour)
+
+	_, productID := seedCatalogProduct(t, database, true, model.ProductStatusActive)
+	skuID := seedCatalogSKU(t, database, productID, "CONSTRAINT-SKU", model.SKUStatusActive, 100_000, 10, 100)
 
 	if err := database.Exec(
 		"INSERT INTO flash_sale_campaigns (id, name, starts_at, ends_at) VALUES (?, ?, ?, ?)",
@@ -155,6 +162,9 @@ func TestFlashSaleMigrationEnforcesCustomerUsageConstraints(t *testing.T) {
 	itemID := "20000000-0000-4000-8000-000000000011"
 	startsAt := time.Date(2026, time.October, 30, 10, 0, 0, 0, time.UTC)
 
+	_, productID := seedCatalogProduct(t, database, true, model.ProductStatusActive)
+	skuID := seedCatalogSKU(t, database, productID, "USAGE-SKU", model.SKUStatusActive, 100_000, 10, 100)
+
 	if err := database.Exec(
 		`INSERT INTO users (id, email, email_normalized, password_hash)
 		 VALUES (?, ?, ?, ?)`,
@@ -172,7 +182,7 @@ func TestFlashSaleMigrationEnforcesCustomerUsageConstraints(t *testing.T) {
 		`INSERT INTO flash_sale_items
 			(id, campaign_id, sku_id, sale_price, quota_total, purchase_limit)
 		 VALUES (?, ?, ?, ?, ?, ?)`,
-		itemID, campaignID, "30000000-0000-4000-8000-000000000011", 90_000, 10, 2,
+		itemID, campaignID, skuID, 90_000, 10, 2,
 	).Error; err != nil {
 		t.Fatalf("insert item: %v", err)
 	}

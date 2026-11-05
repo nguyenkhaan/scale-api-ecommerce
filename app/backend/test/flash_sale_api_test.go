@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloudian/cloudian-scale/internal/httpserver"
+	"cloudian/cloudian-scale/internal/httpserver/problem"
 	"cloudian/cloudian-scale/internal/model"
 	"cloudian/cloudian-scale/internal/module/auth"
 	"cloudian/cloudian-scale/internal/module/cart"
@@ -141,7 +142,7 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 
 	// 4. Updating scheduled campaign should fail with 409 CONFLICT
 	failUpdateRes := admin.send(t, http.MethodPatch, "/api/v1/admin/flash-sales/"+created.ID, updatePayload, admin.csrfHeader()...)
-	requireProblem(t, failUpdateRes, http.StatusConflict, "CONFLICT")
+	requireProblem(t, failUpdateRes, http.StatusConflict, problem.CodeStateTransitionConflict)
 
 	// 5. Cancel schedule before start -> reverts to draft
 	cancelRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/cancel-schedule", nil, admin.csrfHeader()...)
@@ -159,7 +160,11 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 		t.Fatalf("re-schedule status = %d, want 200; body = %s", schedRes2.Code, schedRes2.Body.String())
 	}
 
-	// 6. Stop campaign -> sets status to stopped
+	// 6. Stop only applies once the campaign is running (by database time)
+	if res := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/stop", nil, admin.csrfHeader()...); res.Code != http.StatusConflict {
+		t.Fatalf("stop upcoming status = %d, want 409; body = %s", res.Code, res.Body.String())
+	}
+	flashSaleSetWindow(t, testDatabase.ORM(), created.ID, "now() - interval '1 minute'", "now() + interval '1 hour'")
 	stopRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/stop", nil, admin.csrfHeader()...)
 	if stopRes.Code != http.StatusOK {
 		t.Fatalf("stop status = %d, want 200; body = %s", stopRes.Code, stopRes.Body.String())
@@ -209,7 +214,7 @@ func TestAdminFlashSaleAntiOverlapConstraint(t *testing.T) {
 
 	// Scheduling Campaign 2 should fail with 409 CONFLICT due to overlapping SKU
 	sched2 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+c2.ID+"/schedule", nil, admin.csrfHeader()...)
-	requireProblem(t, sched2, http.StatusConflict, "CONFLICT")
+	requireProblem(t, sched2, http.StatusConflict, problem.CodeSaleScheduleOverlap)
 
 	// Campaign 3: T+4h to T+6h (no overlap)
 	c3Payload := map[string]any{
