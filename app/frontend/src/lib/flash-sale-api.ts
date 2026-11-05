@@ -4,15 +4,20 @@ import { csrfCookieName, readDocumentCookie } from './auth-api'
 export type FlashSaleItem = {
   id: string
   sku_id: string
+  sku_code: string
+  product_name: string
+  regular_price: number
   sale_price: number
   quota_total: number
   purchase_limit: number
 }
 
+export type FlashSaleStatus = 'draft' | 'scheduled' | 'active' | 'stopped' | 'ended'
+
 export type FlashSaleCampaign = {
   id: string
   name: string
-  status: 'draft' | 'scheduled' | 'active' | 'stopped' | 'ended'
+  status: FlashSaleStatus
   starts_at: string
   ends_at: string
   items: FlashSaleItem[]

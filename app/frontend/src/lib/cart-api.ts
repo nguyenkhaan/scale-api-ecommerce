@@ -1,13 +1,18 @@
-import { errorFromResponse, invalidResponseError, networkError } from './api-error'
-import { csrfCookieName, readDocumentCookie } from './auth-api'
+import { createJsonHttp, type JsonHttpOptions } from './json-http'
+
+export type PriceSource = 'regular' | 'flash_sale'
 
 export type CartItem = {
   id: string
   sku_id: string
   quantity: number
   version: number
-  price_source: 'regular' | 'flash_sale'
+  price_source: PriceSource
   flash_sale_item_id: string | null
+  product_name: string
+  sku_code: string
+  /** Display-only price; the authoritative price comes from the checkout preview. */
+  reference_unit_price: number
 }
 
 export type Cart = {
@@ -17,7 +22,7 @@ export type Cart = {
 
 export type UpsertCartItemRequest = {
   quantity: number
-  price_source?: 'regular' | 'flash_sale'
+  price_source?: PriceSource
   flash_sale_item_id?: string | null
   expected_version?: number
 }
@@ -38,7 +43,7 @@ export type CheckoutLine = {
   quantity: number
   unit_price: number
   subtotal: number
-  price_source: string
+  price_source: PriceSource
   flash_sale_item_id: string | null
 }
 
@@ -49,84 +54,28 @@ export type CheckoutPreview = {
   previewed_at: string
 }
 
-type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
-
-export type CartClientOptions = {
-  baseURL: string
-  fetcher?: Fetcher
-  readCookie?: (name: string) => string | null
-}
+export type CartClientOptions = JsonHttpOptions
 
 export function createCartClient(options: CartClientOptions) {
-  const baseURL = options.baseURL.replace(/\/$/, '')
-  const fetcher: Fetcher = options.fetcher ?? ((input, init) => globalThis.fetch(input, init))
-  const readCookie = options.readCookie ?? readDocumentCookie
-
-  async function send(path: string, init: { method: string; body?: unknown; csrf?: string }) {
-    const headers: Record<string, string> = { Accept: 'application/json' }
-    if (init.body !== undefined) headers['Content-Type'] = 'application/json'
-    if (init.csrf !== undefined) headers['X-CSRF-Token'] = init.csrf
-    try {
-      return await fetcher(`${baseURL}${path}`, {
-        method: init.method,
-        credentials: 'include',
-        headers,
-        body: init.body === undefined ? undefined : JSON.stringify(init.body),
-      })
-    } catch {
-      throw networkError()
-    }
-  }
-
-  async function readJSON<T>(response: Response): Promise<T> {
-    try {
-      return (await response.json()) as T
-    } catch {
-      throw invalidResponseError(response)
-    }
-  }
-
-  function getCsrf() {
-    return readCookie(csrfCookieName) ?? ''
-  }
+  const http = createJsonHttp(options)
 
   return {
-    async getCart(): Promise<Cart> {
-      const res = await send('/api/v1/cart', { method: 'GET' })
-      if (!res.ok) throw await errorFromResponse(res)
-      return readJSON<Cart>(res)
-    },
+    getCart: () => http.json<Cart>('/api/v1/cart', { method: 'GET' }),
 
-    async upsertCartItem(skuId: string, data: UpsertCartItemRequest): Promise<Cart> {
-      const res = await send(`/api/v1/cart/items/${skuId}`, {
-        method: 'PUT',
-        body: data,
-        csrf: getCsrf(),
-      })
-      if (!res.ok) throw await errorFromResponse(res)
-      return readJSON<Cart>(res)
-    },
+    /** Sets the absolute quantity of one SKU line. */
+    upsertCartItem: (skuId: string, data: UpsertCartItemRequest) =>
+      http.json<Cart>(`/api/v1/cart/items/${skuId}`, { method: 'PUT', body: data }),
 
-    async removeCartItem(skuId: string): Promise<Cart> {
-      const res = await send(`/api/v1/cart/items/${skuId}`, {
-        method: 'DELETE',
-        csrf: getCsrf(),
-      })
-      if (!res.ok) throw await errorFromResponse(res)
-      return readJSON<Cart>(res)
-    },
+    /** The server answers 204 No Content; callers reload the cart with getCart(). */
+    removeCartItem: (skuId: string) =>
+      http.noContent(`/api/v1/cart/items/${skuId}`, { method: 'DELETE' }),
 
-    async previewCheckout(selection: CheckoutSelection): Promise<CheckoutPreview> {
-      const res = await send('/api/v1/checkout/preview', {
-        method: 'POST',
-        body: selection,
-        csrf: getCsrf(),
-      })
-      if (!res.ok) throw await errorFromResponse(res)
-      return readJSON<CheckoutPreview>(res)
-    },
+    previewCheckout: (selection: CheckoutSelection) =>
+      http.json<CheckoutPreview>('/api/v1/checkout/preview', { method: 'POST', body: selection }),
   }
 }
+
+export type CartClient = ReturnType<typeof createCartClient>
 
 export const cartClient = createCartClient({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '',

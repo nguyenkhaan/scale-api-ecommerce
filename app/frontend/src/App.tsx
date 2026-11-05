@@ -10,6 +10,7 @@ import { CartPage } from './pages/CartPage'
 import { FlashSalesPage } from './pages/FlashSalesPage'
 import { HealthPage } from './pages/HealthPage'
 import { LoginPage } from './pages/LoginPage'
+import { ProductsPage } from './pages/ProductsPage'
 import { RegisterPage } from './pages/RegisterPage'
 
 function HomePage() {
@@ -45,6 +46,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/flash-sales" element={<FlashSalesPage />} />
+      <Route path="/products" element={<RequireAuth><ProductsPage /></RequireAuth>} />
       <Route path="/cart" element={<RequireAuth><CartPage /></RequireAuth>} />
       <Route path="/health" element={<HealthPage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -68,6 +70,9 @@ function AppLayout() {
           <nav aria-label="Primary navigation" className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
             <Link to="/flash-sales" className="inline-flex min-h-11 items-center text-sm font-semibold text-rose-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-amber-500">
               Flash Sale
+            </Link>
+            <Link to="/products" className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-amber-500">
+              Sản phẩm
             </Link>
             <Link to="/cart" className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-amber-500">
               Giỏ hàng
