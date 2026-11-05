@@ -56,7 +56,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	//Khoi tao dependencies 
+	//Khoi tao dependencies
 	router := httpserver.NewRouter(httpserver.Dependencies{
 		Database:         postgresDatabase,
 		AuthService:      authService,

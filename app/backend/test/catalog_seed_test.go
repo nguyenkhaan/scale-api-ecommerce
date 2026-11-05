@@ -39,6 +39,8 @@ func TestCatalogSeedRequiresExplicitEnvironmentGuard(t *testing.T) {
 }
 
 func TestCatalogSeedIntegration(t *testing.T) {
+	// The seed refuses to run outside development/test; pin it so the result does not depend on the shell.
+	t.Setenv("ENV", "test")
 	testDatabase := openIntegrationDatabase(t)
 	if err := bootstrap.SeedCatalog(t.Context(), testDatabase.ORM()); err != nil {
 		t.Fatalf("SeedCatalog() first run failed: %v", err)
