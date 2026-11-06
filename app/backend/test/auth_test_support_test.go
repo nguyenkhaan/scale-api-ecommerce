@@ -59,7 +59,7 @@ func openIntegrationDatabase(t *testing.T) *database.Database {
 		t.Fatalf("migrate test database: %v", err)
 	}
 	if err := testDatabase.ORM().Exec(
-		"TRUNCATE inventory_adjustments, inventories, skus, products, categories, flash_sale_customer_usage, flash_sale_items, flash_sale_campaigns, login_throttles, sessions, users",
+		"TRUNCATE cart_items, carts, inventory_adjustments, inventories, skus, products, categories, flash_sale_customer_usage, flash_sale_items, flash_sale_campaigns, login_throttles, sessions, users CASCADE",
 	).Error; err != nil {
 		t.Fatalf("truncate test database: %v", err)
 	}

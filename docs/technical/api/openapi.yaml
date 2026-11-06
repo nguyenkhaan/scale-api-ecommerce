@@ -289,7 +289,11 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '409':
-          description: Một hoặc nhiều dòng không còn đủ điều kiện
+          description: |
+            `CART_ITEM_CHANGED` khi version dòng đã chọn khác version hiện tại (tải lại giỏ).
+            Ngược lại, mọi dòng không đủ điều kiện được trả trong `line_errors` (mỗi dòng một mã ưu tiên
+            cao nhất: ITEM_UNAVAILABLE > SALE_NOT_ACTIVE > PURCHASE_LIMIT_EXCEEDED > SALE_QUOTA_EXCEEDED >
+            INSUFFICIENT_STOCK) và `code` cấp cao nhất là mã nghiêm trọng nhất trong các dòng. Không giữ hàng.
           content:
             application/problem+json:
               schema:
@@ -852,7 +856,18 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '409':
-          $ref: '#/components/responses/Conflict'
+          description: |
+            `STATE_TRANSITION_CONFLICT` khi campaign không còn là draft hoặc khung giờ đã kết thúc theo
+            giờ database; `SALE_SCHEDULE_OVERLAP` khi một SKU đã thuộc campaign scheduled/stopped khác
+            có khoảng thời gian chồng lấn (kiểm trong transaction có khóa theo SKU).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422':
+          description: Giá sale không còn nhỏ hơn giá thường hoặc SKU không còn bán được
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
 
   /v1/admin/flash-sales/{flashSaleId}/cancel-schedule:
     post:
@@ -1147,18 +1162,26 @@ components:
     UpsertCartItemRequest:
       type: object
       additionalProperties: false
-      required: [quantity, price_source]
+      required: [quantity]
+      description: |
+        Đặt số lượng tuyệt đối cho dòng của SKU (một SKU một dòng). `quantity` không vượt
+        `max_quantity_per_order` của SKU và, với dòng flash sale, `purchase_limit` của item.
       properties:
         quantity: { type: integer, minimum: 1 }
-        price_source: { type: string, enum: [regular, flash_sale] }
+        price_source: { type: string, enum: [regular, flash_sale], default: regular }
         flash_sale_item_id:
           oneOf:
             - { type: string, format: uuid }
             - { type: 'null' }
+        expected_version:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Nếu gửi, chỉ cập nhật khi dòng hiện có đúng version này; sai trả 409 `CART_ITEM_CHANGED`.
 
     CartItem:
       type: object
-      required: [id, sku_id, quantity, version, price_source]
+      required: [id, sku_id, quantity, version, price_source, product_name, sku_code, reference_unit_price]
       properties:
         id: { type: string, format: uuid }
         sku_id: { type: string, format: uuid }
@@ -1169,6 +1192,13 @@ components:
           oneOf:
             - { type: string, format: uuid }
             - { type: 'null' }
+        product_name: { type: string, readOnly: true }
+        sku_code: { type: string, readOnly: true }
+        reference_unit_price:
+          type: integer
+          format: int64
+          readOnly: true
+          description: Giá tham khảo hiện tại theo nguồn giá của dòng; giá có thẩm quyền chỉ có ở preview/checkout.
 
     Cart:
       type: object
@@ -1534,7 +1564,20 @@ components:
         ends_at: { type: string, format: date-time }
         items:
           type: array
-          items: { $ref: '#/components/schemas/CreateFlashSaleItem' }
+          items: { $ref: '#/components/schemas/FlashSaleItem' }
+
+    FlashSaleItem:
+      type: object
+      required: [id, sku_id, sku_code, product_name, regular_price, sale_price, quota_total, purchase_limit]
+      properties:
+        id: { type: string, format: uuid }
+        sku_id: { type: string, format: uuid }
+        sku_code: { type: string }
+        product_name: { type: string }
+        regular_price: { type: integer, format: int64, minimum: 1, description: Giá thường hiện tại để hiển thị }
+        sale_price: { type: integer, format: int64, minimum: 1 }
+        quota_total: { type: integer, format: int64, minimum: 1 }
+        purchase_limit: { type: integer, minimum: 1 }
 
     FlashSalePage:
       type: object
@@ -1626,6 +1669,10 @@ components:
             - FORBIDDEN
             - RESOURCE_NOT_FOUND
             - EMAIL_ALREADY_REGISTERED
+            - SKU_CODE_ALREADY_EXISTS
+            - INVENTORY_BELOW_RESERVED
+            - SALE_SCHEDULE_OVERLAP
+            - CART_ITEM_CHANGED
             - PRICE_CHANGED
             - ITEM_UNAVAILABLE
             - INSUFFICIENT_STOCK

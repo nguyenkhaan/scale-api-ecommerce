@@ -185,6 +185,8 @@ CHECK (quota_reserved + quota_sold <= quota_total)
 
 `sale_price < skus.regular_price` và việc một SKU không có hai campaign nhận đơn chồng thời gian là bất biến liên bảng, được kiểm tra trong transaction schedule. Transaction khóa các campaign/item liên quan theo `sku_id`; test đồng thời bắt buộc chứng minh không lọt overlap.
 
+Cách triển khai: transaction schedule khóa row campaign (`FOR UPDATE`), lấy `pg_advisory_xact_lock` cho từng `sku_id` theo thứ tự tăng dần, kiểm lại giá/SKU và overlap, rồi chỉ chuyển `draft → scheduled` bằng `UPDATE ... WHERE status = 'draft'`. Campaign `stopped` vẫn tính là chồng thời gian (PRD §7.1: bán tiếp phải là chương trình mới không chồng thời gian của SKU), nên dừng rồi mở lại cùng khung giờ không reset được giới hạn mua. Sửa item của draft cũng khóa row campaign nên không chen được vào giữa lúc schedule.
+
 ### `flash_sale_customer_usage`
 
 | Cột | Kiểu | Ràng buộc |

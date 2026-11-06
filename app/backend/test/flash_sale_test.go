@@ -4,6 +4,7 @@ import (
 	"sync"
 	"testing"
 
+	"cloudian/cloudian-scale/internal/model"
 	"gorm.io/gorm/schema"
 )
 
@@ -18,7 +19,7 @@ func TestFlashSaleModelsMapToExpectedTablesAndColumns(t *testing.T) {
 	}{
 		{
 			name:        "campaign",
-			model:       &FlashSaleCampaign{},
+			model:       &model.FlashSaleCampaign{},
 			table:       "flash_sale_campaigns",
 			primaryKeys: []string{"id"},
 			columns:     []string{"id", "name", "status", "starts_at", "ends_at", "created_at", "updated_at"},
@@ -26,7 +27,7 @@ func TestFlashSaleModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		},
 		{
 			name:        "item",
-			model:       &FlashSaleItem{},
+			model:       &model.FlashSaleItem{},
 			table:       "flash_sale_items",
 			primaryKeys: []string{"id"},
 			autoID:      true,
@@ -37,7 +38,7 @@ func TestFlashSaleModelsMapToExpectedTablesAndColumns(t *testing.T) {
 		},
 		{
 			name:        "customer usage",
-			model:       &FlashSaleCustomerUsage{},
+			model:       &model.FlashSaleCustomerUsage{},
 			table:       "flash_sale_customer_usage",
 			primaryKeys: []string{"flash_sale_item_id", "user_id"},
 			columns: []string{

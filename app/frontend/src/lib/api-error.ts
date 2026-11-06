@@ -3,11 +3,21 @@ export type FieldViolation = {
   reason: string
 }
 
+/** Per-SKU rejection detail returned with a 409 checkout preview (OpenAPI LineProblem). */
+export type LineError = {
+  sku_id: string
+  requested_quantity: number
+  code: string
+  available_quantity?: number
+  current_unit_price?: number
+}
+
 export type ApiErrorInit = {
   status: number
   code: string
   requestID?: string
   violations?: FieldViolation[]
+  lineErrors?: LineError[]
   retryAfterSeconds?: number
 }
 
@@ -17,6 +27,7 @@ export class ApiError extends Error {
   readonly code: string
   readonly requestID?: string
   readonly violations: FieldViolation[]
+  readonly lineErrors: LineError[]
   readonly retryAfterSeconds?: number
 
   constructor(init: ApiErrorInit) {
@@ -26,6 +37,7 @@ export class ApiError extends Error {
     this.code = init.code
     this.requestID = init.requestID
     this.violations = init.violations ?? []
+    this.lineErrors = init.lineErrors ?? []
     this.retryAfterSeconds = init.retryAfterSeconds
   }
 }
@@ -51,6 +63,21 @@ function parseViolations(value: unknown): FieldViolation[] {
   )
 }
 
+function parseLineErrors(value: unknown): LineError[] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item): LineError[] => {
+    if (!isRecord(item) || typeof item.sku_id !== 'string' || typeof item.code !== 'string') return []
+    const lineError: LineError = {
+      sku_id: item.sku_id,
+      requested_quantity: typeof item.requested_quantity === 'number' ? item.requested_quantity : 0,
+      code: item.code,
+    }
+    if (typeof item.available_quantity === 'number') lineError.available_quantity = item.available_quantity
+    if (typeof item.current_unit_price === 'number') lineError.current_unit_price = item.current_unit_price
+    return [lineError]
+  })
+}
+
 function parseRetryAfter(header: string | null): number | undefined {
   if (header === null || !/^\d+$/.test(header.trim())) return undefined
   return Number(header.trim())
@@ -74,6 +101,11 @@ export async function errorFromResponse(response: Response): Promise<ApiError> {
         ? problem.request_id
         : (response.headers.get('X-Request-ID') ?? undefined),
     violations: parseViolations(problem.violations),
+    lineErrors: parseLineErrors(problem.line_errors),
     retryAfterSeconds,
   })
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError
 }

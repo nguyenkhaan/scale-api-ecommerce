@@ -31,6 +31,11 @@ export function AuthNavView({ state, onLogout, logoutFailed = false }: AuthNavVi
 
   return (
     <>
+      {state.user.role === 'admin' && (
+        <Link to="/admin/flash-sales" className={linkClass}>
+          Quản trị Flash Sale
+        </Link>
+      )}
       <Link to="/account" className={linkClass}>
         <span className="max-w-40 truncate sm:max-w-64">{state.user.email}</span>
         <span className="ml-2 border border-slate-300 px-1.5 py-0.5 text-xs font-medium text-slate-600">

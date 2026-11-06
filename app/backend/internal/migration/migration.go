@@ -1,6 +1,6 @@
 /*
-cd app/backend 
-go run ./cmd/migrate status 
+cd app/backend
+go run ./cmd/migrate status
 go run ./cmd/migrate up
 */
 package migration
@@ -22,8 +22,9 @@ const (
 	migrationDir  = "sql"
 )
 
+// Go embeded la 1 compiler directive dac biet, no giong file migration co the nap tat ca cac file *.sql tu thu muc sql/
+//
 //go:embed sql/*.sql
-//Go embeded la 1 compiler directive dac biet, no giong file migration co the nap tat ca cac file *.sql tu thu muc sql/
 var migrationFiles embed.FS
 
 func Run(ctx context.Context, database *sql.DB, command string) error {
