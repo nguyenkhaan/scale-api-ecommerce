@@ -1,11 +1,17 @@
 package main
 
 import (
+	"context"
+	"crypto/sha256"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
+	"cloudian/cloudian-scale/internal/module/auth"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"uuid"
 )
 
@@ -358,4 +364,194 @@ func requireUUID(label, value string) error {
 func jsonObject(value json.RawMessage) bool {
 	var decoded map[string]any
 	return json.Unmarshal(value, &decoded) == nil && decoded != nil
+}
+
+func canSeed(environment, confirmation string) bool {
+	switch strings.ToLower(strings.TrimSpace(environment)) {
+	case "dev", "development", "test":
+		return strings.EqualFold(strings.TrimSpace(confirmation), "true")
+	default:
+		return false
+	}
+}
+
+func hashFixturePassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), auth.DefaultPasswordCost)
+	if err != nil {
+		return "", fmt.Errorf("hash fixture password: %w", err)
+	}
+	return string(hash), nil
+}
+
+func seed(ctx context.Context, database *gorm.DB, data fixture) error {
+	if database == nil {
+		return errors.New("seed database is required")
+	}
+	if err := validateFixture(data); err != nil {
+		return fmt.Errorf("validate fixture: %w", err)
+	}
+
+	passwordHashes := make(map[string]string, len(data.Users))
+	for _, user := range data.Users {
+		hash, err := hashFixturePassword(user.Password)
+		if err != nil {
+			return err
+		}
+		passwordHashes[user.ID] = hash
+	}
+
+	return database.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		for _, user := range data.Users {
+			if err := execute(transaction, `
+				INSERT INTO users (id, email, email_normalized, password_hash, role, status)
+				VALUES (?, ?, lower(?), ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					email = EXCLUDED.email,
+					email_normalized = EXCLUDED.email_normalized,
+					password_hash = EXCLUDED.password_hash,
+					role = EXCLUDED.role,
+					status = EXCLUDED.status,
+					updated_at = CURRENT_TIMESTAMP`, user.ID, user.Email, user.Email, passwordHashes[user.ID], user.Role, user.Status); err != nil {
+				return fmt.Errorf("upsert user %q: %w", user.Email, err)
+			}
+		}
+		for _, category := range data.Categories {
+			if err := execute(transaction, `
+				INSERT INTO categories (id, name, slug, is_visible)
+				VALUES (?, ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					name = EXCLUDED.name, slug = EXCLUDED.slug, is_visible = EXCLUDED.is_visible,
+					updated_at = CURRENT_TIMESTAMP`, category.ID, category.Name, category.Slug, category.IsVisible); err != nil {
+				return fmt.Errorf("upsert category %q: %w", category.ID, err)
+			}
+		}
+		for _, product := range data.Products {
+			if err := execute(transaction, `
+				INSERT INTO products (id, category_id, name, description, image_url, status)
+				VALUES (?, ?, ?, ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					category_id = EXCLUDED.category_id, name = EXCLUDED.name,
+					description = EXCLUDED.description, image_url = EXCLUDED.image_url,
+					status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`, product.ID, product.CategoryID, product.Name, product.Description, product.ImageURL, product.Status); err != nil {
+				return fmt.Errorf("upsert product %q: %w", product.ID, err)
+			}
+		}
+		for _, sku := range data.SKUs {
+			if err := execute(transaction, `
+				INSERT INTO skus (id, product_id, code, attributes, regular_price, max_quantity_per_order, status)
+				VALUES (?, ?, ?, ?::jsonb, ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					product_id = EXCLUDED.product_id, code = EXCLUDED.code, attributes = EXCLUDED.attributes,
+					regular_price = EXCLUDED.regular_price, max_quantity_per_order = EXCLUDED.max_quantity_per_order,
+					status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`, sku.ID, sku.ProductID, sku.Code, string(sku.Attributes), sku.RegularPrice, sku.MaxQuantityPerOrder, sku.Status); err != nil {
+				return fmt.Errorf("upsert sku %q: %w", sku.ID, err)
+			}
+		}
+		for _, inventory := range data.Inventories {
+			if err := execute(transaction, `
+				INSERT INTO inventories (sku_id, on_hand, reserved, version)
+				VALUES (?, ?, ?, ?)
+				ON CONFLICT (sku_id) DO UPDATE SET
+					on_hand = EXCLUDED.on_hand, reserved = EXCLUDED.reserved,
+					version = EXCLUDED.version, updated_at = CURRENT_TIMESTAMP`, inventory.SKUID, inventory.OnHand, inventory.Reserved, inventory.Version); err != nil {
+				return fmt.Errorf("upsert inventory %q: %w", inventory.SKUID, err)
+			}
+		}
+		for _, adjustment := range data.InventoryAdjustments {
+			if err := execute(transaction, `
+				INSERT INTO inventory_adjustments
+					(id, sku_id, actor_user_id, delta, on_hand_before, on_hand_after, reason)
+				VALUES (?, ?, ?, ?, ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					sku_id = EXCLUDED.sku_id, actor_user_id = EXCLUDED.actor_user_id,
+					delta = EXCLUDED.delta, on_hand_before = EXCLUDED.on_hand_before,
+					on_hand_after = EXCLUDED.on_hand_after, reason = EXCLUDED.reason`, adjustment.ID, adjustment.SKUID, adjustment.ActorUserID, adjustment.Delta, adjustment.OnHandBefore, adjustment.OnHandAfter, adjustment.Reason); err != nil {
+				return fmt.Errorf("upsert inventory adjustment %q: %w", adjustment.ID, err)
+			}
+		}
+		for _, campaign := range data.FlashSaleCampaigns {
+			if err := execute(transaction, `
+				INSERT INTO flash_sale_campaigns (id, name, status, starts_at, ends_at)
+				VALUES (?, ?, ?, CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '2 days')
+				ON CONFLICT (id) DO UPDATE SET
+					name = EXCLUDED.name, status = EXCLUDED.status, starts_at = EXCLUDED.starts_at,
+					ends_at = EXCLUDED.ends_at, updated_at = CURRENT_TIMESTAMP`, campaign.ID, campaign.Name, campaign.Status); err != nil {
+				return fmt.Errorf("upsert flash sale campaign %q: %w", campaign.ID, err)
+			}
+		}
+		for _, item := range data.FlashSaleItems {
+			if err := execute(transaction, `
+				INSERT INTO flash_sale_items
+					(id, campaign_id, sku_id, sale_price, quota_total, quota_reserved, quota_sold, purchase_limit)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					campaign_id = EXCLUDED.campaign_id, sku_id = EXCLUDED.sku_id,
+					sale_price = EXCLUDED.sale_price, quota_total = EXCLUDED.quota_total,
+					quota_reserved = EXCLUDED.quota_reserved, quota_sold = EXCLUDED.quota_sold,
+					purchase_limit = EXCLUDED.purchase_limit, updated_at = CURRENT_TIMESTAMP`, item.ID, item.CampaignID, item.SKUID, item.SalePrice, item.QuotaTotal, item.QuotaReserved, item.QuotaSold, item.PurchaseLimit); err != nil {
+				return fmt.Errorf("upsert flash sale item %q: %w", item.ID, err)
+			}
+		}
+		for _, usage := range data.FlashSaleCustomerUsage {
+			if err := execute(transaction, `
+				INSERT INTO flash_sale_customer_usage
+					(flash_sale_item_id, user_id, reserved_quantity, sold_quantity)
+				VALUES (?, ?, ?, ?)
+				ON CONFLICT (flash_sale_item_id, user_id) DO UPDATE SET
+					reserved_quantity = EXCLUDED.reserved_quantity, sold_quantity = EXCLUDED.sold_quantity,
+					updated_at = CURRENT_TIMESTAMP`, usage.FlashSaleItemID, usage.UserID, usage.ReservedQuantity, usage.SoldQuantity); err != nil {
+				return fmt.Errorf("upsert flash sale customer usage %q: %w", usage.FlashSaleItemID, err)
+			}
+		}
+		for _, cart := range data.Carts {
+			if err := execute(transaction, `
+				INSERT INTO carts (id, user_id, status)
+				VALUES (?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					user_id = EXCLUDED.user_id, status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`, cart.ID, cart.UserID, cart.Status); err != nil {
+				return fmt.Errorf("upsert cart %q: %w", cart.ID, err)
+			}
+		}
+		for _, item := range data.CartItems {
+			if err := execute(transaction, `
+				INSERT INTO cart_items
+					(id, cart_id, sku_id, quantity, intended_price_source, flash_sale_item_id, version)
+				VALUES (?, ?, ?, ?, ?, ?, ?)
+				ON CONFLICT (id) DO UPDATE SET
+					cart_id = EXCLUDED.cart_id, sku_id = EXCLUDED.sku_id, quantity = EXCLUDED.quantity,
+					intended_price_source = EXCLUDED.intended_price_source,
+					flash_sale_item_id = EXCLUDED.flash_sale_item_id, version = EXCLUDED.version,
+					updated_at = CURRENT_TIMESTAMP`, item.ID, item.CartID, item.SKUID, item.Quantity, item.IntendedPriceSource, item.FlashSaleItemID, item.Version); err != nil {
+				return fmt.Errorf("upsert cart item %q: %w", item.ID, err)
+			}
+		}
+		for _, session := range data.Sessions {
+			tokenHash := sha256.Sum256([]byte(session.TokenSeed))
+			csrfHash := sha256.Sum256([]byte(session.CSRFSeed))
+			if err := execute(transaction, `
+				INSERT INTO sessions
+					(id, user_id, token_hash, csrf_secret_hash, expires_at, revoked_at, last_seen_at)
+				VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP + INTERVAL '1 hour', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+				ON CONFLICT (id) DO UPDATE SET
+					user_id = EXCLUDED.user_id, token_hash = EXCLUDED.token_hash,
+					csrf_secret_hash = EXCLUDED.csrf_secret_hash, expires_at = EXCLUDED.expires_at,
+					revoked_at = EXCLUDED.revoked_at, last_seen_at = EXCLUDED.last_seen_at`, session.ID, session.UserID, tokenHash[:], csrfHash[:]); err != nil {
+				return fmt.Errorf("upsert revoked session %q: %w", session.ID, err)
+			}
+		}
+		for _, throttle := range data.LoginThrottles {
+			if err := execute(transaction, `
+				INSERT INTO login_throttles (email_normalized, failure_count, window_started_at)
+				VALUES (?, ?, CURRENT_TIMESTAMP)
+				ON CONFLICT (email_normalized) DO UPDATE SET
+					failure_count = EXCLUDED.failure_count, window_started_at = EXCLUDED.window_started_at`, throttle.EmailNormalized, throttle.FailureCount); err != nil {
+				return fmt.Errorf("upsert login throttle %q: %w", throttle.EmailNormalized, err)
+			}
+		}
+		return nil
+	})
+}
+
+func execute(transaction *gorm.DB, query string, arguments ...any) error {
+	return transaction.Exec(query, arguments...).Error
 }
