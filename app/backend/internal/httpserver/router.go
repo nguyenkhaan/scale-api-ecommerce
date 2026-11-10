@@ -27,9 +27,11 @@ func NewRouter(dependencies Dependencies) *gin.Engine {
 	//Khai bao middleware function d su dung
 	requireSession := middleware.RequireSession(dependencies.AuthService)
 	requireAdmin := middleware.RequireRole(model.RoleAdmin)
+	corsMiddleware := middleware.CORSMiddleware() 
 	//Bat dau khai bao router
 	router := gin.New()
 	router.Use(
+		corsMiddleware, 
 		middleware.RequestIDMiddleware(),
 		gin.LoggerWithFormatter(middleware.RequestLogFormatter),
 		gin.Recovery(),
