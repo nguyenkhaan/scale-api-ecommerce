@@ -33,7 +33,7 @@ func RegisterRoutes(
 	requireSession gin.HandlerFunc,
 	requireAdmin gin.HandlerFunc,
 ) {
-	group := router.Group("/v1/admin/inventories", requireSession, requireAdmin)
+	group := router.Group("/admin/inventories", requireSession, requireAdmin)
 	group.GET("", controller.List)
 	group.GET("/:skuId/adjustments", controller.ListAdjustments)
 	group.POST("/:skuId/adjustments", controller.Adjust)

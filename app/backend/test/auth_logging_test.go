@@ -29,17 +29,17 @@ func TestAuthLogsContainNoSecretsOrEmails(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	router := newAuthRouter(t, testDatabase.ORM())
 	client := newTestClient(router)
-	client.send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
-	client.send(t, http.MethodPost, "/api/v1/auth/login", credentials("lan@example.com", testPassword))
+	client.send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
+	client.send(t, http.MethodPost, "/api/auth/login", credentials("lan@example.com", testPassword))
 	// A duplicate insert is logged by GORM as a failed statement; an unknown email is a missing row.
-	newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
-	newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/login", credentials("nobody@example.com", testPassword))
+	newTestClient(router).send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
+	newTestClient(router).send(t, http.MethodPost, "/api/auth/login", credentials("nobody@example.com", testPassword))
 
 	var passwordHash string
 	testDatabase.ORM().Raw("SELECT password_hash FROM users").Scan(&passwordHash)
 	output := logs.String() + readStdout()
 
-	if !strings.Contains(output, "/api/v1/auth/login") || !strings.Contains(output, `INSERT INTO "users"`) {
+	if !strings.Contains(output, "/api/auth/login") || !strings.Contains(output, `INSERT INTO "users"`) {
 		t.Fatalf("request and query logs were not both captured: %q", output)
 	}
 	secrets := []string{

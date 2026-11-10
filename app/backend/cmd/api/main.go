@@ -66,5 +66,9 @@ func run() error {
 		CartService:      cartService,
 		SecureCookies:    !config.IsLocalEnvironment(applicationConfig.Env),
 	})
+	// Thuc hien dang ky api docs.
+	if applicationConfig.Env == "dev" || applicationConfig.Env == "development" {
+		httpserver.RegisterOpenAPIDocs(router, "../../docs/technical/api/openapi.yaml")
+	}
 	return router.Run(fmt.Sprintf(":%v", applicationConfig.Port))
 }

@@ -16,7 +16,7 @@ func TestCartConcurrentFirstAccessCreatesOneCart(t *testing.T) {
 		customer := cartNewCustomer(t, router, database, "cart-first-access")
 		responses := make([]*httptest.ResponseRecorder, 6)
 		cartRunParallel(len(responses), func(i int) {
-			responses[i] = customer.parallel(router).send(t, http.MethodGet, "/api/v1/cart", nil)
+			responses[i] = customer.parallel(router).send(t, http.MethodGet, "/api/cart", nil)
 		})
 
 		cartIDs := map[string]bool{}

@@ -71,7 +71,7 @@ func newPhase3CustomerClient(t *testing.T, router http.Handler, database *gorm.D
 		t.Fatalf("create customer: %v", err)
 	}
 	client := newTestClient(router)
-	if response := client.send(t, http.MethodPost, "/api/v1/auth/login", credentials(customer.Email, "customer password long enough")); response.Code != http.StatusOK {
+	if response := client.send(t, http.MethodPost, "/api/auth/login", credentials(customer.Email, "customer password long enough")); response.Code != http.StatusOK {
 		t.Fatalf("customer login status = %d; body = %s", response.Code, response.Body.String())
 	}
 	return client
@@ -104,7 +104,7 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 		},
 	}
 
-	createRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales", createPayload, admin.csrfHeader()...)
+	createRes := admin.send(t, http.MethodPost, "/api/admin/flash-sales", createPayload, admin.csrfHeader()...)
 	if createRes.Code != http.StatusCreated {
 		t.Fatalf("create status = %d, want 201; body = %s", createRes.Code, createRes.Body.String())
 	}
@@ -121,7 +121,7 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 	updatePayload := map[string]any{
 		"name": newName,
 	}
-	updateRes := admin.send(t, http.MethodPatch, "/api/v1/admin/flash-sales/"+created.ID, updatePayload, admin.csrfHeader()...)
+	updateRes := admin.send(t, http.MethodPatch, "/api/admin/flash-sales/"+created.ID, updatePayload, admin.csrfHeader()...)
 	if updateRes.Code != http.StatusOK {
 		t.Fatalf("update status = %d, want 200; body = %s", updateRes.Code, updateRes.Body.String())
 	}
@@ -131,7 +131,7 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 	}
 
 	// 3. Schedule campaign
-	schedRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/schedule", nil, admin.csrfHeader()...)
+	schedRes := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+created.ID+"/schedule", nil, admin.csrfHeader()...)
 	if schedRes.Code != http.StatusOK {
 		t.Fatalf("schedule status = %d, want 200; body = %s", schedRes.Code, schedRes.Body.String())
 	}
@@ -141,11 +141,11 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 	}
 
 	// 4. Updating scheduled campaign should fail with 409 CONFLICT
-	failUpdateRes := admin.send(t, http.MethodPatch, "/api/v1/admin/flash-sales/"+created.ID, updatePayload, admin.csrfHeader()...)
+	failUpdateRes := admin.send(t, http.MethodPatch, "/api/admin/flash-sales/"+created.ID, updatePayload, admin.csrfHeader()...)
 	requireProblem(t, failUpdateRes, http.StatusConflict, problem.CodeStateTransitionConflict)
 
 	// 5. Cancel schedule before start -> reverts to draft
-	cancelRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/cancel-schedule", nil, admin.csrfHeader()...)
+	cancelRes := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+created.ID+"/cancel-schedule", nil, admin.csrfHeader()...)
 	if cancelRes.Code != http.StatusOK {
 		t.Fatalf("cancel schedule status = %d, want 200; body = %s", cancelRes.Code, cancelRes.Body.String())
 	}
@@ -155,17 +155,17 @@ func TestAdminFlashSaleDraftAndScheduleLifecycle(t *testing.T) {
 	}
 
 	// Re-schedule
-	schedRes2 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/schedule", nil, admin.csrfHeader()...)
+	schedRes2 := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+created.ID+"/schedule", nil, admin.csrfHeader()...)
 	if schedRes2.Code != http.StatusOK {
 		t.Fatalf("re-schedule status = %d, want 200; body = %s", schedRes2.Code, schedRes2.Body.String())
 	}
 
 	// 6. Stop only applies once the campaign is running (by database time)
-	if res := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/stop", nil, admin.csrfHeader()...); res.Code != http.StatusConflict {
+	if res := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+created.ID+"/stop", nil, admin.csrfHeader()...); res.Code != http.StatusConflict {
 		t.Fatalf("stop upcoming status = %d, want 409; body = %s", res.Code, res.Body.String())
 	}
 	flashSaleSetWindow(t, testDatabase.ORM(), created.ID, "now() - interval '1 minute'", "now() + interval '1 hour'")
-	stopRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+created.ID+"/stop", nil, admin.csrfHeader()...)
+	stopRes := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+created.ID+"/stop", nil, admin.csrfHeader()...)
 	if stopRes.Code != http.StatusOK {
 		t.Fatalf("stop status = %d, want 200; body = %s", stopRes.Code, stopRes.Body.String())
 	}
@@ -193,9 +193,9 @@ func TestAdminFlashSaleAntiOverlapConstraint(t *testing.T) {
 			{"sku_id": skuID, "sale_price": 50000, "quota_total": 5, "purchase_limit": 1},
 		},
 	}
-	res1 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales", c1Payload, admin.csrfHeader()...)
+	res1 := admin.send(t, http.MethodPost, "/api/admin/flash-sales", c1Payload, admin.csrfHeader()...)
 	c1 := decodeJSON[flashsale.FlashSaleResponse](t, res1)
-	sched1 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+c1.ID+"/schedule", nil, admin.csrfHeader()...)
+	sched1 := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+c1.ID+"/schedule", nil, admin.csrfHeader()...)
 	if sched1.Code != http.StatusOK {
 		t.Fatalf("schedule c1 status = %d; body = %s", sched1.Code, sched1.Body.String())
 	}
@@ -209,11 +209,11 @@ func TestAdminFlashSaleAntiOverlapConstraint(t *testing.T) {
 			{"sku_id": skuID, "sale_price": 45000, "quota_total": 5, "purchase_limit": 1},
 		},
 	}
-	res2 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales", c2Payload, admin.csrfHeader()...)
+	res2 := admin.send(t, http.MethodPost, "/api/admin/flash-sales", c2Payload, admin.csrfHeader()...)
 	c2 := decodeJSON[flashsale.FlashSaleResponse](t, res2)
 
 	// Scheduling Campaign 2 should fail with 409 CONFLICT due to overlapping SKU
-	sched2 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+c2.ID+"/schedule", nil, admin.csrfHeader()...)
+	sched2 := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+c2.ID+"/schedule", nil, admin.csrfHeader()...)
 	requireProblem(t, sched2, http.StatusConflict, problem.CodeSaleScheduleOverlap)
 
 	// Campaign 3: T+4h to T+6h (no overlap)
@@ -225,9 +225,9 @@ func TestAdminFlashSaleAntiOverlapConstraint(t *testing.T) {
 			{"sku_id": skuID, "sale_price": 45000, "quota_total": 5, "purchase_limit": 1},
 		},
 	}
-	res3 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales", c3Payload, admin.csrfHeader()...)
+	res3 := admin.send(t, http.MethodPost, "/api/admin/flash-sales", c3Payload, admin.csrfHeader()...)
 	c3 := decodeJSON[flashsale.FlashSaleResponse](t, res3)
-	sched3 := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+c3.ID+"/schedule", nil, admin.csrfHeader()...)
+	sched3 := admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+c3.ID+"/schedule", nil, admin.csrfHeader()...)
 	if sched3.Code != http.StatusOK {
 		t.Fatalf("schedule c3 status = %d, want 200; body = %s", sched3.Code, sched3.Body.String())
 	}
@@ -251,10 +251,10 @@ func TestPublicFlashSaleListingAndDetail(t *testing.T) {
 			{"sku_id": skuID, "sale_price": 50000, "quota_total": 5, "purchase_limit": 1},
 		},
 	}
-	draftRes := admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales", draftPayload, admin.csrfHeader()...)
+	draftRes := admin.send(t, http.MethodPost, "/api/admin/flash-sales", draftPayload, admin.csrfHeader()...)
 	draftCampaign := decodeJSON[flashsale.FlashSaleResponse](t, draftRes)
 
-	pubListBefore := public.send(t, http.MethodGet, "/api/v1/flash-sales", nil)
+	pubListBefore := public.send(t, http.MethodGet, "/api/flash-sales", nil)
 	if pubListBefore.Code != http.StatusOK {
 		t.Fatalf("public list status = %d; body = %s", pubListBefore.Code, pubListBefore.Body.String())
 	}
@@ -264,9 +264,9 @@ func TestPublicFlashSaleListingAndDetail(t *testing.T) {
 	}
 
 	// 2. Schedule it -> should appear in public listing
-	admin.send(t, http.MethodPost, "/api/v1/admin/flash-sales/"+draftCampaign.ID+"/schedule", nil, admin.csrfHeader()...)
+	admin.send(t, http.MethodPost, "/api/admin/flash-sales/"+draftCampaign.ID+"/schedule", nil, admin.csrfHeader()...)
 
-	pubListAfter := public.send(t, http.MethodGet, "/api/v1/flash-sales", nil)
+	pubListAfter := public.send(t, http.MethodGet, "/api/flash-sales", nil)
 	if pubListAfter.Code != http.StatusOK {
 		t.Fatalf("public list after schedule status = %d; body = %s", pubListAfter.Code, pubListAfter.Body.String())
 	}

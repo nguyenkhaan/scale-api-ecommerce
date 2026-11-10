@@ -23,11 +23,11 @@ func RegisterRoutes(
 	requireSession gin.HandlerFunc,
 	requireAdmin gin.HandlerFunc,
 ) {
-	public := api.Group("/v1/flash-sales")
+	public := api.Group("/flash-sales")
 	public.GET("", controller.ListPublic)
 	public.GET("/:flashSaleId", controller.GetPublic)
 
-	admin := api.Group("/v1/admin/flash-sales", requireSession, requireAdmin)
+	admin := api.Group("/admin/flash-sales", requireSession, requireAdmin)
 	admin.GET("", controller.ListAdmin)
 	admin.POST("", controller.Create)
 	admin.GET("/:flashSaleId", controller.GetAdmin)

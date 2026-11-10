@@ -62,7 +62,7 @@ func cartNewCustomer(t *testing.T, router http.Handler, database *gorm.DB, name 
 		t.Fatalf("create customer: %v", err)
 	}
 	client := newTestClient(router)
-	if response := client.send(t, http.MethodPost, "/api/v1/auth/login", credentials(email, cartCustomerPassword)); response.Code != http.StatusOK {
+	if response := client.send(t, http.MethodPost, "/api/auth/login", credentials(email, cartCustomerPassword)); response.Code != http.StatusOK {
 		t.Fatalf("customer login status = %d; body = %s", response.Code, response.Body.String())
 	}
 	return cartCustomer{testClient: client, ID: userID}
@@ -190,7 +190,7 @@ func cartCount(t *testing.T, database *gorm.DB, sql string, args ...any) int64 {
 
 func cartPut(t *testing.T, client *testClient, skuID string, body any) *httptest.ResponseRecorder {
 	t.Helper()
-	return client.send(t, http.MethodPut, "/api/v1/cart/items/"+skuID, body, client.csrfHeader()...)
+	return client.send(t, http.MethodPut, "/api/cart/items/"+skuID, body, client.csrfHeader()...)
 }
 
 // cartAdd upserts a regular line and returns the resulting item, failing the test on a non-200.
@@ -216,7 +216,7 @@ func cartFindItem(t *testing.T, view cart.CartResponse, skuID string) cart.CartI
 
 func cartGet(t *testing.T, client *testClient) cart.CartResponse {
 	t.Helper()
-	response := client.send(t, http.MethodGet, "/api/v1/cart", nil)
+	response := client.send(t, http.MethodGet, "/api/cart", nil)
 	if response.Code != http.StatusOK {
 		t.Fatalf("get cart status = %d; body = %s", response.Code, response.Body.String())
 	}
@@ -229,7 +229,7 @@ func cartPreview(t *testing.T, client *testClient, items ...cart.CartItemRespons
 	for i, item := range items {
 		selected[i] = map[string]any{"cart_item_id": item.ID, "version": item.Version}
 	}
-	return client.send(t, http.MethodPost, "/api/v1/checkout/preview", map[string]any{"items": selected}, client.csrfHeader()...)
+	return client.send(t, http.MethodPost, "/api/checkout/preview", map[string]any{"items": selected}, client.csrfHeader()...)
 }
 
 // cartRunParallel runs fn(i) for i in [0,n) at the same moment and waits for all of them.

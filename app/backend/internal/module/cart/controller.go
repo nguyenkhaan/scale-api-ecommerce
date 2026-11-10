@@ -24,12 +24,12 @@ func RegisterRoutes(
 	controller *Controller,
 	requireSession gin.HandlerFunc,
 ) {
-	cartGroup := api.Group("/v1/cart", requireSession)
+	cartGroup := api.Group("/cart", requireSession)
 	cartGroup.GET("", controller.GetCart)
 	cartGroup.PUT("/items/:skuId", controller.UpsertItem)
 	cartGroup.DELETE("/items/:skuId", controller.RemoveItem)
 
-	checkoutGroup := api.Group("/v1/checkout", requireSession)
+	checkoutGroup := api.Group("/checkout", requireSession)
 	checkoutGroup.POST("/preview", controller.Preview)
 }
 

@@ -143,7 +143,7 @@ func TestCheckoutPreviewSelectionValidationAndStaleVersion(t *testing.T) {
 	item := cartAdd(t, customer.testClient, skuID, 1)
 
 	post := func(body string) int {
-		return customer.send(t, http.MethodPost, "/api/v1/checkout/preview", body, customer.csrfHeader()...).Code
+		return customer.send(t, http.MethodPost, "/api/checkout/preview", body, customer.csrfHeader()...).Code
 	}
 	if code := post(`{"items":[{"cart_item_id":"` + item.ID + `","version":0}]}`); code != http.StatusUnprocessableEntity {
 		t.Errorf("version 0 status = %d, want 422", code)
@@ -184,7 +184,7 @@ func TestCheckoutPreviewDoesNotExposeOtherCustomersCarts(t *testing.T) {
 		}
 	}
 
-	del := stranger.send(t, http.MethodDelete, "/api/v1/cart/items/"+skuID, nil, stranger.csrfHeader()...)
+	del := stranger.send(t, http.MethodDelete, "/api/cart/items/"+skuID, nil, stranger.csrfHeader()...)
 	if del.Code != http.StatusNoContent {
 		t.Errorf("stranger delete status = %d, want 204", del.Code)
 	}

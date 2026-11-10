@@ -17,7 +17,7 @@ func TestRegisterCreatesCustomerSessionWithSecureCookies(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	client := newTestClient(newAuthRouter(t, testDatabase.ORM()))
 
-	response := client.send(t, http.MethodPost, "/api/v1/auth/register", credentials("  Lan.Tran@Example.com ", testPassword))
+	response := client.send(t, http.MethodPost, "/api/auth/register", credentials("  Lan.Tran@Example.com ", testPassword))
 
 	if response.Code != http.StatusCreated {
 		t.Fatalf("status = %d, want 201; body = %s", response.Code, response.Body.String())
@@ -71,7 +71,7 @@ func TestRegisterCreatesCustomerSessionWithSecureCookies(t *testing.T) {
 		t.Errorf("sessions matching HMAC(cookie) = %d, want 1", matchingSessions)
 	}
 
-	me := client.send(t, http.MethodGet, "/api/v1/auth/me", nil)
+	me := client.send(t, http.MethodGet, "/api/auth/me", nil)
 	if user := decodeJSON[auth.UserResponse](t, me); me.Code != http.StatusOK || user != result.User {
 		t.Errorf("GET /me = %d %+v, want %+v", me.Code, user, result.User)
 	}
@@ -80,9 +80,9 @@ func TestRegisterCreatesCustomerSessionWithSecureCookies(t *testing.T) {
 func TestRegisterRejectsDuplicateEmailIgnoringCase(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	router := newAuthRouter(t, testDatabase.ORM())
-	newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
+	newTestClient(router).send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
 
-	response := newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/register", credentials(" LAN@example.com", testPassword))
+	response := newTestClient(router).send(t, http.MethodPost, "/api/auth/register", credentials(" LAN@example.com", testPassword))
 
 	requireProblem(t, response, http.StatusConflict, problem.CodeEmailAlreadyRegistered)
 	if setCookie := response.Header().Get("Set-Cookie"); setCookie != "" {
@@ -93,18 +93,18 @@ func TestRegisterRejectsDuplicateEmailIgnoringCase(t *testing.T) {
 func TestLoginDoesNotRevealWhetherEmailExists(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	router := newAuthRouter(t, testDatabase.ORM())
-	newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
+	newTestClient(router).send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
 
-	wrongPassword := requireProblem(t, newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/login",
+	wrongPassword := requireProblem(t, newTestClient(router).send(t, http.MethodPost, "/api/auth/login",
 		credentials("lan@example.com", "wrong password")), http.StatusUnauthorized, problem.CodeUnauthenticated)
-	unknownEmail := requireProblem(t, newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/login",
+	unknownEmail := requireProblem(t, newTestClient(router).send(t, http.MethodPost, "/api/auth/login",
 		credentials("nobody@example.com", "wrong password")), http.StatusUnauthorized, problem.CodeUnauthenticated)
 	if wrongPassword.Detail != unknownEmail.Detail {
 		t.Errorf("details differ: %q vs %q", wrongPassword.Detail, unknownEmail.Detail)
 	}
 
 	client := newTestClient(router)
-	if response := client.send(t, http.MethodPost, "/api/v1/auth/login", credentials("LAN@example.com", testPassword)); response.Code != http.StatusOK {
+	if response := client.send(t, http.MethodPost, "/api/auth/login", credentials("LAN@example.com", testPassword)); response.Code != http.StatusOK {
 		t.Fatalf("login status = %d, want 200; body = %s", response.Code, response.Body.String())
 	}
 	if client.cookies[auth.SessionCookieName] == "" {
@@ -115,10 +115,10 @@ func TestLoginDoesNotRevealWhetherEmailExists(t *testing.T) {
 func TestDisabledUserCannotLogIn(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	router := newAuthRouter(t, testDatabase.ORM())
-	newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
+	newTestClient(router).send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
 	testDatabase.ORM().Exec("UPDATE users SET status = 'disabled'")
 
-	response := newTestClient(router).send(t, http.MethodPost, "/api/v1/auth/login", credentials("lan@example.com", testPassword))
+	response := newTestClient(router).send(t, http.MethodPost, "/api/auth/login", credentials("lan@example.com", testPassword))
 
 	requireProblem(t, response, http.StatusUnauthorized, problem.CodeUnauthenticated)
 	if setCookie := response.Header().Get("Set-Cookie"); setCookie != "" {
