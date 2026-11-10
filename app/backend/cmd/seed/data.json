@@ -1,0 +1,78 @@
+{
+  "users": [
+    {"id": "10000000-0000-4000-8000-000000000001", "email": "admin@gmail.com", "password": "cloudian", "role": "admin", "status": "active"},
+    {"id": "10000000-0000-4000-8000-000000000002", "email": "customer@gmail.com", "password": "cloudian", "role": "customer", "status": "active"}
+  ],
+  "sessions": [
+    {"id": "11000000-0000-4000-8000-000000000001", "user_id": "10000000-0000-4000-8000-000000000001", "token_seed": "seed-admin-session-1", "csrf_seed": "seed-admin-csrf-1"},
+    {"id": "11000000-0000-4000-8000-000000000002", "user_id": "10000000-0000-4000-8000-000000000001", "token_seed": "seed-admin-session-2", "csrf_seed": "seed-admin-csrf-2"},
+    {"id": "11000000-0000-4000-8000-000000000003", "user_id": "10000000-0000-4000-8000-000000000002", "token_seed": "seed-customer-session-1", "csrf_seed": "seed-customer-csrf-1"},
+    {"id": "11000000-0000-4000-8000-000000000004", "user_id": "10000000-0000-4000-8000-000000000002", "token_seed": "seed-customer-session-2", "csrf_seed": "seed-customer-csrf-2"}
+  ],
+  "login_throttles": [
+    {"email_normalized": "throttle-1@example.test", "failure_count": 1},
+    {"email_normalized": "throttle-2@example.test", "failure_count": 2},
+    {"email_normalized": "throttle-3@example.test", "failure_count": 3},
+    {"email_normalized": "throttle-4@example.test", "failure_count": 4}
+  ],
+  "categories": [
+    {"id": "12000000-0000-4000-8000-000000000001", "name": "Điện tử", "slug": "dien-tu", "is_visible": true},
+    {"id": "12000000-0000-4000-8000-000000000002", "name": "Thời trang", "slug": "thoi-trang", "is_visible": true},
+    {"id": "12000000-0000-4000-8000-000000000003", "name": "Gia dụng", "slug": "gia-dung", "is_visible": true},
+    {"id": "12000000-0000-4000-8000-000000000004", "name": "Nội bộ", "slug": "noi-bo", "is_visible": false}
+  ],
+  "products": [
+    {"id": "13000000-0000-4000-8000-000000000001", "category_id": "12000000-0000-4000-8000-000000000001", "name": "Tai nghe Seed", "description": "Tai nghe demo", "image_url": "https://example.test/headphones.jpg", "status": "active"},
+    {"id": "13000000-0000-4000-8000-000000000002", "category_id": "12000000-0000-4000-8000-000000000002", "name": "Áo Seed", "description": "Áo demo", "image_url": "https://example.test/shirt.jpg", "status": "active"},
+    {"id": "13000000-0000-4000-8000-000000000003", "category_id": "12000000-0000-4000-8000-000000000003", "name": "Bình nước Seed", "description": "Bình nước demo", "image_url": "https://example.test/bottle.jpg", "status": "active"},
+    {"id": "13000000-0000-4000-8000-000000000004", "category_id": "12000000-0000-4000-8000-000000000004", "name": "Sản phẩm ẩn Seed", "description": "Sản phẩm nội bộ", "image_url": "https://example.test/hidden.jpg", "status": "inactive"}
+  ],
+  "skus": [
+    {"id": "14000000-0000-4000-8000-000000000001", "product_id": "13000000-0000-4000-8000-000000000001", "code": "SEED-HEADPHONE-01", "attributes": {"color": "black"}, "regular_price": 500000, "max_quantity_per_order": 3, "status": "active"},
+    {"id": "14000000-0000-4000-8000-000000000002", "product_id": "13000000-0000-4000-8000-000000000002", "code": "SEED-SHIRT-01", "attributes": {"size": "M"}, "regular_price": 250000, "max_quantity_per_order": 5, "status": "active"},
+    {"id": "14000000-0000-4000-8000-000000000003", "product_id": "13000000-0000-4000-8000-000000000003", "code": "SEED-BOTTLE-01", "attributes": {"capacity": "1L"}, "regular_price": 120000, "max_quantity_per_order": 4, "status": "active"},
+    {"id": "14000000-0000-4000-8000-000000000004", "product_id": "13000000-0000-4000-8000-000000000004", "code": "SEED-HIDDEN-01", "attributes": {"internal": true}, "regular_price": 90000, "max_quantity_per_order": 1, "status": "inactive"}
+  ],
+  "inventories": [
+    {"sku_id": "14000000-0000-4000-8000-000000000001", "on_hand": 40, "reserved": 0, "version": 1},
+    {"sku_id": "14000000-0000-4000-8000-000000000002", "on_hand": 60, "reserved": 0, "version": 1},
+    {"sku_id": "14000000-0000-4000-8000-000000000003", "on_hand": 80, "reserved": 0, "version": 1},
+    {"sku_id": "14000000-0000-4000-8000-000000000004", "on_hand": 20, "reserved": 0, "version": 1}
+  ],
+  "inventory_adjustments": [
+    {"id": "15000000-0000-4000-8000-000000000001", "sku_id": "14000000-0000-4000-8000-000000000001", "actor_user_id": "10000000-0000-4000-8000-000000000001", "delta": 40, "on_hand_before": 0, "on_hand_after": 40, "reason": "INITIAL_STOCK"},
+    {"id": "15000000-0000-4000-8000-000000000002", "sku_id": "14000000-0000-4000-8000-000000000002", "actor_user_id": "10000000-0000-4000-8000-000000000001", "delta": 60, "on_hand_before": 0, "on_hand_after": 60, "reason": "INITIAL_STOCK"},
+    {"id": "15000000-0000-4000-8000-000000000003", "sku_id": "14000000-0000-4000-8000-000000000003", "actor_user_id": "10000000-0000-4000-8000-000000000001", "delta": 80, "on_hand_before": 0, "on_hand_after": 80, "reason": "INITIAL_STOCK"},
+    {"id": "15000000-0000-4000-8000-000000000004", "sku_id": "14000000-0000-4000-8000-000000000004", "actor_user_id": "10000000-0000-4000-8000-000000000001", "delta": 20, "on_hand_before": 0, "on_hand_after": 20, "reason": "INITIAL_STOCK"}
+  ],
+  "flash_sale_campaigns": [
+    {"id": "16000000-0000-4000-8000-000000000001", "name": "Flash Seed 1", "status": "draft"},
+    {"id": "16000000-0000-4000-8000-000000000002", "name": "Flash Seed 2", "status": "draft"},
+    {"id": "16000000-0000-4000-8000-000000000003", "name": "Flash Seed 3", "status": "draft"},
+    {"id": "16000000-0000-4000-8000-000000000004", "name": "Flash Seed 4", "status": "draft"}
+  ],
+  "flash_sale_items": [
+    {"id": "17000000-0000-4000-8000-000000000001", "campaign_id": "16000000-0000-4000-8000-000000000001", "sku_id": "14000000-0000-4000-8000-000000000001", "sale_price": 400000, "quota_total": 20, "quota_reserved": 0, "quota_sold": 0, "purchase_limit": 2},
+    {"id": "17000000-0000-4000-8000-000000000002", "campaign_id": "16000000-0000-4000-8000-000000000002", "sku_id": "14000000-0000-4000-8000-000000000002", "sale_price": 200000, "quota_total": 20, "quota_reserved": 0, "quota_sold": 0, "purchase_limit": 2},
+    {"id": "17000000-0000-4000-8000-000000000003", "campaign_id": "16000000-0000-4000-8000-000000000003", "sku_id": "14000000-0000-4000-8000-000000000003", "sale_price": 90000, "quota_total": 20, "quota_reserved": 0, "quota_sold": 0, "purchase_limit": 2},
+    {"id": "17000000-0000-4000-8000-000000000004", "campaign_id": "16000000-0000-4000-8000-000000000004", "sku_id": "14000000-0000-4000-8000-000000000004", "sale_price": 70000, "quota_total": 20, "quota_reserved": 0, "quota_sold": 0, "purchase_limit": 1}
+  ],
+  "flash_sale_customer_usage": [
+    {"flash_sale_item_id": "17000000-0000-4000-8000-000000000001", "user_id": "10000000-0000-4000-8000-000000000002", "reserved_quantity": 0, "sold_quantity": 0},
+    {"flash_sale_item_id": "17000000-0000-4000-8000-000000000002", "user_id": "10000000-0000-4000-8000-000000000002", "reserved_quantity": 0, "sold_quantity": 0},
+    {"flash_sale_item_id": "17000000-0000-4000-8000-000000000003", "user_id": "10000000-0000-4000-8000-000000000002", "reserved_quantity": 0, "sold_quantity": 0},
+    {"flash_sale_item_id": "17000000-0000-4000-8000-000000000004", "user_id": "10000000-0000-4000-8000-000000000002", "reserved_quantity": 0, "sold_quantity": 0}
+  ],
+  "carts": [
+    {"id": "18000000-0000-4000-8000-000000000001", "user_id": "10000000-0000-4000-8000-000000000002", "status": "active"},
+    {"id": "18000000-0000-4000-8000-000000000002", "user_id": "10000000-0000-4000-8000-000000000002", "status": "archived"},
+    {"id": "18000000-0000-4000-8000-000000000003", "user_id": "10000000-0000-4000-8000-000000000002", "status": "archived"},
+    {"id": "18000000-0000-4000-8000-000000000004", "user_id": "10000000-0000-4000-8000-000000000002", "status": "archived"}
+  ],
+  "cart_items": [
+    {"id": "19000000-0000-4000-8000-000000000001", "cart_id": "18000000-0000-4000-8000-000000000001", "sku_id": "14000000-0000-4000-8000-000000000001", "quantity": 1, "intended_price_source": "regular", "flash_sale_item_id": null, "version": 1},
+    {"id": "19000000-0000-4000-8000-000000000002", "cart_id": "18000000-0000-4000-8000-000000000002", "sku_id": "14000000-0000-4000-8000-000000000002", "quantity": 1, "intended_price_source": "flash_sale", "flash_sale_item_id": "17000000-0000-4000-8000-000000000002", "version": 1},
+    {"id": "19000000-0000-4000-8000-000000000003", "cart_id": "18000000-0000-4000-8000-000000000003", "sku_id": "14000000-0000-4000-8000-000000000003", "quantity": 2, "intended_price_source": "regular", "flash_sale_item_id": null, "version": 1},
+    {"id": "19000000-0000-4000-8000-000000000004", "cart_id": "18000000-0000-4000-8000-000000000004", "sku_id": "14000000-0000-4000-8000-000000000004", "quantity": 1, "intended_price_source": "flash_sale", "flash_sale_item_id": "17000000-0000-4000-8000-000000000004", "version": 1}
+  ]
+}
