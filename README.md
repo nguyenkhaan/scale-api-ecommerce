@@ -85,11 +85,10 @@ ALLOW_SEED=true go run ./cmd/seed
 
 The fixture has two accounts: `admin@gmail.com` (admin) and `customer@gmail.com` (customer). Its password is development-only and is stored in PostgreSQL as a bcrypt hash, never plaintext.
 
-To run the seed's PostgreSQL integration tests, use a separate disposable database; this command truncates its application tables and is intentionally isolated from the normal test suite:
+To run the seed-command integration check against the database in `app/backend/.env`, opt in explicitly:
 
 ```bash
-TEST_DATABASE_URL=<DISPOSABLE_NEON_TEST_CONNECTION_STRING> \
-go test -tags=integration ./cmd/seed
+RUN_SEED_INTEGRATION=true go test -tags=integration ./test -run TestSeedCommandLoadsDevelopmentFixture
 ```
 
 Reset is destructive and is restricted to an explicitly configured test environment. The command refuses to run unless both guards are present:
