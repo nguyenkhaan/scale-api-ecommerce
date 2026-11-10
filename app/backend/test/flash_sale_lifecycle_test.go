@@ -183,9 +183,9 @@ func TestFlashSaleResponsesIncludeSKUAndProductDetails(t *testing.T) {
 	check("admin list", adminList.Items[0].Items[0])
 
 	public := newTestClient(env.router)
-	publicGet := decodeJSON[flashsale.FlashSaleResponse](t, public.send(t, http.MethodGet, "/api/v1/flash-sales/"+draft.ID, nil))
+	publicGet := decodeJSON[flashsale.FlashSaleResponse](t, public.send(t, http.MethodGet, "/api/flash-sales/"+draft.ID, nil))
 	check("public get", publicGet.Items[0])
-	publicList := decodeJSON[flashsale.FlashSalePageResponse](t, public.send(t, http.MethodGet, "/api/v1/flash-sales", nil))
+	publicList := decodeJSON[flashsale.FlashSalePageResponse](t, public.send(t, http.MethodGet, "/api/flash-sales", nil))
 	if len(publicList.Items) != 1 {
 		t.Fatalf("public list = %+v", publicList)
 	}
@@ -205,10 +205,10 @@ func TestFlashSaleListStatusFiltersUseDatabaseTime(t *testing.T) {
 
 	public := newTestClient(env.router)
 	for status, want := range map[string]string{"scheduled": upcoming.ID, "active": running.ID, "ended": ended.ID} {
-		page := decodeJSON[flashsale.FlashSalePageResponse](t, public.send(t, http.MethodGet, "/api/v1/flash-sales?status="+status, nil))
+		page := decodeJSON[flashsale.FlashSalePageResponse](t, public.send(t, http.MethodGet, "/api/flash-sales?status="+status, nil))
 		if len(page.Items) != 1 || page.Items[0].ID != want || page.Items[0].Status != status {
 			t.Errorf("public status=%s page = %+v, want only %s", status, page.Items, want)
 		}
 	}
-	requireProblem(t, public.send(t, http.MethodGet, "/api/v1/flash-sales?status=draft", nil), http.StatusUnprocessableEntity, problem.CodeValidation)
+	requireProblem(t, public.send(t, http.MethodGet, "/api/flash-sales?status=draft", nil), http.StatusUnprocessableEntity, problem.CodeValidation)
 }

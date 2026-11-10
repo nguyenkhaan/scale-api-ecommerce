@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const flashSaleBasePath = "/api/v1/admin/flash-sales"
+const flashSaleBasePath = "/api/admin/flash-sales"
 
 // flashSaleEnv is an admin API client over a freshly truncated database with one active product.
 type flashSaleEnv struct {

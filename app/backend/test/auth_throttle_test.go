@@ -14,22 +14,22 @@ import (
 func TestLoginIsThrottledAcrossInstancesAfterRepeatedFailures(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	instanceA, instanceB := newAuthRouter(t, testDatabase.ORM()), newAuthRouter(t, testDatabase.ORM())
-	newTestClient(instanceA).send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
+	newTestClient(instanceA).send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
 
 	for attempt := 1; attempt <= 5; attempt++ {
-		response := newTestClient(instanceA).send(t, http.MethodPost, "/api/v1/auth/login", credentials("lan@example.com", "wrong password"))
+		response := newTestClient(instanceA).send(t, http.MethodPost, "/api/auth/login", credentials("lan@example.com", "wrong password"))
 		requireProblem(t, response, http.StatusUnauthorized, problem.CodeUnauthenticated)
 	}
 
 	// Even the correct password is refused on another instance while the window is open.
-	blocked := newTestClient(instanceB).send(t, http.MethodPost, "/api/v1/auth/login", credentials("lan@example.com", testPassword))
+	blocked := newTestClient(instanceB).send(t, http.MethodPost, "/api/auth/login", credentials("lan@example.com", testPassword))
 	requireProblem(t, blocked, http.StatusTooManyRequests, problem.CodeRateLimited)
 	if retryAfter, err := strconv.Atoi(blocked.Header().Get("Retry-After")); err != nil || retryAfter < 1 || retryAfter > 900 {
 		t.Errorf("Retry-After = %q, want 1..900 seconds", blocked.Header().Get("Retry-After"))
 	}
 
 	testDatabase.ORM().Exec("UPDATE login_throttles SET window_started_at = now() - interval '16 minutes'")
-	if response := newTestClient(instanceB).send(t, http.MethodPost, "/api/v1/auth/login", credentials("lan@example.com", testPassword)); response.Code != http.StatusOK {
+	if response := newTestClient(instanceB).send(t, http.MethodPost, "/api/auth/login", credentials("lan@example.com", testPassword)); response.Code != http.StatusOK {
 		t.Fatalf("login after window = %d, want 200; body = %s", response.Code, response.Body.String())
 	}
 	var remaining int64
@@ -43,7 +43,7 @@ func TestLoginIsThrottledAcrossInstancesAfterRepeatedFailures(t *testing.T) {
 func TestLoginThrottleHoldsUnderConcurrentGuesses(t *testing.T) {
 	testDatabase := openIntegrationDatabase(t)
 	instanceA, instanceB := newAuthRouter(t, testDatabase.ORM()), newAuthRouter(t, testDatabase.ORM())
-	newTestClient(instanceA).send(t, http.MethodPost, "/api/v1/auth/register", credentials("lan@example.com", testPassword))
+	newTestClient(instanceA).send(t, http.MethodPost, "/api/auth/register", credentials("lan@example.com", testPassword))
 
 	const guesses = 20
 	statuses := make(chan int, guesses)
@@ -54,7 +54,7 @@ func TestLoginThrottleHoldsUnderConcurrentGuesses(t *testing.T) {
 			router = instanceB
 		}
 		waitGroup.Go(func() {
-			request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login",
+			request := httptest.NewRequest(http.MethodPost, "/api/auth/login",
 				strings.NewReader(`{"email":"lan@example.com","password":"wrong password"}`))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()

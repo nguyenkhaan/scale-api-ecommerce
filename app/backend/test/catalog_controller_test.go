@@ -26,7 +26,7 @@ func TestCatalogDetailRejectsInvalidProductIDBeforeService(t *testing.T) {
 	service := &catalogServiceStub{}
 	catalog.RegisterRoutes(api, catalog.NewController(service))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/products/not-a-uuid", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/products/not-a-uuid", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -43,7 +43,7 @@ func TestCatalogDetailMapsMissingProductToStableProblem(t *testing.T) {
 	api := router.Group("/api")
 	catalog.RegisterRoutes(api, catalog.NewController(service))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/products/51000000-0000-4000-8000-000000000001", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/products/51000000-0000-4000-8000-000000000001", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -59,7 +59,7 @@ func TestCatalogListNormalizesPublicQuery(t *testing.T) {
 
 	request := httptest.NewRequest(
 		http.MethodGet,
-		"/api/v1/products?query=%20shoe%20&category_id=51000000-0000-4000-8000-000000000001",
+		"/api/products?query=%20shoe%20&category_id=51000000-0000-4000-8000-000000000001",
 		nil,
 	)
 	response := httptest.NewRecorder()
@@ -100,7 +100,7 @@ func TestCatalogListRejectsInvalidParametersBeforeService(t *testing.T) {
 			api := router.Group("/api")
 			catalog.RegisterRoutes(api, catalog.NewController(service))
 
-			request := httptest.NewRequest(http.MethodGet, "/api/v1/products?"+testCase.query, nil)
+			request := httptest.NewRequest(http.MethodGet, "/api/products?"+testCase.query, nil)
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 
@@ -119,7 +119,7 @@ func TestCatalogListMapsInvalidCursorToValidationProblem(t *testing.T) {
 	api := router.Group("/api")
 	catalog.RegisterRoutes(api, catalog.NewController(service))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/products?cursor=opaque", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/products?cursor=opaque", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -160,7 +160,7 @@ func TestAdminCatalogRejectsAnonymousBeforeController(t *testing.T) {
 		middleware.RequireRole(model.RoleAdmin),
 	)
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/products", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/admin/products", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -182,7 +182,7 @@ func TestAdminCatalogRejectsCustomerBeforeController(t *testing.T) {
 		middleware.RequireRole(model.RoleAdmin),
 	)
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/products", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/admin/products", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -214,7 +214,7 @@ func TestAdminCatalogRejectsInvalidListParametersBeforeService(t *testing.T) {
 				middleware.RequireRole(model.RoleAdmin),
 			)
 
-			request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/products?"+testCase.query, nil)
+			request := httptest.NewRequest(http.MethodGet, "/api/admin/products?"+testCase.query, nil)
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 
@@ -254,7 +254,7 @@ func TestCreateProductRejectsInvalidRequestsBeforeService(t *testing.T) {
 				middleware.RequireRole(model.RoleAdmin),
 			)
 
-			request := httptest.NewRequest(http.MethodPost, "/api/v1/admin/products", strings.NewReader(testCase.body))
+			request := httptest.NewRequest(http.MethodPost, "/api/admin/products", strings.NewReader(testCase.body))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
@@ -283,7 +283,7 @@ func TestCreateProductUsesAuthenticatedActorAndNormalizedInput(t *testing.T) {
 
 	request := httptest.NewRequest(
 		http.MethodPost,
-		"/api/v1/admin/products",
+		"/api/admin/products",
 		strings.NewReader(`{"name":" Product ","skus":[{"code":" SKU-1 ","regular_price":1000,"max_quantity_per_order":1,"initial_on_hand":0}]}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
@@ -320,7 +320,7 @@ func TestCreateProductMapsStableServiceErrors(t *testing.T) {
 			service := &catalogServiceStub{createProductError: testCase.err}
 			catalog.RegisterAdminRoutes(api, catalog.NewController(service), setCatalogTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-			request := httptest.NewRequest(http.MethodPost, "/api/v1/admin/products", strings.NewReader(`{"name":"Product","skus":[{"code":"SKU-1","regular_price":1000,"max_quantity_per_order":1,"initial_on_hand":0}]}`))
+			request := httptest.NewRequest(http.MethodPost, "/api/admin/products", strings.NewReader(`{"name":"Product","skus":[{"code":"SKU-1","regular_price":1000,"max_quantity_per_order":1,"initial_on_hand":0}]}`))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
@@ -349,7 +349,7 @@ func TestUpdateProductRejectsInvalidPatchesBeforeService(t *testing.T) {
 			service := &catalogServiceStub{}
 			catalog.RegisterAdminRoutes(api, catalog.NewController(service), setCatalogTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-			request := httptest.NewRequest(http.MethodPatch, "/api/v1/admin/products/62000000-0000-4000-8000-000000000001", strings.NewReader(testCase.body))
+			request := httptest.NewRequest(http.MethodPatch, "/api/admin/products/62000000-0000-4000-8000-000000000001", strings.NewReader(testCase.body))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
@@ -371,7 +371,7 @@ func TestUpdateProductDistinguishesNullFromOmittedFields(t *testing.T) {
 
 	request := httptest.NewRequest(
 		http.MethodPatch,
-		"/api/v1/admin/products/62000000-0000-4000-8000-000000000001",
+		"/api/admin/products/62000000-0000-4000-8000-000000000001",
 		strings.NewReader(`{"category_id":null,"image_url":null,"active":false}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
@@ -397,7 +397,7 @@ func TestUpdateSKURejectsEmptyPatchBeforeService(t *testing.T) {
 	service := &catalogServiceStub{}
 	catalog.RegisterAdminRoutes(api, catalog.NewController(service), setCatalogTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-	request := httptest.NewRequest(http.MethodPatch, "/api/v1/admin/skus/63000000-0000-4000-8000-000000000001", strings.NewReader(`{}`))
+	request := httptest.NewRequest(http.MethodPatch, "/api/admin/skus/63000000-0000-4000-8000-000000000001", strings.NewReader(`{}`))
 	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)

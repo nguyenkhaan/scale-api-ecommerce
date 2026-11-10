@@ -25,7 +25,7 @@ func TestPublicProductDetailReturnsOnlyActiveCatalogData(t *testing.T) {
 	seedCatalogSKU(t, testDatabase.ORM(), productID, "ACTIVE-SKU", model.SKUStatusActive, 100_000, 5, 7)
 	seedCatalogSKU(t, testDatabase.ORM(), productID, "INACTIVE-SKU", model.SKUStatusInactive, 120_000, 5, 9)
 
-	response := newTestClient(router).send(t, http.MethodGet, "/api/v1/products/"+productID, nil)
+	response := newTestClient(router).send(t, http.MethodGet, "/api/products/"+productID, nil)
 	if response.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200; body = %s", response.Code, response.Body.String())
 	}
@@ -57,7 +57,7 @@ func TestPublicProductDetailHidesInactiveOrInvisibleCatalog(t *testing.T) {
 			_, productID := seedCatalogProduct(t, testDatabase.ORM(), testCase.categoryVisible, testCase.productStatus)
 			seedCatalogSKU(t, testDatabase.ORM(), productID, "SKU-1", model.SKUStatusActive, 100_000, 5, 1)
 
-			response := newTestClient(router).send(t, http.MethodGet, "/api/v1/products/"+productID, nil)
+			response := newTestClient(router).send(t, http.MethodGet, "/api/products/"+productID, nil)
 			requireProblem(t, response, http.StatusNotFound, "RESOURCE_NOT_FOUND")
 		})
 	}
@@ -86,7 +86,7 @@ func TestPublicProductListFiltersLiteralSearchAndPaginates(t *testing.T) {
 	}
 
 	client := newTestClient(router)
-	literal := client.send(t, http.MethodGet, "/api/v1/products?query=%25_&category_id="+category.ID, nil)
+	literal := client.send(t, http.MethodGet, "/api/products?query=%25_&category_id="+category.ID, nil)
 	if literal.Code != http.StatusOK {
 		t.Fatalf("literal search status = %d; body = %s", literal.Code, literal.Body.String())
 	}
@@ -95,12 +95,12 @@ func TestPublicProductListFiltersLiteralSearchAndPaginates(t *testing.T) {
 		t.Fatalf("literal search items = %+v", literalPage.Items)
 	}
 
-	first := client.send(t, http.MethodGet, "/api/v1/products?category_id="+category.ID+"&limit=1", nil)
+	first := client.send(t, http.MethodGet, "/api/products?category_id="+category.ID+"&limit=1", nil)
 	firstPage := decodeJSON[catalog.ProductPageResponse](t, first)
 	if first.Code != http.StatusOK || len(firstPage.Items) != 1 || firstPage.NextCursor == nil {
 		t.Fatalf("first page = %d %+v", first.Code, firstPage)
 	}
-	second := client.send(t, http.MethodGet, "/api/v1/products?category_id="+category.ID+"&limit=1&cursor="+*firstPage.NextCursor, nil)
+	second := client.send(t, http.MethodGet, "/api/products?category_id="+category.ID+"&limit=1&cursor="+*firstPage.NextCursor, nil)
 	secondPage := decodeJSON[catalog.ProductPageResponse](t, second)
 	if second.Code != http.StatusOK || len(secondPage.Items) != 1 || secondPage.Items[0].ID == firstPage.Items[0].ID || secondPage.NextCursor != nil {
 		t.Fatalf("second page = %d %+v", second.Code, secondPage)
@@ -196,9 +196,9 @@ func TestAdminCatalogMutationRequiresCSRFAndHidesInactiveProduct(t *testing.T) {
 		}},
 	}
 
-	missingCSRF := admin.send(t, http.MethodPost, "/api/v1/admin/products", body)
+	missingCSRF := admin.send(t, http.MethodPost, "/api/admin/products", body)
 	requireProblem(t, missingCSRF, http.StatusForbidden, "FORBIDDEN")
-	createdResponse := admin.send(t, http.MethodPost, "/api/v1/admin/products", body, admin.csrfHeader()...)
+	createdResponse := admin.send(t, http.MethodPost, "/api/admin/products", body, admin.csrfHeader()...)
 	if createdResponse.Code != http.StatusCreated {
 		t.Fatalf("create product status = %d; body = %s", createdResponse.Code, createdResponse.Body.String())
 	}
@@ -207,17 +207,17 @@ func TestAdminCatalogMutationRequiresCSRFAndHidesInactiveProduct(t *testing.T) {
 		t.Fatalf("created product = %+v", created)
 	}
 
-	public := newTestClient(router).send(t, http.MethodGet, "/api/v1/products/"+created.ID, nil)
+	public := newTestClient(router).send(t, http.MethodGet, "/api/products/"+created.ID, nil)
 	if public.Code != http.StatusOK || strings.Contains(public.Body.String(), "on_hand") || strings.Contains(public.Body.String(), "reserved") {
 		t.Fatalf("public response = %d %s", public.Code, public.Body.String())
 	}
 
-	hidden := admin.send(t, http.MethodPatch, "/api/v1/admin/products/"+created.ID, map[string]any{"active": false}, admin.csrfHeader()...)
+	hidden := admin.send(t, http.MethodPatch, "/api/admin/products/"+created.ID, map[string]any{"active": false}, admin.csrfHeader()...)
 	if hidden.Code != http.StatusOK {
 		t.Fatalf("hide product status = %d; body = %s", hidden.Code, hidden.Body.String())
 	}
-	requireProblem(t, newTestClient(router).send(t, http.MethodGet, "/api/v1/products/"+created.ID, nil), http.StatusNotFound, "RESOURCE_NOT_FOUND")
-	if adminDetail := admin.send(t, http.MethodGet, "/api/v1/admin/products/"+created.ID, nil); adminDetail.Code != http.StatusOK {
+	requireProblem(t, newTestClient(router).send(t, http.MethodGet, "/api/products/"+created.ID, nil), http.StatusNotFound, "RESOURCE_NOT_FOUND")
+	if adminDetail := admin.send(t, http.MethodGet, "/api/admin/products/"+created.ID, nil); adminDetail.Code != http.StatusOK {
 		t.Errorf("admin cannot read inactive product: %d %s", adminDetail.Code, adminDetail.Body.String())
 	}
 }
@@ -268,7 +268,7 @@ func newCatalogAdminClient(t *testing.T, router http.Handler, database *gorm.DB)
 		t.Fatalf("create admin: %v", err)
 	}
 	client := newTestClient(router)
-	if response := client.send(t, http.MethodPost, "/api/v1/auth/login", credentials(admin.Email, "admin password long enough")); response.Code != http.StatusOK {
+	if response := client.send(t, http.MethodPost, "/api/auth/login", credentials(admin.Email, "admin password long enough")); response.Code != http.StatusOK {
 		t.Fatalf("admin login status = %d; body = %s", response.Code, response.Body.String())
 	}
 	return client

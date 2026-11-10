@@ -23,7 +23,7 @@ func TestInventoryAdjustmentUsesAdminInventoryPath(t *testing.T) {
 	service := &inventoryServiceStub{adjustment: inventory.InventoryResponse{SKUID: "63000000-0000-4000-8000-000000000001", OnHand: 8, Available: 8, Version: 1}}
 	inventory.RegisterRoutes(api, inventory.NewController(service), setInventoryTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-	request := httptest.NewRequest(http.MethodPost, "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", strings.NewReader(`{"delta":8,"reason":"initial count"}`))
+	request := httptest.NewRequest(http.MethodPost, "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", strings.NewReader(`{"delta":8,"reason":"initial count"}`))
 	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
@@ -34,7 +34,7 @@ func TestInventoryAdjustmentUsesAdminInventoryPath(t *testing.T) {
 		t.Fatalf("adjust calls = %d, want 1", service.adjustCalls)
 	}
 
-	wrongPath := httptest.NewRequest(http.MethodPost, "/api/v1/products/63000000-0000-4000-8000-000000000001/adjustments", strings.NewReader(`{"delta":8,"reason":"initial count"}`))
+	wrongPath := httptest.NewRequest(http.MethodPost, "/api/products/63000000-0000-4000-8000-000000000001/adjustments", strings.NewReader(`{"delta":8,"reason":"initial count"}`))
 	wrongPath.Header.Set("Content-Type", "application/json")
 	wrongResponse := httptest.NewRecorder()
 	router.ServeHTTP(wrongResponse, wrongPath)
@@ -49,10 +49,10 @@ func TestInventoryAdjustmentRejectsInvalidInputBeforeService(t *testing.T) {
 		path string
 		body string
 	}{
-		{name: "invalid SKU ID", path: "/api/v1/admin/inventories/not-a-uuid/adjustments", body: `{"delta":1,"reason":"count"}`},
-		{name: "zero delta", path: "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", body: `{"delta":0,"reason":"count"}`},
-		{name: "blank reason", path: "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", body: `{"delta":1,"reason":" "}`},
-		{name: "unknown field", path: "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", body: `{"delta":1,"reason":"count","unexpected":true}`},
+		{name: "invalid SKU ID", path: "/api/admin/inventories/not-a-uuid/adjustments", body: `{"delta":1,"reason":"count"}`},
+		{name: "zero delta", path: "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", body: `{"delta":0,"reason":"count"}`},
+		{name: "blank reason", path: "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", body: `{"delta":1,"reason":" "}`},
+		{name: "unknown field", path: "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", body: `{"delta":1,"reason":"count","unexpected":true}`},
 	}
 
 	for _, testCase := range testCases {
@@ -95,7 +95,7 @@ func TestInventoryAdjustmentMapsStableErrors(t *testing.T) {
 			service := &inventoryServiceStub{adjustmentError: testCase.err}
 			inventory.RegisterRoutes(api, inventory.NewController(service), setInventoryTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-			request := httptest.NewRequest(http.MethodPost, "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", strings.NewReader(`{"delta":-1,"reason":"count"}`))
+			request := httptest.NewRequest(http.MethodPost, "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", strings.NewReader(`{"delta":-1,"reason":"count"}`))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
@@ -112,7 +112,7 @@ func TestInventoryListNormalizesPagination(t *testing.T) {
 	service := &inventoryServiceStub{}
 	inventory.RegisterRoutes(api, inventory.NewController(service), setInventoryTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/inventories", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/admin/inventories", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -139,7 +139,7 @@ func TestInventoryListRejectsInvalidParametersBeforeService(t *testing.T) {
 			service := &inventoryServiceStub{}
 			inventory.RegisterRoutes(api, inventory.NewController(service), setInventoryTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-			request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/inventories?"+query, nil)
+			request := httptest.NewRequest(http.MethodGet, "/api/admin/inventories?"+query, nil)
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 
@@ -158,7 +158,7 @@ func TestInventoryListMapsMalformedCursorToValidationProblem(t *testing.T) {
 	service := &inventoryServiceStub{listError: inventory.ErrInvalidCursor}
 	inventory.RegisterRoutes(api, inventory.NewController(service), setInventoryTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/inventories?cursor=opaque", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/admin/inventories?cursor=opaque", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -172,7 +172,7 @@ func TestInventoryAdjustmentHistoryUsesCursorPagination(t *testing.T) {
 	service := &inventoryServiceStub{}
 	inventory.RegisterRoutes(api, inventory.NewController(service), setInventoryTestIdentity(model.RoleAdmin), middleware.RequireRole(model.RoleAdmin))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments?limit=10", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments?limit=10", nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
@@ -192,9 +192,9 @@ func TestInventoryAdjustmentHistoryRejectsBadInputAndMapsErrors(t *testing.T) {
 		status int
 		code   string
 	}{
-		{name: "invalid SKU ID", path: "/api/v1/admin/inventories/not-a-uuid/adjustments", status: http.StatusUnprocessableEntity, code: problem.CodeValidation},
-		{name: "malformed cursor", path: "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments?cursor=opaque", err: inventory.ErrInvalidCursor, status: http.StatusUnprocessableEntity, code: problem.CodeValidation},
-		{name: "unknown SKU", path: "/api/v1/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", err: inventory.ErrInventoryNotFound, status: http.StatusNotFound, code: problem.CodeResourceNotFound},
+		{name: "invalid SKU ID", path: "/api/admin/inventories/not-a-uuid/adjustments", status: http.StatusUnprocessableEntity, code: problem.CodeValidation},
+		{name: "malformed cursor", path: "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments?cursor=opaque", err: inventory.ErrInvalidCursor, status: http.StatusUnprocessableEntity, code: problem.CodeValidation},
+		{name: "unknown SKU", path: "/api/admin/inventories/63000000-0000-4000-8000-000000000001/adjustments", err: inventory.ErrInventoryNotFound, status: http.StatusNotFound, code: problem.CodeResourceNotFound},
 	}
 
 	for _, testCase := range testCases {

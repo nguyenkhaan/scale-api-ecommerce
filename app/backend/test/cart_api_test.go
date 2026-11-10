@@ -148,7 +148,7 @@ func TestCartItemDeletion(t *testing.T) {
 	cartAdd(t, customer.testClient, skuID, 1)
 	cartAdd(t, customer.testClient, keepSKU, 1)
 
-	deleted := customer.send(t, http.MethodDelete, "/api/v1/cart/items/"+skuID, nil, customer.csrfHeader()...)
+	deleted := customer.send(t, http.MethodDelete, "/api/cart/items/"+skuID, nil, customer.csrfHeader()...)
 	if deleted.Code != http.StatusNoContent || deleted.Body.Len() != 0 {
 		t.Fatalf("delete = %d body %q, want 204 with empty body", deleted.Code, deleted.Body.String())
 	}
@@ -157,12 +157,12 @@ func TestCartItemDeletion(t *testing.T) {
 		t.Fatalf("cart after delete = %+v, want only %s", view.Items, keepSKU)
 	}
 
-	again := customer.send(t, http.MethodDelete, "/api/v1/cart/items/"+skuID, nil, customer.csrfHeader()...)
+	again := customer.send(t, http.MethodDelete, "/api/cart/items/"+skuID, nil, customer.csrfHeader()...)
 	if again.Code != http.StatusNoContent {
 		t.Errorf("repeated delete status = %d, want 204", again.Code)
 	}
 	fresh := cartNewCustomer(t, router, database, "cart-delete-nocart")
-	if res := fresh.send(t, http.MethodDelete, "/api/v1/cart/items/"+skuID, nil, fresh.csrfHeader()...); res.Code != http.StatusNoContent {
+	if res := fresh.send(t, http.MethodDelete, "/api/cart/items/"+skuID, nil, fresh.csrfHeader()...); res.Code != http.StatusNoContent {
 		t.Errorf("delete without a cart status = %d, want 204", res.Code)
 	}
 }
@@ -175,13 +175,13 @@ func TestCartMutationsRequireCSRFAndSession(t *testing.T) {
 	item := cartAdd(t, customer.testClient, skuID, 1)
 	preview := map[string]any{"items": []map[string]any{{"cart_item_id": item.ID, "version": item.Version}}}
 
-	requireProblem(t, customer.send(t, http.MethodPut, "/api/v1/cart/items/"+skuID, map[string]any{"quantity": 2}), http.StatusForbidden, "FORBIDDEN")
-	requireProblem(t, customer.send(t, http.MethodDelete, "/api/v1/cart/items/"+skuID, nil), http.StatusForbidden, "FORBIDDEN")
-	requireProblem(t, customer.send(t, http.MethodPost, "/api/v1/checkout/preview", preview), http.StatusForbidden, "FORBIDDEN")
+	requireProblem(t, customer.send(t, http.MethodPut, "/api/cart/items/"+skuID, map[string]any{"quantity": 2}), http.StatusForbidden, "FORBIDDEN")
+	requireProblem(t, customer.send(t, http.MethodDelete, "/api/cart/items/"+skuID, nil), http.StatusForbidden, "FORBIDDEN")
+	requireProblem(t, customer.send(t, http.MethodPost, "/api/checkout/preview", preview), http.StatusForbidden, "FORBIDDEN")
 	if got := cartGet(t, customer.testClient).Items[0]; got.Quantity != 1 || got.Version != 1 {
 		t.Errorf("rejected mutation changed the cart: %+v", got)
 	}
 
 	anonymous := newTestClient(router)
-	requireProblem(t, anonymous.send(t, http.MethodGet, "/api/v1/cart", nil), http.StatusUnauthorized, "UNAUTHENTICATED")
+	requireProblem(t, anonymous.send(t, http.MethodGet, "/api/cart", nil), http.StatusUnauthorized, "UNAUTHENTICATED")
 }

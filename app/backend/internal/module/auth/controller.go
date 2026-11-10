@@ -18,9 +18,9 @@ func NewController(service *Service, secureCookies bool) *Controller {
 	return &Controller{service: service, secureCookies: secureCookies}
 }
 
-// RegisterRoutes mounts /v1/auth; requireSession must resolve the session cookie and enforce CSRF on mutations.
+// RegisterRoutes mounts /auth; requireSession must resolve the session cookie and enforce CSRF on mutations.
 func RegisterRoutes(router *gin.RouterGroup, controller *Controller, requireSession gin.HandlerFunc) {
-	group := router.Group("/v1/auth", disableCaching)
+	group := router.Group("/auth", disableCaching)
 	group.POST("/register", controller.Register)
 	group.POST("/login", controller.Login)
 	group.POST("/logout", requireSession, controller.Logout)

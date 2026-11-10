@@ -28,7 +28,7 @@ func TestRegisterRejectsInvalidPayloads(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			response := client.send(t, http.MethodPost, "/api/v1/auth/register", testCase.body)
+			response := client.send(t, http.MethodPost, "/api/auth/register", testCase.body)
 
 			body := requireProblem(t, response, http.StatusUnprocessableEntity, problem.CodeValidation)
 			if !hasViolation(body.Violations, testCase.wantField) {
@@ -44,7 +44,7 @@ func TestRegisterRejectsInvalidPayloads(t *testing.T) {
 func TestLoginRejectsMissingPassword(t *testing.T) {
 	client := newTestClient(newAuthRouterWithoutDatabase(t))
 
-	response := client.send(t, http.MethodPost, "/api/v1/auth/login", credentials("lan@example.com", ""))
+	response := client.send(t, http.MethodPost, "/api/auth/login", credentials("lan@example.com", ""))
 
 	body := requireProblem(t, response, http.StatusUnprocessableEntity, problem.CodeValidation)
 	if !hasViolation(body.Violations, "password") {
@@ -57,7 +57,7 @@ func TestCredentialRoutesRejectNonJSONContentType(t *testing.T) {
 	client := newTestClient(newAuthRouterWithoutDatabase(t))
 	formShapedBody := `{"email":"attacker@example.com","password":"attacker password="}` + "\r\n"
 
-	for _, path := range []string{"/api/v1/auth/login", "/api/v1/auth/register"} {
+	for _, path := range []string{"/api/auth/login", "/api/auth/register"} {
 		t.Run(path, func(t *testing.T) {
 			response := client.send(t, http.MethodPost, path, formShapedBody, "Content-Type", "text/plain")
 
@@ -78,8 +78,8 @@ func TestPrivateAuthRoutesRequireSession(t *testing.T) {
 		method string
 		path   string
 	}{
-		{method: http.MethodGet, path: "/api/v1/auth/me"},
-		{method: http.MethodPost, path: "/api/v1/auth/logout"},
+		{method: http.MethodGet, path: "/api/auth/me"},
+		{method: http.MethodPost, path: "/api/auth/logout"},
 	}
 
 	for _, testCase := range testCases {

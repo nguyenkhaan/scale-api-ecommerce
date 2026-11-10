@@ -25,12 +25,12 @@ func TestFlashSaleControllerRejectsInvalidUUIDBeforeService(t *testing.T) {
 		method string
 		path   string
 	}{
-		{name: "public get invalid uuid", method: http.MethodGet, path: "/api/v1/flash-sales/not-a-uuid"},
-		{name: "admin get invalid uuid", method: http.MethodGet, path: "/api/v1/admin/flash-sales/not-a-uuid"},
-		{name: "admin update invalid uuid", method: http.MethodPatch, path: "/api/v1/admin/flash-sales/not-a-uuid"},
-		{name: "admin schedule invalid uuid", method: http.MethodPost, path: "/api/v1/admin/flash-sales/not-a-uuid/schedule"},
-		{name: "admin cancel invalid uuid", method: http.MethodPost, path: "/api/v1/admin/flash-sales/not-a-uuid/cancel-schedule"},
-		{name: "admin stop invalid uuid", method: http.MethodPost, path: "/api/v1/admin/flash-sales/not-a-uuid/stop"},
+		{name: "public get invalid uuid", method: http.MethodGet, path: "/api/flash-sales/not-a-uuid"},
+		{name: "admin get invalid uuid", method: http.MethodGet, path: "/api/admin/flash-sales/not-a-uuid"},
+		{name: "admin update invalid uuid", method: http.MethodPatch, path: "/api/admin/flash-sales/not-a-uuid"},
+		{name: "admin schedule invalid uuid", method: http.MethodPost, path: "/api/admin/flash-sales/not-a-uuid/schedule"},
+		{name: "admin cancel invalid uuid", method: http.MethodPost, path: "/api/admin/flash-sales/not-a-uuid/cancel-schedule"},
+		{name: "admin stop invalid uuid", method: http.MethodPost, path: "/api/admin/flash-sales/not-a-uuid/stop"},
 	}
 
 	for _, tc := range testCases {
@@ -64,7 +64,7 @@ func TestFlashSaleCreateValidationRejectsMalformedBodies(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodPost, "/api/v1/admin/flash-sales", strings.NewReader(tc.body))
+			req := httptest.NewRequest(http.MethodPost, "/api/admin/flash-sales", strings.NewReader(tc.body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.ServeHTTP(rec, req)

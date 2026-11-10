@@ -35,7 +35,7 @@ func NewController(service ProductService) *Controller {
 }
 
 func RegisterRoutes(router *gin.RouterGroup, controller *Controller) {
-	group := router.Group("/v1/products")
+	group := router.Group("/products")
 	group.GET("", controller.ListProducts)
 	group.GET("/:productId", controller.GetProduct)
 }
@@ -46,13 +46,13 @@ func RegisterAdminRoutes(
 	requireSession gin.HandlerFunc,
 	requireAdmin gin.HandlerFunc,
 ) {
-	group := router.Group("/v1/admin/products", requireSession, requireAdmin)
+	group := router.Group("/admin/products", requireSession, requireAdmin)
 	group.GET("", controller.ListAdminProducts)
 	group.POST("", controller.CreateProduct)
 	group.GET("/:productId", controller.GetAdminProduct)
 	group.PATCH("/:productId", controller.UpdateProduct)
 	group.POST("/:productId/skus", controller.CreateSKU)
-	skus := router.Group("/v1/admin/skus", requireSession, requireAdmin)
+	skus := router.Group("/admin/skus", requireSession, requireAdmin)
 	skus.PATCH("/:skuId", controller.UpdateSKU)
 }
 
