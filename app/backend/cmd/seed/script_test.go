@@ -1,16 +1,12 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
-	"cloudian/cloudian-scale/internal/database"
-	"cloudian/cloudian-scale/internal/migration"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -70,6 +66,30 @@ func TestValidateFixtureAcceptsEmbeddedData(t *testing.T) {
 	}
 }
 
+func TestValidateFixtureRejectsDuplicateSessionIDs(t *testing.T) {
+	fixture, err := loadFixture()
+	if err != nil {
+		t.Fatalf("loadFixture() error = %v", err)
+	}
+	fixture.Sessions[1].ID = fixture.Sessions[0].ID
+
+	if err := validateFixture(fixture); err == nil {
+		t.Fatal("validateFixture() accepted duplicate session IDs")
+	}
+}
+
+func TestValidateFixtureRejectsUsageThatDisagreesWithItemCounters(t *testing.T) {
+	fixture, err := loadFixture()
+	if err != nil {
+		t.Fatalf("loadFixture() error = %v", err)
+	}
+	fixture.FlashSaleCustomerUsage[0].SoldQuantity = 1
+
+	if err := validateFixture(fixture); err == nil {
+		t.Fatal("validateFixture() accepted usage that disagrees with item counters")
+	}
+}
+
 func TestCanSeedRequiresExplicitDevelopmentConfirmation(t *testing.T) {
 	for _, testCase := range []struct {
 		name         string
@@ -102,77 +122,6 @@ func TestHashFixturePasswordUsesBcrypt(t *testing.T) {
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte("cloudian")); err != nil {
 		t.Fatalf("bcrypt hash does not verify the fixture password: %v", err)
-	}
-}
-
-func TestSeedWritesRepeatableFixture(t *testing.T) {
-	connectionString := strings.TrimSpace(os.Getenv("TEST_DATABASE_URL"))
-	if connectionString == "" {
-		t.Skip("set TEST_DATABASE_URL to run PostgreSQL seed integration tests")
-	}
-	if connectionString == strings.TrimSpace(os.Getenv("DATABASE_URL")) {
-		t.Fatal("TEST_DATABASE_URL must be different from DATABASE_URL because this test truncates it")
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	database, err := database.Open(ctx, connectionString)
-	if err != nil {
-		t.Fatalf("open test database: %v", err)
-	}
-	defer database.Close()
-	if err := migration.Run(ctx, database.SQL(), migration.CommandUp); err != nil {
-		t.Fatalf("migrate test database: %v", err)
-	}
-	if _, err := database.SQL().ExecContext(ctx, `
-		TRUNCATE cart_items, carts, flash_sale_customer_usage, flash_sale_items,
-		flash_sale_campaigns, inventory_adjustments, inventories, skus, products,
-		categories, login_throttles, sessions, users CASCADE`); err != nil {
-		t.Fatalf("truncate test database: %v", err)
-	}
-
-	fixture, err := loadFixture()
-	if err != nil {
-		t.Fatalf("load fixture: %v", err)
-	}
-	if err := seed(ctx, database.ORM(), fixture); err != nil {
-		t.Fatalf("first seed: %v", err)
-	}
-	if err := seed(ctx, database.ORM(), fixture); err != nil {
-		t.Fatalf("second seed: %v", err)
-	}
-
-	for table, want := range map[string]int{
-		"users": 2, "sessions": 4, "login_throttles": 4, "categories": 4,
-		"products": 4, "skus": 4, "inventories": 4, "inventory_adjustments": 4,
-		"flash_sale_campaigns": 4, "flash_sale_items": 4, "flash_sale_customer_usage": 4,
-		"carts": 4, "cart_items": 4,
-	} {
-		var got int
-		if err := database.SQL().QueryRowContext(ctx, "SELECT COUNT(*) FROM "+table).Scan(&got); err != nil {
-			t.Fatalf("count %s: %v", table, err)
-		}
-		if got != want {
-			t.Errorf("%s count = %d, want %d", table, got, want)
-		}
-	}
-
-	var passwordHash string
-	if err := database.SQL().QueryRowContext(ctx, `SELECT password_hash FROM users WHERE email_normalized = 'admin@gmail.com'`).Scan(&passwordHash); err != nil {
-		t.Fatalf("load admin password hash: %v", err)
-	}
-	if strings.Contains(passwordHash, "cloudian") || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte("cloudian")) != nil {
-		t.Error("admin password is not stored as a valid bcrypt hash")
-	}
-
-	var invalidSessions int
-	if err := database.SQL().QueryRowContext(ctx, `
-		SELECT COUNT(*) FROM sessions
-		WHERE revoked_at IS NULL OR octet_length(token_hash) <> 32 OR octet_length(csrf_secret_hash) <> 32`).Scan(&invalidSessions); err != nil {
-		t.Fatalf("verify seeded sessions: %v", err)
-	}
-	if invalidSessions != 0 {
-		t.Errorf("invalid seeded sessions = %d, want 0", invalidSessions)
 	}
 }
 

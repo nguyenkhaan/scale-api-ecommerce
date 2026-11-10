@@ -200,7 +200,34 @@ func validateFixture(data fixture) error {
 		return fmt.Errorf("missing required customer fixture")
 	}
 
+	sessions := make(map[string]struct{}, len(data.Sessions))
+	tokenSeeds := make(map[string]struct{}, len(data.Sessions))
+	for _, session := range data.Sessions {
+		if err := addUUID(sessions, "session", session.ID); err != nil {
+			return err
+		}
+		if _, ok := users[session.UserID]; !ok || strings.TrimSpace(session.TokenSeed) == "" || strings.TrimSpace(session.CSRFSeed) == "" {
+			return fmt.Errorf("invalid session %q", session.ID)
+		}
+		if _, exists := tokenSeeds[session.TokenSeed]; exists {
+			return fmt.Errorf("duplicate session token seed for %q", session.ID)
+		}
+		tokenSeeds[session.TokenSeed] = struct{}{}
+	}
+
+	throttles := make(map[string]struct{}, len(data.LoginThrottles))
+	for _, throttle := range data.LoginThrottles {
+		if throttle.EmailNormalized == "" || throttle.EmailNormalized != strings.ToLower(strings.TrimSpace(throttle.EmailNormalized)) || throttle.FailureCount <= 0 {
+			return fmt.Errorf("invalid login throttle %q", throttle.EmailNormalized)
+		}
+		if _, exists := throttles[throttle.EmailNormalized]; exists {
+			return fmt.Errorf("duplicate login throttle %q", throttle.EmailNormalized)
+		}
+		throttles[throttle.EmailNormalized] = struct{}{}
+	}
+
 	categories := make(map[string]struct{}, len(data.Categories))
+	categorySlugs := make(map[string]struct{}, len(data.Categories))
 	for _, category := range data.Categories {
 		if err := addUUID(categories, "category", category.ID); err != nil {
 			return err
@@ -208,6 +235,10 @@ func validateFixture(data fixture) error {
 		if strings.TrimSpace(category.Name) == "" || strings.TrimSpace(category.Slug) != category.Slug {
 			return fmt.Errorf("invalid category %q", category.ID)
 		}
+		if _, exists := categorySlugs[category.Slug]; exists {
+			return fmt.Errorf("duplicate category slug %q", category.Slug)
+		}
+		categorySlugs[category.Slug] = struct{}{}
 	}
 	products := make(map[string]struct{}, len(data.Products))
 	for _, product := range data.Products {
@@ -222,6 +253,7 @@ func validateFixture(data fixture) error {
 		}
 	}
 	skus := make(map[string]skuFixture, len(data.SKUs))
+	skuCodes := make(map[string]struct{}, len(data.SKUs))
 	for _, sku := range data.SKUs {
 		if err := requireUUID("sku", sku.ID); err != nil {
 			return err
@@ -235,6 +267,10 @@ func validateFixture(data fixture) error {
 		if sku.RegularPrice <= 0 || sku.MaxQuantityPerOrder <= 0 || !jsonObject(sku.Attributes) {
 			return fmt.Errorf("invalid sku %q", sku.ID)
 		}
+		if _, exists := skuCodes[sku.Code]; exists || strings.TrimSpace(sku.Code) != sku.Code {
+			return fmt.Errorf("duplicate or invalid sku code %q", sku.Code)
+		}
+		skuCodes[sku.Code] = struct{}{}
 		skus[sku.ID] = sku
 	}
 
@@ -248,7 +284,12 @@ func validateFixture(data fixture) error {
 		}
 		inventories[inventory.SKUID] = inventory
 	}
+	adjustments := make(map[string]struct{}, len(data.InventoryAdjustments))
+	adjustmentSKUs := make(map[string]struct{}, len(data.InventoryAdjustments))
 	for _, adjustment := range data.InventoryAdjustments {
+		if err := addUUID(adjustments, "inventory adjustment", adjustment.ID); err != nil {
+			return err
+		}
 		if _, ok := inventories[adjustment.SKUID]; !ok {
 			return fmt.Errorf("adjustment %q references missing inventory", adjustment.ID)
 		}
@@ -260,6 +301,15 @@ func validateFixture(data fixture) error {
 		}
 		if inventory := inventories[adjustment.SKUID]; inventory.OnHand != adjustment.OnHandAfter {
 			return fmt.Errorf("adjustment %q does not match inventory", adjustment.ID)
+		}
+		if _, exists := adjustmentSKUs[adjustment.SKUID]; exists {
+			return fmt.Errorf("multiple fixture adjustments for sku %q", adjustment.SKUID)
+		}
+		adjustmentSKUs[adjustment.SKUID] = struct{}{}
+	}
+	for skuID := range inventories {
+		if _, ok := adjustmentSKUs[skuID]; !ok {
+			return fmt.Errorf("inventory %q has no fixture adjustment", skuID)
 		}
 	}
 
@@ -273,6 +323,7 @@ func validateFixture(data fixture) error {
 		}
 	}
 	items := make(map[string]flashSaleItemFixture, len(data.FlashSaleItems))
+	campaignSKUs := make(map[string]struct{}, len(data.FlashSaleItems))
 	for _, item := range data.FlashSaleItems {
 		if err := requireUUID("flash sale item", item.ID); err != nil {
 			return err
@@ -284,8 +335,18 @@ func validateFixture(data fixture) error {
 		if !ok || item.SalePrice <= 0 || item.SalePrice >= sku.RegularPrice || item.QuotaTotal <= 0 || item.QuotaReserved < 0 || item.QuotaSold < 0 || item.QuotaReserved+item.QuotaSold > item.QuotaTotal || item.PurchaseLimit <= 0 {
 			return fmt.Errorf("invalid flash sale item %q", item.ID)
 		}
+		if _, exists := items[item.ID]; exists {
+			return fmt.Errorf("duplicate flash sale item id %q", item.ID)
+		}
+		campaignSKU := item.CampaignID + "\x00" + item.SKUID
+		if _, exists := campaignSKUs[campaignSKU]; exists {
+			return fmt.Errorf("duplicate flash sale item for campaign and sku %q", item.ID)
+		}
+		campaignSKUs[campaignSKU] = struct{}{}
 		items[item.ID] = item
 	}
+	usageKeys := make(map[string]struct{}, len(data.FlashSaleCustomerUsage))
+	totals := make(map[string]struct{ reserved, sold int64 }, len(data.FlashSaleItems))
 	for _, usage := range data.FlashSaleCustomerUsage {
 		item, ok := items[usage.FlashSaleItemID]
 		if !ok {
@@ -294,11 +355,29 @@ func validateFixture(data fixture) error {
 		if _, ok := users[usage.UserID]; !ok || usage.ReservedQuantity < 0 || usage.SoldQuantity < 0 || usage.ReservedQuantity+usage.SoldQuantity > int64(item.PurchaseLimit) {
 			return fmt.Errorf("invalid flash sale usage for %q", usage.FlashSaleItemID)
 		}
+		usageKey := usage.FlashSaleItemID + "\x00" + usage.UserID
+		if _, exists := usageKeys[usageKey]; exists {
+			return fmt.Errorf("duplicate flash sale usage for %q", usage.FlashSaleItemID)
+		}
+		usageKeys[usageKey] = struct{}{}
+		total := totals[usage.FlashSaleItemID]
+		total.reserved += usage.ReservedQuantity
+		total.sold += usage.SoldQuantity
+		totals[usage.FlashSaleItemID] = total
+	}
+	for itemID, item := range items {
+		total := totals[itemID]
+		if total.reserved != item.QuotaReserved || total.sold != item.QuotaSold {
+			return fmt.Errorf("flash sale usage does not match counters for %q", itemID)
+		}
 	}
 
 	carts := make(map[string]cartFixture, len(data.Carts))
 	activeCarts := make(map[string]int)
 	for _, cart := range data.Carts {
+		if err := requireUUID("cart", cart.ID); err != nil {
+			return err
+		}
 		if _, ok := users[cart.UserID]; !ok || (cart.Status != "active" && cart.Status != "archived") {
 			return fmt.Errorf("invalid cart %q", cart.ID)
 		}
@@ -314,13 +393,26 @@ func validateFixture(data fixture) error {
 	if activeCarts[customer.ID] != 1 {
 		return fmt.Errorf("fixture must have one active customer cart")
 	}
+	cartItemIDs := make(map[string]struct{}, len(data.CartItems))
+	cartSKUs := make(map[string]struct{}, len(data.CartItems))
 	for _, item := range data.CartItems {
+		if err := addUUID(cartItemIDs, "cart item", item.ID); err != nil {
+			return err
+		}
 		if _, ok := carts[item.CartID]; !ok {
 			return fmt.Errorf("cart item %q references missing cart", item.ID)
 		}
 		if _, ok := skus[item.SKUID]; !ok || item.Quantity <= 0 || item.Version < 1 {
 			return fmt.Errorf("invalid cart item %q", item.ID)
 		}
+		if item.IntendedPriceSource != "regular" && item.IntendedPriceSource != "flash_sale" {
+			return fmt.Errorf("invalid cart item price source %q", item.ID)
+		}
+		cartSKU := item.CartID + "\x00" + item.SKUID
+		if _, exists := cartSKUs[cartSKU]; exists {
+			return fmt.Errorf("duplicate cart item for cart and sku %q", item.ID)
+		}
+		cartSKUs[cartSKU] = struct{}{}
 		if item.IntendedPriceSource == "regular" && item.FlashSaleItemID != nil {
 			return fmt.Errorf("regular cart item %q has flash sale item", item.ID)
 		}
@@ -406,6 +498,10 @@ func seed(ctx context.Context, database *gorm.DB, data fixture) error {
 		}
 		passwordHashes[user.ID] = hash
 	}
+	adjustmentActors := make(map[string]string, len(data.InventoryAdjustments))
+	for _, adjustment := range data.InventoryAdjustments {
+		adjustmentActors[adjustment.SKUID] = adjustment.ActorUserID
+	}
 
 	return database.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		for _, user := range data.Users {
@@ -455,13 +551,41 @@ func seed(ctx context.Context, database *gorm.DB, data fixture) error {
 			}
 		}
 		for _, inventory := range data.Inventories {
+			var current struct {
+				OnHand   int64 `gorm:"column:on_hand"`
+				Reserved int64 `gorm:"column:reserved"`
+				Version  int64 `gorm:"column:version"`
+			}
+			result := transaction.Raw(`
+				SELECT on_hand, reserved, version FROM inventories WHERE sku_id = ? FOR UPDATE`, inventory.SKUID).Scan(&current)
+			if result.Error != nil {
+				return fmt.Errorf("lock inventory %q: %w", inventory.SKUID, result.Error)
+			}
+			targetVersion := inventory.Version
+			if result.RowsAffected == 1 {
+				targetVersion = current.Version
+				if current.OnHand != inventory.OnHand || current.Reserved != inventory.Reserved {
+					if current.Version == int64(^uint64(0)>>1) {
+						return fmt.Errorf("inventory version overflow for %q", inventory.SKUID)
+					}
+					targetVersion++
+				}
+			}
 			if err := execute(transaction, `
 				INSERT INTO inventories (sku_id, on_hand, reserved, version)
 				VALUES (?, ?, ?, ?)
 				ON CONFLICT (sku_id) DO UPDATE SET
 					on_hand = EXCLUDED.on_hand, reserved = EXCLUDED.reserved,
-					version = EXCLUDED.version, updated_at = CURRENT_TIMESTAMP`, inventory.SKUID, inventory.OnHand, inventory.Reserved, inventory.Version); err != nil {
+					version = EXCLUDED.version, updated_at = CURRENT_TIMESTAMP`, inventory.SKUID, inventory.OnHand, inventory.Reserved, targetVersion); err != nil {
 				return fmt.Errorf("upsert inventory %q: %w", inventory.SKUID, err)
+			}
+			if result.RowsAffected == 1 && current.OnHand != inventory.OnHand {
+				if err := execute(transaction, `
+					INSERT INTO inventory_adjustments
+						(sku_id, actor_user_id, delta, on_hand_before, on_hand_after, reason)
+					VALUES (?, ?, ?, ?, ?, 'SEED_RECONCILIATION')`, inventory.SKUID, adjustmentActors[inventory.SKUID], inventory.OnHand-current.OnHand, current.OnHand, inventory.OnHand); err != nil {
+					return fmt.Errorf("reconcile inventory %q: %w", inventory.SKUID, err)
+				}
 			}
 		}
 		for _, adjustment := range data.InventoryAdjustments {
@@ -511,6 +635,15 @@ func seed(ctx context.Context, database *gorm.DB, data fixture) error {
 			}
 		}
 		for _, cart := range data.Carts {
+			if cart.Status == "active" {
+				if err := execute(transaction, `
+					UPDATE carts SET status = 'archived', updated_at = CURRENT_TIMESTAMP
+					WHERE user_id = ? AND status = 'active' AND id <> ?`, cart.UserID, cart.ID); err != nil {
+					return fmt.Errorf("archive prior active cart for user %q: %w", cart.UserID, err)
+				}
+			}
+		}
+		for _, cart := range data.Carts {
 			if err := execute(transaction, `
 				INSERT INTO carts (id, user_id, status)
 				VALUES (?, ?, ?)
@@ -524,8 +657,8 @@ func seed(ctx context.Context, database *gorm.DB, data fixture) error {
 				INSERT INTO cart_items
 					(id, cart_id, sku_id, quantity, intended_price_source, flash_sale_item_id, version)
 				VALUES (?, ?, ?, ?, ?, ?, ?)
-				ON CONFLICT (id) DO UPDATE SET
-					cart_id = EXCLUDED.cart_id, sku_id = EXCLUDED.sku_id, quantity = EXCLUDED.quantity,
+				ON CONFLICT (cart_id, sku_id) DO UPDATE SET
+					id = EXCLUDED.id, quantity = EXCLUDED.quantity,
 					intended_price_source = EXCLUDED.intended_price_source,
 					flash_sale_item_id = EXCLUDED.flash_sale_item_id, version = EXCLUDED.version,
 					updated_at = CURRENT_TIMESTAMP`, item.ID, item.CartID, item.SKUID, item.Quantity, item.IntendedPriceSource, item.FlashSaleItemID, item.Version); err != nil {
