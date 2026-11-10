@@ -77,14 +77,13 @@ go run ./cmd/migrate status
 go run ./cmd/migrate up
 ```
 
-Seed the initial admin only in development or test. The password must contain at least 12 characters:
+Seed the complete development fixture only after migrations, and only against a disposable development or test database. The command is repeatable, but deliberately refreshes the fixture-owned values.
 
 ```bash
-ALLOW_ADMIN_SEED=true \
-ADMIN_EMAIL='admin@example.com' \
-ADMIN_PASSWORD='<STRONG_PASSWORD>' \
-go run ./cmd/seed-admin
+ALLOW_SEED=true go run ./cmd/seed
 ```
+
+The fixture has two accounts: `admin@gmail.com` (admin) and `customer@gmail.com` (customer). Its password is development-only and is stored in PostgreSQL as a bcrypt hash, never plaintext.
 
 Reset is destructive and is restricted to an explicitly configured test environment. The command refuses to run unless both guards are present:
 

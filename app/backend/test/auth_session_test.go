@@ -1,12 +1,10 @@
 package backend_test
 
 import (
-	"context"
 	"net/http"
 	"strings"
 	"testing"
 
-	"cloudian/cloudian-scale/internal/bootstrap"
 	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"cloudian/cloudian-scale/internal/httpserver/problem"
 	"cloudian/cloudian-scale/internal/model"
@@ -102,20 +100,25 @@ func TestCustomerCannotUseAdminRoute(t *testing.T) {
 		t.Error("forbidden response leaked admin data")
 	}
 
-	t.Setenv("ENV", "test")
-	t.Setenv("ALLOW_ADMIN_SEED", "true")
-	t.Setenv("ADMIN_EMAIL", "admin@example.com")
-	t.Setenv("ADMIN_PASSWORD", "admin password long enough")
-	seedConfig, err := bootstrap.LoadAdminSeedConfig()
+	adminPassword := "admin password long enough"
+	adminHash, err := bcrypt.GenerateFromPassword([]byte(adminPassword), bcrypt.MinCost)
 	if err != nil {
-		t.Fatalf("load admin seed config: %v", err)
+		t.Fatalf("hash admin password: %v", err)
 	}
-	if err := bootstrap.SeedAdmin(context.Background(), testDatabase.SQL(), seedConfig); err != nil {
-		t.Fatalf("seed admin: %v", err)
+	adminUser := model.User{
+		ID:              "50000000-0000-4000-8000-000000000010",
+		Email:           "admin@example.com",
+		EmailNormalized: "admin@example.com",
+		PasswordHash:    string(adminHash),
+		Role:            model.RoleAdmin,
+		Status:          model.UserStatusActive,
+	}
+	if err := testDatabase.ORM().Create(&adminUser).Error; err != nil {
+		t.Fatalf("create admin fixture: %v", err)
 	}
 
 	admin := newTestClient(router)
-	login := admin.send(t, http.MethodPost, "/api/v1/auth/login", credentials("admin@example.com", "admin password long enough"))
+	login := admin.send(t, http.MethodPost, "/api/v1/auth/login", credentials("admin@example.com", adminPassword))
 	if result := decodeJSON[auth.AuthResultResponse](t, login); login.Code != http.StatusOK || result.User.Role != model.RoleAdmin {
 		t.Fatalf("seeded admin login = %d %+v, want 200 admin", login.Code, result.User)
 	}

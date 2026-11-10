@@ -7,8 +7,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strings"
+	"time"
 
+	"cloudian/cloudian-scale/internal/config"
+	"cloudian/cloudian-scale/internal/database"
 	"cloudian/cloudian-scale/internal/module/auth"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -16,6 +21,8 @@ import (
 )
 
 const fixtureRecordCount = 4
+
+const seedCommandTimeout = 60 * time.Second
 
 //go:embed data.json
 var fixtureJSON []byte
@@ -554,4 +561,37 @@ func seed(ctx context.Context, database *gorm.DB, data fixture) error {
 
 func execute(transaction *gorm.DB, query string, arguments ...any) error {
 	return transaction.Exec(query, arguments...).Error
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+	log.Print("development fixture seed completed")
+}
+
+func run() error {
+	applicationConfig, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if !canSeed(applicationConfig.Env, os.Getenv("ALLOW_SEED")) {
+		return errors.New("seed requires ENV=dev, development, or test and ALLOW_SEED=true")
+	}
+	fixture, err := loadFixture()
+	if err != nil {
+		return err
+	}
+	if err := validateFixture(fixture); err != nil {
+		return fmt.Errorf("validate seed fixture: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), seedCommandTimeout)
+	defer cancel()
+	postgresDatabase, err := database.Open(ctx, applicationConfig.DatabaseUrl)
+	if err != nil {
+		return err
+	}
+	defer postgresDatabase.Close()
+	return seed(ctx, postgresDatabase.ORM(), fixture)
 }

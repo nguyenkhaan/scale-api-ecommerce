@@ -67,6 +67,7 @@ cd app/backend
 go run ./cmd/api
 go run ./cmd/migrate status
 go run ./cmd/migrate up
+ALLOW_SEED=true go run ./cmd/seed  # only with ENV=dev, development, or test; refreshes development fixture data
 go build ./...
 go test ./...
 TEST_DATABASE_URL=<postgres-test-url> go test ./...  # thêm test tích hợp PostgreSQL; database này bị TRUNCATE

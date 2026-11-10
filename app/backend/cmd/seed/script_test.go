@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -171,5 +173,18 @@ func TestSeedWritesRepeatableFixture(t *testing.T) {
 	}
 	if invalidSessions != 0 {
 		t.Errorf("invalid seeded sessions = %d, want 0", invalidSessions)
+	}
+}
+
+func TestLegacySeedCommandsAreRemoved(t *testing.T) {
+	for _, path := range []string{
+		"../seed-admin",
+		"../seed-catalog",
+		"../../internal/bootstrap/admin_seed.go",
+		"../../internal/bootstrap/catalog_seed.go",
+	} {
+		if _, err := os.Stat(filepath.Clean(path)); !errors.Is(err, os.ErrNotExist) {
+			t.Errorf("legacy seed path %q still exists", path)
+		}
 	}
 }
