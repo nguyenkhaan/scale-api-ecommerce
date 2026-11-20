@@ -2,6 +2,7 @@ import type { ChangeEvent, FormEvent } from 'react'
 import { Button } from './Button'
 
 export type SearchFieldProps = {
+  id?: string
   value: string
   placeholder: string
   onChange: (value: string) => void
@@ -9,7 +10,7 @@ export type SearchFieldProps = {
   label?: string
 }
 
-export function SearchField({ value, placeholder, onChange, onSubmit, label = 'Tìm kiếm' }: SearchFieldProps) {
+export function SearchField({ id = 'search-field', value, placeholder, onChange, onSubmit, label = 'Tìm kiếm' }: SearchFieldProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     onSubmit()
@@ -21,9 +22,9 @@ export function SearchField({ value, placeholder, onChange, onSubmit, label = 'T
 
   return (
     <form role="search" onSubmit={handleSubmit} className="flex w-full items-center gap-2">
-      <label htmlFor="search-field" className="sr-only">{label}</label>
+      <label htmlFor={id} className="sr-only">{label}</label>
       <input
-        id="search-field"
+        id={id}
         type="search"
         value={value}
         placeholder={placeholder}

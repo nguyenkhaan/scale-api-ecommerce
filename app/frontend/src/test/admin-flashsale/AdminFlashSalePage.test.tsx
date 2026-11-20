@@ -117,4 +117,20 @@ describe('AdminFlashSalePageView', () => {
     expect(markup).not.toContain('Tồn kho')
     expect(markup).not.toContain('Quản lý sản phẩm')
   })
+
+  it('renders a recovery action for failed admin mutations', () => {
+    const markup = renderToStaticMarkup(
+      <MemoryRouter>
+        <AdminFlashSalePageView
+          {...baseProps}
+          notice={{ kind: 'error', text: 'Phiên đăng nhập đã hết hạn.', recovery: 'login' }}
+          onNoticeAction={noop}
+          list={{ items: [], loading: false, loadingMore: false, error: null, hasMore: false, reload: async () => {}, loadMore: async () => {} }}
+        />
+      </MemoryRouter>,
+    )
+
+    expect(markup).toContain('role="alert"')
+    expect(markup).toContain('Đăng nhập lại')
+  })
 })

@@ -82,4 +82,18 @@ describe('shared domain components', () => {
     form.props.onSubmit({ preventDefault: () => {} })
     expect(onSubmit).toHaveBeenCalledTimes(1)
   })
+
+  it('allows consumers to provide distinct accessible search IDs', () => {
+    const markup = renderToStaticMarkup(
+      <div>
+        <SearchField id="customer-search" value="" placeholder="Tìm sản phẩm" onChange={() => {}} onSubmit={() => {}} />
+        <SearchField id="catalog-search" value="" placeholder="Tìm sản phẩm" onChange={() => {}} onSubmit={() => {}} />
+      </div>,
+    )
+
+    expect(markup).toContain('id="customer-search"')
+    expect(markup).toContain('for="customer-search"')
+    expect(markup).toContain('id="catalog-search"')
+    expect(markup).toContain('for="catalog-search"')
+  })
 })

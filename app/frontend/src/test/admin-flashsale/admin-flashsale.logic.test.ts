@@ -29,6 +29,12 @@ describe('describeAdminFailure', () => {
     expect(conflict.stateConflict).toBe(true)
     expect(conflict.text).not.toContain('STATE_TRANSITION_CONFLICT')
   })
+
+  it('marks authentication failures for login recovery', () => {
+    const failure = describeAdminFailure(new ApiError({ status: 403, code: 'FORBIDDEN' }))
+    expect(failure.requiresLogin).toBe(true)
+    expect(failure.stateConflict).toBe(false)
+  })
 })
 
 describe('buildRequest', () => {

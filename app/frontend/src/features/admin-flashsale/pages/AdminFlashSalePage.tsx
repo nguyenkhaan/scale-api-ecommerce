@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Button, FeedbackState, LoadMoreButton } from '@/components/common'
+import { useNavigate } from 'react-router-dom'
+import { Alert, Button, FeedbackState, LoadMoreButton } from '@/components/common'
 import type { AdminAction } from '../admin-flashsale.logic'
 import { AdminCampaignCard } from '../components/AdminCampaignCard'
 import { CampaignFormModal } from '../components/CampaignFormModal'
-import { useAdminFlashSales } from '../admin-flashsale.hook'
+import { useAdminFlashSales, type AdminNotice } from '../admin-flashsale.hook'
 import { useAdminSkuOptions } from '../admin-sku-options.hook'
 import type { FlashSaleCampaign } from '@/features/flashsale/flashsale.type'
 
@@ -23,17 +24,24 @@ export type AdminFlashSaleListState = {
 export type AdminFlashSalePageViewProps = {
   list: AdminFlashSaleListState
   busyId: string | null
-  notice: { kind: 'success' | 'error'; text: string } | null
+  notice: AdminNotice | null
   onCreate: () => void
   onAction: (campaign: FlashSaleCampaign, action: AdminAction) => void
   onLoadMore: () => void
+  onNoticeAction?: () => void
 }
 
 export function AdminFlashSalePage() {
+  const navigate = useNavigate()
   const sales = useAdminFlashSales()
   const skus = useAdminSkuOptions()
   const [formTarget, setFormTarget] = useState<FormTarget>(null)
   const { list } = sales
+
+  const handleNoticeAction = () => {
+    if (sales.notice?.recovery === 'login') navigate('/login', { replace: true })
+    else void list.reload()
+  }
 
   const handleAction = (campaign: FlashSaleCampaign, action: AdminAction) => {
     if (action === 'edit') setFormTarget(campaign)
@@ -49,6 +57,7 @@ export function AdminFlashSalePage() {
         onCreate={() => setFormTarget('new')}
         onAction={handleAction}
         onLoadMore={() => void list.loadMore()}
+        onNoticeAction={handleNoticeAction}
       />
 
       {formTarget !== null && (
@@ -57,6 +66,7 @@ export function AdminFlashSalePage() {
           skuOptions={skus.options}
           skuLoadError={skus.error}
           onClose={() => setFormTarget(null)}
+          onRecover={() => navigate('/login', { replace: true })}
           onSubmit={async (request) => {
             await sales.save(request, formTarget === 'new' ? undefined : formTarget)
             setFormTarget(null)
@@ -67,7 +77,7 @@ export function AdminFlashSalePage() {
   )
 }
 
-export function AdminFlashSalePageView({ list, busyId, notice, onCreate, onAction, onLoadMore }: AdminFlashSalePageViewProps) {
+export function AdminFlashSalePageView({ list, busyId, notice, onCreate, onAction, onLoadMore, onNoticeAction }: AdminFlashSalePageViewProps) {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--ss-color-border)] pb-4">
@@ -78,7 +88,19 @@ export function AdminFlashSalePageView({ list, busyId, notice, onCreate, onActio
         <Button onClick={onCreate}>Tạo chiến dịch mới</Button>
       </div>
 
-      {notice && <div className="mt-4"><FeedbackState kind={notice.kind === 'error' ? 'error' : 'loading'} title={notice.kind === 'error' ? 'Thao tác chưa thành công' : 'Đã cập nhật'} message={notice.text} /></div>}
+      {notice && (
+        <div className="mt-4">
+          <Alert tone={notice.kind === 'error' ? 'danger' : 'success'}>
+            <p className="font-semibold">{notice.kind === 'error' ? 'Thao tác chưa thành công' : 'Đã cập nhật'}</p>
+            <p className="mt-1">{notice.text}</p>
+            {notice.kind === 'error' && notice.recovery && onNoticeAction && (
+              <Button type="button" variant="secondary" className="mt-3" onClick={onNoticeAction}>
+                {notice.recovery === 'login' ? 'Đăng nhập lại' : 'Tải lại danh sách'}
+              </Button>
+            )}
+          </Alert>
+        </div>
+      )}
 
       {list.error && (
         <div className="mt-4">

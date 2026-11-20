@@ -5,7 +5,7 @@ import { describeAdminFailure, type AdminAction } from './admin-flashsale.logic'
 
 const listAdmin = (cursor?: string) => flashSaleClient.listAdminFlashSales({ cursor })
 
-type Notice = { kind: 'success' | 'error'; text: string }
+export type AdminNotice = { kind: 'success' | 'error'; text: string; recovery?: 'reload' | 'login' }
 
 const successText: Record<Exclude<AdminAction, 'edit'>, string> = {
   schedule: 'Đã lên lịch chiến dịch.',
@@ -16,7 +16,7 @@ const successText: Record<Exclude<AdminAction, 'edit'>, string> = {
 export function useAdminFlashSales() {
   const list = usePagedList(listAdmin, 'danh sách chiến dịch')
   const [busyId, setBusyId] = useState<string | null>(null)
-  const [notice, setNotice] = useState<Notice | null>(null)
+  const [notice, setNotice] = useState<AdminNotice | null>(null)
 
   const runAction = async (campaign: FlashSaleCampaign, action: Exclude<AdminAction, 'edit'>) => {
     setBusyId(campaign.id)
@@ -29,7 +29,7 @@ export function useAdminFlashSales() {
       await list.reload()
     } catch (err) {
       const failure = describeAdminFailure(err)
-      setNotice({ kind: 'error', text: failure.text })
+      setNotice({ kind: 'error', text: failure.text, recovery: failure.requiresLogin ? 'login' : 'reload' })
       if (failure.stateConflict) await list.reload()
     } finally {
       setBusyId(null)

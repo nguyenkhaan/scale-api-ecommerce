@@ -32,21 +32,21 @@ export const STATE_CONFLICT_MESSAGE =
 export const SCHEDULE_OVERLAP_MESSAGE =
   'Có SKU đang nằm trong chiến dịch khác (đã lên lịch hoặc đã dừng) trùng khung giờ. Hãy đổi khung giờ hoặc bỏ SKU trùng.'
 
-export type AdminFailure = { text: string; stateConflict: boolean }
+export type AdminFailure = { text: string; stateConflict: boolean; requiresLogin: boolean }
 
 export function describeAdminFailure(err: unknown): AdminFailure {
   if (isApiError(err)) {
-    if (err.code === 'STATE_TRANSITION_CONFLICT') return { text: STATE_CONFLICT_MESSAGE, stateConflict: true }
-    if (err.code === 'SALE_SCHEDULE_OVERLAP') return { text: SCHEDULE_OVERLAP_MESSAGE, stateConflict: false }
+    if (err.code === 'STATE_TRANSITION_CONFLICT') return { text: STATE_CONFLICT_MESSAGE, stateConflict: true, requiresLogin: false }
+    if (err.code === 'SALE_SCHEDULE_OVERLAP') return { text: SCHEDULE_OVERLAP_MESSAGE, stateConflict: false, requiresLogin: false }
     if (err.status === 401 || err.status === 403) {
-      return { text: 'Phiên đăng nhập đã hết hạn hoặc bạn không có quyền quản trị.', stateConflict: false }
+      return { text: 'Phiên đăng nhập đã hết hạn hoặc bạn không có quyền quản trị.', stateConflict: false, requiresLogin: true }
     }
     if (err.code === 'RESOURCE_NOT_FOUND') {
-      return { text: 'Chiến dịch không còn tồn tại; danh sách đã được tải lại.', stateConflict: true }
+      return { text: 'Chiến dịch không còn tồn tại; danh sách đã được tải lại.', stateConflict: true, requiresLogin: false }
     }
     if (err.code === 'VALIDATION_ERROR' && err.violations.length > 0) {
-      return { text: err.violations.map(violationMessage).join(' '), stateConflict: false }
+      return { text: err.violations.map(violationMessage).join(' '), stateConflict: false, requiresLogin: false }
     }
   }
-  return { text: describeCartFailure(err).text, stateConflict: false }
+  return { text: describeCartFailure(err).text, stateConflict: false, requiresLogin: false }
 }

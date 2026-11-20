@@ -16,7 +16,7 @@ export type FeedbackStateProps = {
 }
 
 export function FeedbackState({ kind, title, message, action, children }: FeedbackStateProps) {
-  const isAlert = kind === 'error' || kind === 'forbidden' || kind === 'notFound'
+  const isAlert = kind === 'error' || kind === 'forbidden' || kind === 'notFound' || kind === 'overload'
   return (
     <section
       role={isAlert ? 'alert' : 'status'}

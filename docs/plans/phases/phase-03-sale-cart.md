@@ -2,7 +2,7 @@
 
 **Phụ thuộc:** 02. **Mục tiêu:** `FR-014–020`, `INV-09/10`, `TEST-09/10/20`.
 
-**Trạng thái kiểm tra 21/11/2026:** FE/BE đã được kiểm tra lại sau đợt chuẩn hóa UI. Frontend có 94 test pass; backend quality gates pass, trong đó 55 test pass và 66 test PostgreSQL integration bị skip vì checkout hiện không cấu hình `TEST_DATABASE_URL`. Live API trên database development, browser smoke bằng Chrome headless và các oracle cart/preview đã đạt trong phạm vi Phase 03.
+**Trạng thái kiểm tra 21/11/2026:** FE/BE đã được kiểm tra lại sau đợt chuẩn hóa UI và accessibility review. Frontend có 97 test pass; backend quality gates pass, trong đó 55 test pass và 66 test PostgreSQL integration bị skip vì checkout hiện không cấu hình `TEST_DATABASE_URL`. Live API trên database development, browser smoke bằng Chrome headless và các oracle cart/preview đã đạt trong phạm vi Phase 03.
 
 ## Step 1 — Chương trình flash sale
 
@@ -28,8 +28,9 @@
   - Bằng chứng: preview đọc trong transaction read-only với một `now()`, số query không phụ thuộc số dòng; mọi dòng lỗi trả trong `line_errors`, `code` cấp cao nhất là mã nghiêm trọng nhất (`test/cart_preview_test.go`, `cart_preview_sale_rules_test.go`; TEST-09/10).
 - [x] FE: hiển thị tổng, giá/điều kiện mới và yêu cầu xác nhận lại.
   - Bằng chứng: lỗi hiện dưới đúng dòng; nút "Chuyển sang giá thường" chỉ khi khách chủ động bấm; giá đổi so với lần preview trước phải bấm "Tôi đã xem giá mới".
-- [x] Checkpoint: preview đúng cả dòng thường/sale; test quota/limit và build/browser đạt. Chi tiết đặt đơn sang phase 04.
+- [x] Live checkpoint: preview đúng cả dòng thường/sale; test quota/limit và build/browser đạt. Chi tiết đặt đơn sang phase 04.
   - Đạt: live API, build, frontend tests, browser smoke và oracle dữ liệu đã chạy lại sau đợt sửa UI. Các test PostgreSQL integration tự động vẫn cần `TEST_DATABASE_URL` riêng để chạy đầy đủ.
+- [ ] Dedicated PostgreSQL integration checkpoint: chờ cấp `TEST_DATABASE_URL`; không coi các test bị skip là pass.
 
 ## Thay đổi hợp đồng
 
@@ -43,6 +44,7 @@ OpenAPI: thêm mã `SALE_SCHEDULE_OVERLAP`, `CART_ITEM_CHANGED`; `FlashSale.item
 - API client đã chuẩn hóa về một root `/api`; Vite proxy và direct-origin `VITE_API_BASE_URL=http://localhost:4000` đều được kiểm tra.
 - Backend chỉ có thay đổi tương thích CORS cho `PATCH`/`DELETE` và chuẩn hóa whitespace `router.go`; không đổi business logic sale/cart/preview.
 - Shell responsive được chỉnh để navigation customer tự wrap trên màn hình hẹp; browser smoke trước đó phát hiện overflow 403px trên viewport 390px, sau sửa còn `overflow=false`.
+- Accessibility follow-up đã bổ sung URL-backed search IDs riêng, focus trap/restore cho dialog, focus vào field lỗi đầu tiên và recovery action cho admin auth/CSRF failures.
 
 ### Automated gates
 
@@ -50,7 +52,7 @@ OpenAPI: thêm mã `SALE_SCHEDULE_OVERLAP`, `CART_ITEM_CHANGED`; `FlashSale.item
 |---|---|---|
 | Backend format/build/test/vet | `cd app/backend && gofmt -l . && go build ./... && go test ./... && go vet ./...` | Pass; `gofmt` sạch, build/vet sạch, package test pass |
 | Backend verbose suite | `cd app/backend && go test -v ./test` | 55 pass, 66 skip; integration skip nêu rõ `set TEST_DATABASE_URL` |
-| Frontend | `cd app/frontend && bun run typecheck && bun run lint && bun test && bun run build` | Pass; 94 tests, 273 assertions, lint/build pass |
+| Frontend | `cd app/frontend && bun run typecheck && bun run lint && bun test && bun run build` | Pass; 97 tests, 281 assertions, lint/build pass |
 | Legacy API route audit | `rg -n '/api/v1' app/frontend` | Không có kết quả |
 | Migration/fixture | `go run ./cmd/migrate status`, `go run ./cmd/migrate up`, `ALLOW_SEED=true go run ./cmd/seed` | Migration `00009` đã áp dụng; fixture development nạp thành công |
 
@@ -71,7 +73,7 @@ Chrome `150.0.7871.100` headless được chạy bằng DevTools Protocol với 
 
 - Anonymous: `/`, `/products`, catalog search, `/flash-sales`, `/login`, `/register`; heading, form controls, CTA và navigation render đúng, không horizontal overflow.
 - Customer: login development account, `/cart`, chọn cart lines, click `Xem trước thanh toán`; preview lines/tổng tiền hiển thị và mobile overflow không còn.
-- Admin: login development account, `/admin/flash-sales`; active navigation, campaign status/action, create dialog, input fields và invalid-submit field errors render đúng.
+- Admin: login development account, `/admin/flash-sales`; active navigation, campaign status/action, create dialog, input fields và invalid-submit field errors render đúng; dialog đưa focus vào nút đóng, form invalid đưa focus vào `campaign-name`.
 - Kiểm tra link trong customer/admin shell không có dead route trong phạm vi Phase 03; focusable elements có focus ring class; cookie session/CSRF và direct-origin CORS đã được kiểm tra qua request thật.
 
 ### Data oracles và giới hạn còn lại

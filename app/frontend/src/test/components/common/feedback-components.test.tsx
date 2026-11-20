@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test'
-import type { ReactElement } from 'react'
+import type { KeyboardEvent } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { Alert, Button, Dialog, FeedbackState, IconButton } from '@/components/common'
+import { Alert, Button, Dialog, FeedbackState, handleDialogKeyDown, IconButton } from '@/components/common'
 
 describe('shared feedback components', () => {
   it('renders a primary button with disabled and loading semantics', () => {
@@ -61,13 +61,7 @@ describe('shared feedback components', () => {
     expect(markup).toContain('aria-modal="true"')
     expect(markup).toContain('aria-label="Đóng"')
 
-    const element = Dialog({ open: true, title: 'Xác nhận', onClose, children: 'Nội dung' }) as ReactElement<{
-      children: ReactElement<{
-        onKeyDown: (event: { key: string; preventDefault: () => void }) => void
-      }>
-    }>
-    const panel = element.props.children
-    panel.props.onKeyDown({ key: 'Escape', preventDefault: () => {} })
+    handleDialogKeyDown({ key: 'Escape', preventDefault: () => {} } as KeyboardEvent<HTMLDivElement>, onClose)
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })

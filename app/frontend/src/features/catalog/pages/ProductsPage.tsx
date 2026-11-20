@@ -90,5 +90,5 @@ export function ProductsPage() {
 
 function CatalogSearchField({ query, onSubmit }: { query: string; onSubmit: (value: string) => void }) {
   const [value, setValue] = useState(query)
-  return <SearchField value={value} placeholder="Tìm theo tên sản phẩm hoặc SKU" onChange={setValue} onSubmit={() => onSubmit(value)} />
+  return <SearchField id="catalog-search" value={value} placeholder="Tìm theo tên sản phẩm" onChange={setValue} onSubmit={() => onSubmit(value)} />
 }

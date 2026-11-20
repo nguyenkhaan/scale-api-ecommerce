@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Alert, Button, Dialog, FormField, StatusBadge } from '@/components/common'
 import { mergeCampaignSkuOptions, type SkuOption } from '@/features/catalog/catalog.hook'
 import { isApiError, type FieldViolation } from '@/lib/api-error'
@@ -24,13 +24,21 @@ type Props = {
   skuLoadError: string | null
   onSubmit: (request: CreateFlashSaleRequest) => Promise<void>
   onClose: () => void
+  onRecover?: () => void
 }
 
-export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit, onClose }: Props) {
+export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit, onClose, onRecover }: Props) {
+  const formRef = useRef<HTMLFormElement>(null)
   const [form, setForm] = useState<CampaignForm>(() => (campaign ? formFromCampaign(campaign) : emptyForm()))
   const [violations, setViolations] = useState<FieldViolation[]>([])
   const [formError, setFormError] = useState<string | null>(null)
+  const [requiresLogin, setRequiresLogin] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (violations.length === 0) return
+    formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  }, [violations])
 
   const options = mergeCampaignSkuOptions(skuOptions, campaign?.items ?? [])
   const regularPriceOf = (skuId: string) => options.find((o) => o.skuId === skuId)?.regularPrice
@@ -44,6 +52,7 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setFormError(null)
+    setRequiresLogin(false)
     const built = buildRequest(form, regularPriceOf)
     if (!built.ok) {
       setViolations(built.violations)
@@ -57,7 +66,9 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
       if (isApiError(err) && err.code === 'VALIDATION_ERROR' && err.violations.length > 0) {
         setViolations(err.violations)
       } else {
-        setFormError(describeAdminFailure(err).text)
+        const failure = describeAdminFailure(err)
+        setFormError(failure.text)
+        setRequiresLogin(failure.requiresLogin)
       }
     } finally {
       setSubmitting(false)
@@ -80,10 +91,11 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
             {[formError, skuLoadError, ...summary].filter(Boolean).map((text) => (
               <p key={text}>{text}</p>
             ))}
+            {requiresLogin && onRecover && <Button type="button" variant="secondary" className="mt-3" onClick={onRecover}>Đăng nhập lại</Button>}
           </Alert>
         )}
 
-        <form onSubmit={(e) => void handleSubmit(e)} noValidate className="mt-4 space-y-4">
+        <form ref={formRef} onSubmit={(e) => void handleSubmit(e)} noValidate className="mt-4 space-y-4">
           <FormField id="campaign-name" label="Tên chiến dịch" errorMessages={textField('name')} helper="Tên hiển thị cho quản trị viên và khách hàng.">
             {(field) => (
               <input
