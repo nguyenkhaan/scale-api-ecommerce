@@ -1,11 +1,22 @@
 import type { FlashSaleStatus } from './flashsale.service'
 
-const labels: Record<FlashSaleStatus, string> = {
-  active: 'ĐANG DIỄN RA',
-  scheduled: 'SẮP DIỄN RA',
-  ended: 'ĐÃ KẾT THÚC',
-  stopped: 'ĐÃ DỪNG',
-  draft: 'BẢN NHÁP',
+export type SaleAudience = 'customer' | 'admin'
+
+const labels: Record<SaleAudience, Record<FlashSaleStatus, string>> = {
+  customer: {
+    active: 'Đang diễn ra',
+    scheduled: 'Sắp diễn ra',
+    ended: 'Đã kết thúc',
+    stopped: 'Đã dừng',
+    draft: 'Nháp',
+  },
+  admin: {
+    active: 'Đang diễn ra',
+    scheduled: 'Đã lên lịch',
+    ended: 'Đã kết thúc',
+    stopped: 'Đã dừng',
+    draft: 'Nháp',
+  },
 }
 
 const badgeClasses: Record<FlashSaleStatus, string> = {
@@ -16,8 +27,8 @@ const badgeClasses: Record<FlashSaleStatus, string> = {
   draft: 'bg-slate-100 text-slate-800',
 }
 
-export function saleStatusLabel(status: FlashSaleStatus): string {
-  return labels[status] ?? 'KHÔNG XÁC ĐỊNH'
+export function saleStatusLabel(status: FlashSaleStatus, audience: SaleAudience = 'customer'): string {
+  return labels[audience][status] ?? 'Không xác định'
 }
 
 export function saleStatusBadgeClass(status: FlashSaleStatus): string {

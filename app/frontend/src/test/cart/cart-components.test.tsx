@@ -141,17 +141,17 @@ describe('FlashSaleCampaignCard', () => {
 
   it('labels ended campaigns as ended and offers no add button', () => {
     const markup = render('ended')
-    expect(markup).toContain('ĐÃ KẾT THÚC')
-    expect(markup).not.toContain('SẮP DIỄN RA')
+    expect(markup).toContain('Đã kết thúc')
+    expect(markup).not.toContain('Sắp diễn ra')
     expect(markup).not.toContain('Thêm vào giỏ')
   })
 
   it('shows product name, SKU, struck regular price, sale price, limit and the add button when active', () => {
     const markup = render('active')
-    expect(markup).toContain('ĐANG DIỄN RA')
+    expect(markup).toContain('Đang diễn ra')
     expect(markup).toContain('Áo thun')
     expect(markup).toContain('SKU: AO-S')
-    expect(markup).toContain('line-through')
+    expect(markup).toContain('<del')
     expect(markup).toContain('150.000')
     expect(markup).toContain('99.000')
     expect(markup).toContain('2 cái/khách')
@@ -161,7 +161,7 @@ describe('FlashSaleCampaignCard', () => {
 
   it('shows upcoming campaigns without an add button', () => {
     const markup = render('scheduled')
-    expect(markup).toContain('SẮP DIỄN RA')
+    expect(markup).toContain('Sắp diễn ra')
     expect(markup).not.toContain('Thêm vào giỏ')
   })
 })

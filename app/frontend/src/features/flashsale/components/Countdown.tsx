@@ -20,15 +20,12 @@ export function Countdown({ status, startsAt, endsAt }: Props) {
   if (!target) return null
   const remaining = formatCountdown(target.at, now)
   return (
-    <p className="mt-1 text-xs text-slate-600">
-      {remaining ? (
-        <>
-          {target.label}: <span className="font-mono font-semibold tabular-nums">{remaining}</span>
-        </>
-      ) : (
-        'Đang chờ hệ thống cập nhật trạng thái chương trình.'
-      )}
-      <span className="block text-[11px] text-slate-500">Thời gian chính thức theo hệ thống</span>
-    </p>
+    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--ss-color-muted)]">
+      <span>{target.label}:</span>
+      <span role="timer" aria-live="off" aria-atomic="true" className="font-mono font-semibold tabular-nums text-[var(--ss-color-text)]">
+        {remaining ?? 'Đang chờ hệ thống cập nhật trạng thái chương trình.'}
+      </span>
+      <span className="text-[11px]">Thời gian chính thức theo hệ thống</span>
+    </div>
   )
 }

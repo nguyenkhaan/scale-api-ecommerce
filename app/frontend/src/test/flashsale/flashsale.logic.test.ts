@@ -3,11 +3,12 @@ import { countdownTarget, formatCountdown, saleStatusLabel } from '@/features/fl
 
 describe('saleStatusLabel', () => {
   it('labels every status, never calling an ended sale upcoming', () => {
-    expect(saleStatusLabel('active')).toBe('ĐANG DIỄN RA')
-    expect(saleStatusLabel('scheduled')).toBe('SẮP DIỄN RA')
-    expect(saleStatusLabel('ended')).toBe('ĐÃ KẾT THÚC')
-    expect(saleStatusLabel('stopped')).toBe('ĐÃ DỪNG')
-    expect(saleStatusLabel('draft')).toBe('BẢN NHÁP')
+    expect(saleStatusLabel('active')).toBe('Đang diễn ra')
+    expect(saleStatusLabel('scheduled')).toBe('Sắp diễn ra')
+    expect(saleStatusLabel('ended')).toBe('Đã kết thúc')
+    expect(saleStatusLabel('stopped')).toBe('Đã dừng')
+    expect(saleStatusLabel('draft')).toBe('Nháp')
+    expect(saleStatusLabel('scheduled', 'admin')).toBe('Đã lên lịch')
   })
 })
 
