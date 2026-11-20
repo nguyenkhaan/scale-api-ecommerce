@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaleScale – Trạng thái chung</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</head>
+<body>
+<div style="width: 1280px; min-height: 1400px; box-sizing: border-box; padding: 40px; background: rgb(245, 245, 245); color: rgb(34, 34, 34); font-family: Inter, system-ui, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; line-height: 20px; display: flex; flex-direction: column; gap: 24px;">
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <h1 style="margin: 0px; font-size: 20px; line-height: 28px; font-weight: 600;">Trạng thái chung cho mọi màn hình</h1>
+    <p style="margin: 0px; color: rgb(97, 97, 97);">Mỗi khối thay cho phần nội dung chính của trang; header và footer giữ nguyên.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0px, 1fr)); gap: 16px;">
+    <section aria-labelledby="cs-loading" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-loading" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">ĐANG TẢI</h2>
+      <div role="status" aria-label="Đang tải nội dung" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <div aria-hidden="true" style="height: 20px; width: 40%; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+        <div aria-hidden="true" style="display: grid; grid-template-columns: repeat(4, minmax(0px, 1fr)); gap: 8px;">
+          <div style="aspect-ratio: 1 / 1; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+          <div style="aspect-ratio: 1 / 1; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+          <div style="aspect-ratio: 1 / 1; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+          <div style="aspect-ratio: 1 / 1; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+        </div>
+        <div aria-hidden="true" style="height: 12px; width: 70%; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+        <div aria-hidden="true" style="height: 12px; width: 50%; background: rgb(232, 232, 232); border-radius: 2px;"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-empty" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-empty" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">RỖNG</h2>
+      <div style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#BDBDBD" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 1.75h9v12.5l-2.25-1.5L8 14.25l-2.25-1.5L3.5 14.25Z M6 5.5h4 M6 8.5h4"></path></svg>
+        <span style="font-weight: 600;">Chưa có dữ liệu</span>
+        <span style="color: rgb(117, 117, 117);">Ví dụ: “Bạn chưa có đơn hàng nào”, “Chưa có chương trình sắp diễn ra”.</span>
+        <a href="Main.html" style="display: inline-flex; align-items: center; min-height: 40px; margin-top: 4px; padding: 0px 16px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-weight: 500; text-decoration: none;">Xem sản phẩm</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-network" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-network" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">LỖI MẠNG</h2>
+      <div role="alert" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#D0011B" stroke-width="1.25" stroke-linecap="round" aria-hidden="true"><path d="M2 2l12 12 M8 12.5v.25 M5.75 10.25a3.25 3.25 0 0 1 3.5-.75 M3.25 7.75a7 7 0 0 1 2.75-1.6 M10.25 6.2a7 7 0 0 1 2.5 1.55"></path></svg>
+        <span style="font-weight: 600; color: rgb(208, 1, 27);">Mất kết nối mạng</span>
+        <span style="color: rgb(117, 117, 117);">Kiểm tra kết nối Internet rồi thử lại.</span>
+        <button type="button" style="min-height: 40px; margin-top: 4px; padding: 0px 20px; background: rgb(238, 77, 45); border: 0px; border-radius: 2px; color: rgb(255, 255, 255); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 700;">Thử lại</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-login" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-login" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">CHƯA ĐĂNG NHẬP</h2>
+      <div role="status" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#8A6100" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.25h8v6.5H4Z M5.75 7.25V5.5a2.25 2.25 0 0 1 4.5 0v1.75"></path></svg>
+        <span style="font-weight: 600; color: rgb(138, 97, 0);">Bạn cần đăng nhập để tiếp tục</span>
+        <span style="color: rgb(117, 117, 117);">Đang chuyển tới trang đăng nhập… Sau khi đăng nhập, bạn sẽ quay lại đúng trang này.</span>
+        <a href="Auth-redirect.html" style="display: inline-flex; align-items: center; min-height: 40px; margin-top: 4px; padding: 0px 20px; box-sizing: border-box; background: rgb(238, 77, 45); border-radius: 2px; color: rgb(255, 255, 255); font-weight: 700; text-decoration: none;">Đăng nhập ngay</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-forbidden" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-forbidden" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">KHÔNG CÓ QUYỀN</h2>
+      <div role="alert" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#616161" stroke-width="1.25" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M3.6 3.6l8.8 8.8"></path></svg>
+        <span style="font-weight: 600;">Bạn không có quyền truy cập trang này</span>
+        <span style="color: rgb(117, 117, 117);">Tài khoản hiện tại không được phép xem nội dung này.</span>
+        <a href="Main.html" style="display: inline-flex; align-items: center; min-height: 40px; margin-top: 4px; padding: 0px 16px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-weight: 500; text-decoration: none;">Về trang chủ</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-notfound" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-notfound" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">KHÔNG TÌM THẤY</h2>
+      <div role="alert" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#BDBDBD" stroke-width="1.25" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.75"></circle><path d="M10.5 10.5 14 14 M5.5 5.5l3 3 M8.5 5.5l-3 3"></path></svg>
+        <span style="font-weight: 600;">Không tìm thấy nội dung</span>
+        <span style="color: rgb(117, 117, 117);">Sản phẩm, đơn hàng hoặc trang này không còn tồn tại.</span>
+        <a href="Main.html" style="display: inline-flex; align-items: center; min-height: 40px; margin-top: 4px; padding: 0px 16px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-weight: 500; text-decoration: none;">Về trang chủ</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-overload" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-overload" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">QUÁ TẢI</h2>
+      <div role="status" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#8A6100" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 1.75h7 M4.5 14.25h7 M5.25 1.75v1.5L8 8l2.75-4.75v-1.5 M5.25 14.25v-1.5L8 8l2.75 4.75v1.5"></path></svg>
+        <span style="font-weight: 600; color: rgb(138, 97, 0);">Hệ thống đang quá tải</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px; color: rgb(117, 117, 117);">Thử lại sau <span role="timer" style="display: inline-flex; align-items: center; justify-content: center; min-width: 56px; height: 28px; padding: 0px 8px; box-sizing: border-box; background: rgb(34, 34, 34); color: rgb(255, 255, 255); font-weight: 700; font-variant-numeric: tabular-nums; border-radius: 2px;">00:15</span></span>
+        <span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Thời gian chờ do hệ thống trả về</span>
+        <button type="button" disabled="" style="min-height: 40px; margin-top: 4px; padding: 0px 20px; background: rgb(245, 245, 245); border: 1px solid rgb(232, 232, 232); border-radius: 2px; color: rgb(117, 117, 117); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 600;">Thử lại sau 00:15</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="cs-system" style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 id="cs-system" style="margin: 0px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">LỖI HỆ THỐNG</h2>
+      <div role="alert" style="min-height: 240px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#D0011B" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+        <span style="font-weight: 600; color: rgb(208, 1, 27);">Hệ thống tạm thời không xử lý được</span>
+        <span style="color: rgb(117, 117, 117);">Vui lòng thử lại sau ít phút.</span>
+        <span style="display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Mã yêu cầu: <code style="font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: rgb(34, 34, 34);">req_3c71e0b52a</code>
+          <button type="button" aria-label="Sao chép mã yêu cầu" style="display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0px 8px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5.5h7.5v7.5H5.5Z M3 10.5V3h7.5"></path></svg>Sao chép</button>
+        </span>
+        <button type="button" style="min-height: 40px; margin-top: 4px; padding: 0px 20px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500;">Thử lại</button>
+      </div>
+    </section>
+  </div></div>
+</body>
+</html>

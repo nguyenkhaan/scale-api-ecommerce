@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaleScale Quản trị – Form sản phẩm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</head>
+<body>
+<div style="position: relative; min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch; background: rgb(245, 245, 245); color: rgb(34, 34, 34); font-family: Inter, system-ui, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; line-height: 20px;">
+  <nav aria-label="Quản trị" style="flex: 1 1 220px; background: rgb(255, 255, 255); border-right: 1px solid rgb(232, 232, 232); padding: 16px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; align-items: baseline; gap: 8px; padding: 4px 12px;">
+      <span style="font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.02em;">SaleScale</span>
+      <span style="font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(97, 97, 97);">Quản trị</span>
+    </div>
+    <ul style="list-style: none; margin: 0px; padding: 0px; display: flex; flex-direction: column; gap: 2px;">
+      <li><a href="AdminProducts.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0px 12px; border-radius: 2px; background: rgb(255, 246, 244); color: rgb(215, 50, 17); font-weight: 600; text-decoration: none;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.75 14 4.75v6.5L8 14.25 2 11.25v-6.5Z M2 4.75 8 7.75l6-3 M8 7.75v6.5"></path></svg>Sản phẩm</a></li>
+      <li><a href="Inventory.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0px 12px; border-radius: 2px; color: rgb(34, 34, 34); font-weight: 500; text-decoration: none;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M1.75 6 8 2.25 14.25 6v7.75H1.75Z M4.75 13.75v-5h6.5v5"></path></svg>Tồn kho</a></li>
+      <li><a href="AdminFlashSales.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0px 12px; border-radius: 2px; color: rgb(34, 34, 34); font-weight: 500; text-decoration: none;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8Z"></path></svg>Flash sale</a></li>
+    </ul>
+  </nav>
+
+  <div style="flex: 999 1 560px; min-width: 0px; display: flex; flex-direction: column;">
+    <header style="min-height: 56px; padding: 8px 24px; box-sizing: border-box; background: rgb(255, 255, 255); border-bottom: 1px solid rgb(232, 232, 232); display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 16px;">
+      <a href="Main.html" style="margin-right: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; color: rgb(215, 50, 17); font-weight: 600; text-decoration: none;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 3.25 2.5h9.5L14 6.5 M2 6.5h12 M2.75 6.5v7h10.5v-7 M6.5 13.5v-4h3v4"></path></svg>Xem trang khách hàng</a>
+      <span style="display: inline-flex; align-items: center; gap: 8px; color: rgb(97, 97, 97);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="5.5" r="2.75"></circle><path d="M2.75 14c0-2.9 2.35-4.75 5.25-4.75S13.25 11.1 13.25 14"></path></svg>admin@salescale.vn</span>
+      <button type="button" style="display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500; cursor: pointer;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.75H3v10.5h3 M10.5 5l3 3-3 3 M13.5 8H6.5"></path></svg>Đăng xuất</button>
+    </header>
+
+    <main style="flex: 1 0 auto; padding: 16px 24px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+      <nav aria-label="Đường dẫn" style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">
+        <a href="AdminProducts.html" style="color: rgb(215, 50, 17); text-decoration: none;">Sản phẩm</a><span aria-hidden="true">›</span><span aria-current="page" style="color: rgb(34, 34, 34);">Thêm sản phẩm</span>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;">
+        <h1 style="margin: 0px; font-size: 20px; line-height: 28px; font-weight: 600;">Thêm sản phẩm</h1>
+        
+      </div>
+
+      
+
+      <section aria-labelledby="info-title" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.04) 0px 1px 2px; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+        <h2 id="info-title" style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Thông tin sản phẩm</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <div style="flex: 2 1 320px; display: flex; flex-direction: column; gap: 6px;">
+            <label for="pf-name" style="font-weight: 500;">Tên sản phẩm <span style="color: rgb(208, 1, 27);">*</span></label>
+            <input id="pf-name" type="text" aria-invalid="false" aria-describedby="pf-name-err" value="Áo thun basic" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+            
+          </div>
+          <div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px;">
+            <label for="pf-cat" style="font-weight: 500;">Danh mục <span style="color: rgb(208, 1, 27);">*</span></label>
+            <select id="pf-cat" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+              <option value="fashion">Thời trang</option>
+              <option value="tech">Điện tử</option>
+              <option value="home">Gia dụng</option>
+              <option value="beauty">Làm đẹp</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="pf-desc" style="font-weight: 500;">Mô tả</label>
+          <textarea id="pf-desc" rows="3" style="width: 100%; box-sizing: border-box; padding: 8px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; resize: vertical;">Áo thun cotton co giãn nhẹ, form regular, cổ tròn bo viền.</textarea>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="pf-img" style="font-weight: 500;">URL ảnh</label>
+          <input id="pf-img" type="url" placeholder="https://…" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+        </div>
+      </section>
+
+      <section aria-labelledby="sku-title" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.04) 0px 1px 2px;">
+        <div style="padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 2px;">
+          <h2 id="sku-title" style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">SKU</h2>
+          <span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Mã SKU không được trùng. Tồn ban đầu chỉ nhập khi tạo mới.</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <div role="table" aria-labelledby="sku-title" style="min-width: 940px;">
+            <div role="row" style="display: grid; grid-template-columns: 170px minmax(280px, 1fr) 150px 120px 150px 56px; font-size: 12px; line-height: 16px; font-weight: 600; color: rgb(117, 117, 117); border-top: 1px solid rgb(232, 232, 232);">
+              <span role="columnheader" style="padding: 8px 12px;">Mã SKU *</span>
+              <span role="columnheader" style="padding: 8px 12px;">Thuộc tính</span>
+              <span role="columnheader" style="padding: 8px 12px;">Giá thường (₫) *</span>
+              <span role="columnheader" style="padding: 8px 12px;">Tối đa mỗi đơn</span>
+              <span role="columnheader" style="padding: 8px 12px;">Tồn ban đầu</span>
+              <span role="columnheader" style="padding: 8px 12px;"></span>
+            </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: 170px minmax(280px, 1fr) 150px 120px 150px 56px; align-items: start; border-top: 1px solid rgb(232, 232, 232);">
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+                  
+                    <input type="text" aria-label="Mã SKU" aria-invalid="false" value="AT-DEN-M" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: rgb(34, 34, 34);">
+                  
+                  
+                  
+                </div>
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;">
+                  
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" aria-label="Tên thuộc tính" value="Màu" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                      <input type="text" aria-label="Giá trị thuộc tính" value="Đen" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                    </div>
+                  
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" aria-label="Tên thuộc tính" value="Kích cỡ" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                      <input type="text" aria-label="Giá trị thuộc tính" value="M" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                    </div>
+                  
+                  <button type="button" style="align-self: flex-start; min-height: 32px; padding: 0px; background: transparent; border: 0px; color: rgb(215, 50, 17); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 600; cursor: pointer;">+ Thêm thuộc tính</button>
+                </div>
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+                  <input type="number" aria-label="Giá thường" aria-invalid="false" value="199000" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                  
+                </div>
+                <div role="cell" style="padding: 10px 12px;">
+                  <input type="number" aria-label="Tối đa mỗi đơn" value="5" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                </div>
+                <div role="cell" style="padding: 10px 12px;">
+                  
+                    <input type="number" aria-label="Tồn ban đầu" value="120" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                  
+                  
+                </div>
+                <div role="cell" style="padding: 10px 8px;">
+                  
+                    <button type="button" aria-label="Bỏ dòng SKU này" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: transparent; border: 0px; color: rgb(117, 117, 117); cursor: pointer;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8 M12 4l-8 8"></path></svg></button>
+                  
+                </div>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: 170px minmax(280px, 1fr) 150px 120px 150px 56px; align-items: start; border-top: 1px solid rgb(232, 232, 232);">
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+                  
+                    <input type="text" aria-label="Mã SKU" aria-invalid="false" value="AT-DEN-L" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: rgb(34, 34, 34);">
+                  
+                  
+                  
+                </div>
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;">
+                  
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" aria-label="Tên thuộc tính" value="Màu" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                      <input type="text" aria-label="Giá trị thuộc tính" value="Đen" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                    </div>
+                  
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" aria-label="Tên thuộc tính" value="Kích cỡ" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                      <input type="text" aria-label="Giá trị thuộc tính" value="L" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                    </div>
+                  
+                  <button type="button" style="align-self: flex-start; min-height: 32px; padding: 0px; background: transparent; border: 0px; color: rgb(215, 50, 17); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 600; cursor: pointer;">+ Thêm thuộc tính</button>
+                </div>
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+                  <input type="number" aria-label="Giá thường" aria-invalid="false" value="199000" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                  
+                </div>
+                <div role="cell" style="padding: 10px 12px;">
+                  <input type="number" aria-label="Tối đa mỗi đơn" value="5" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                </div>
+                <div role="cell" style="padding: 10px 12px;">
+                  
+                    <input type="number" aria-label="Tồn ban đầu" value="80" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                  
+                  
+                </div>
+                <div role="cell" style="padding: 10px 8px;">
+                  
+                    <button type="button" aria-label="Bỏ dòng SKU này" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: transparent; border: 0px; color: rgb(117, 117, 117); cursor: pointer;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8 M12 4l-8 8"></path></svg></button>
+                  
+                </div>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: 170px minmax(280px, 1fr) 150px 120px 150px 56px; align-items: start; border-top: 1px solid rgb(232, 232, 232);">
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+                  
+                    <input type="text" aria-label="Mã SKU" aria-invalid="false" value="AT-TRANG-M" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: rgb(34, 34, 34);">
+                  
+                  
+                  
+                </div>
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;">
+                  
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" aria-label="Tên thuộc tính" value="Màu" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                      <input type="text" aria-label="Giá trị thuộc tính" value="Trắng" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                    </div>
+                  
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" aria-label="Tên thuộc tính" value="Kích cỡ" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                      <input type="text" aria-label="Giá trị thuộc tính" value="M" style="flex: 1 1 0px; min-width: 0px; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;">
+                    </div>
+                  
+                  <button type="button" style="align-self: flex-start; min-height: 32px; padding: 0px; background: transparent; border: 0px; color: rgb(215, 50, 17); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 600; cursor: pointer;">+ Thêm thuộc tính</button>
+                </div>
+                <div role="cell" style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+                  <input type="number" aria-label="Giá thường" aria-invalid="false" value="199000" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                  
+                </div>
+                <div role="cell" style="padding: 10px 12px;">
+                  <input type="number" aria-label="Tối đa mỗi đơn" value="5" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                </div>
+                <div role="cell" style="padding: 10px 12px;">
+                  
+                    <input type="number" aria-label="Tồn ban đầu" value="95" style="width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit; text-align: right;">
+                  
+                  
+                </div>
+                <div role="cell" style="padding: 10px 8px;">
+                  
+                    <button type="button" aria-label="Bỏ dòng SKU này" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: transparent; border: 0px; color: rgb(117, 117, 117); cursor: pointer;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8 M12 4l-8 8"></path></svg></button>
+                  
+                </div>
+              </div>
+            
+          </div>
+        </div>
+        <div style="padding: 12px 16px; border-top: 1px solid rgb(232, 232, 232);">
+          <button type="button" style="display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0px 16px; background: rgb(255, 255, 255); border: 1px dashed rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500; cursor: pointer;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 3.5v9 M3.5 8h9"></path></svg>Thêm SKU</button>
+        </div>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px;">
+        <a href="AdminProducts.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0px 20px; box-sizing: border-box; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-weight: 500; text-decoration: none;">Hủy</a>
+        <button type="button" style="min-height: 44px; padding: 0px 24px; background: rgb(238, 77, 45); border: 0px; border-radius: 2px; color: rgb(255, 255, 255); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 700; cursor: pointer;">Lưu sản phẩm</button>
+      </div>
+    </main>
+  </div></div>
+</body>
+</html>
