@@ -6,6 +6,8 @@ import type { CartItem, CheckoutPreview } from '@/features/cart/cart.type'
 import type { FlashSaleCampaign } from '@/features/flashsale/flashsale.type'
 import { CartLineItem } from '@/features/cart/components/CartLineItem'
 import { CheckoutPreviewPanel } from '@/features/cart/components/CheckoutPreviewPanel'
+import { CartPageView } from '@/features/cart/pages/CartPage'
+import type { CartState, CheckoutPreviewState } from '@/features/cart/cart.hook'
 
 const item: CartItem = {
   id: 'i1',
@@ -40,7 +42,9 @@ describe('CartLineItem', () => {
     const markup = render()
     expect(markup).toContain('Áo thun')
     expect(markup).toContain('SKU: AO-S')
-    expect(markup).toContain('Flash Sale')
+    expect(markup).toContain('Flash sale')
+    expect(markup).toContain('data-status-domain="priceSource"')
+    expect(markup).toContain('role="group"')
     expect(markup).toContain('90.000')
     expect(render(undefined, 'regular')).toContain('Giá thường')
   })
@@ -91,6 +95,7 @@ describe('CheckoutPreviewPanel', () => {
     )
     expect(pending).toContain('Tôi đã xem giá mới')
     expect(pending).toContain('Giá đã đổi')
+    expect(pending).toContain('data-price-source="flash_sale"')
     expect(pending).toMatch(orderButtonDisabled)
     const done = renderToStaticMarkup(<CheckoutPreviewPanel {...base} preview={preview} changes={[change]} acknowledged />)
     expect(done).not.toContain('Tôi đã xem giá mới')
@@ -109,6 +114,56 @@ describe('CheckoutPreviewPanel', () => {
     )
     expect(markup).toContain('role="alert"')
     expect(markup).toContain('Chưa giữ hàng nào')
+  })
+})
+
+describe('CartPageView', () => {
+  const emptyCart = {
+    cart: null,
+    items: [],
+    loading: false,
+    loadError: null,
+    busySku: null,
+    notice: null,
+    setNotice: noop,
+    lineProblems: {},
+    selectedItems: [],
+    reload: async () => {},
+    changeQuantity: async () => {},
+    remove: async () => {},
+    switchToRegular: async () => {},
+    applyLineErrors: () => {},
+    toggle: noop,
+    toggleAll: noop,
+  } as CartState
+  const emptyCheckout = {
+    preview: null,
+    changes: [],
+    acknowledged: false,
+    loading: false,
+    error: null,
+    run: async () => {},
+    acknowledge: noop,
+  } as CheckoutPreviewState
+
+  it('renders a recoverable empty cart state', () => {
+    const markup = renderToStaticMarkup(
+      <MemoryRouter><CartPageView cart={emptyCart} checkout={emptyCheckout} /></MemoryRouter>,
+    )
+
+    expect(markup).toContain('role="status"')
+    expect(markup).toContain('Giỏ hàng đang trống.')
+    expect(markup).toContain('Khám phá Flash Sale')
+    expect(markup).toContain('Xem sản phẩm')
+  })
+
+  it('renders a retryable cart load error', () => {
+    const markup = renderToStaticMarkup(
+      <MemoryRouter><CartPageView cart={{ ...emptyCart, loadError: 'Lỗi kết nối.' }} checkout={emptyCheckout} /></MemoryRouter>,
+    )
+
+    expect(markup).toContain('role="alert"')
+    expect(markup).toContain('Tải lại giỏ hàng')
   })
 })
 

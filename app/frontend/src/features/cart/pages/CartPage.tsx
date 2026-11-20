@@ -1,94 +1,88 @@
 import { Link } from 'react-router-dom'
 
+import { Alert, FeedbackState, Surface } from '@/components/common'
 import { CartLineItem } from '@/features/cart/components/CartLineItem'
 import { CheckoutPreviewPanel } from '@/features/cart/components/CheckoutPreviewPanel'
-import { useCart, useCheckoutPreview } from '@/features/cart/cart.hook'
+import { useCart, useCheckoutPreview, type CartState, type CheckoutPreviewState } from '@/features/cart/cart.hook'
 
 const maxSkus = 20
 
 export function CartPage() {
   const cart = useCart()
   const checkout = useCheckoutPreview(cart)
+  return <CartPageView cart={cart} checkout={checkout} />
+}
+
+export type CartPageViewProps = {
+  cart: CartState
+  checkout: CheckoutPreviewState
+}
+
+export function CartPageView({ cart, checkout }: CartPageViewProps) {
   const { items, selectedItems } = cart
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+    <div className="mx-auto max-w-6xl">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--ss-color-border)] pb-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Giỏ hàng của bạn</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--ss-color-text)]">Giỏ hàng của bạn</h1>
+          <p className="mt-1 text-sm text-[var(--ss-color-muted)]">
             {items.length}/{maxSkus} mặt hàng (SKU)
           </p>
         </div>
-        <Link to="/flash-sales" className="inline-flex min-h-11 items-center text-sm font-semibold text-amber-700 hover:text-amber-800">
-          ← Tiếp tục săn Flash Sale
+        <Link to="/flash-sales" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--ss-color-primary-strong)] hover:underline">
+          Tiếp tục săn Flash Sale
         </Link>
       </div>
 
-      <p className="mt-4 rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+      <Alert tone="info" className="mt-4">
         Giỏ hàng không giữ tồn kho và không khóa giá. Giá chính thức được tính ở bước xem trước thanh toán.
-      </p>
+      </Alert>
 
       {cart.loading && (
-        <div className="py-12 text-center text-slate-500" role="status">
-          Đang tải giỏ hàng của bạn...
-        </div>
+        <div className="mt-6"><FeedbackState kind="loading" title="Đang tải giỏ hàng của bạn" message="Vui lòng chờ trong giây lát." /></div>
       )}
 
       {cart.loadError && (
-        <div role="alert" className="mt-4 rounded border border-rose-200 bg-rose-50 p-4 text-rose-800">
-          <p className="font-semibold">{cart.loadError}</p>
-          <button type="button" onClick={() => void cart.reload()} className="mt-2 min-h-9 text-sm font-semibold underline hover:text-rose-950">
-            Tải lại giỏ hàng
-          </button>
+        <div className="mt-4">
+          <FeedbackState kind="error" title="Không thể tải giỏ hàng" message={cart.loadError} action={{ label: 'Tải lại giỏ hàng', onClick: () => void cart.reload() }} />
         </div>
       )}
 
-      {cart.notice && (
-        <div
-          role={cart.notice.kind === 'error' ? 'alert' : 'status'}
-          className={`mt-4 rounded border p-3 text-sm font-medium ${
-            cart.notice.kind === 'error'
-              ? 'border-rose-200 bg-rose-50 text-rose-800'
-              : 'border-emerald-300 bg-emerald-50 text-emerald-900'
-          }`}
-        >
-          {cart.notice.text}
-        </div>
-      )}
+      {cart.notice && <div className="mt-4"><Alert tone={cart.notice.kind === 'error' ? 'danger' : 'success'}>{cart.notice.text}</Alert></div>}
 
       {!cart.loading && !cart.loadError && items.length === 0 && (
-        <div className="mt-8 rounded border border-dashed border-slate-300 p-12 text-center">
-          <p className="text-base font-medium text-slate-700">Giỏ hàng đang trống.</p>
-          <p className="mt-1 text-sm text-slate-500">Hãy thêm sản phẩm từ Flash Sale hoặc danh sách sản phẩm.</p>
+        <div className="mt-6">
+          <FeedbackState kind="empty" title="Giỏ hàng đang trống." message="Hãy thêm sản phẩm từ Flash Sale hoặc danh sách sản phẩm.">
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/flash-sales" className="inline-flex min-h-11 items-center rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+            <Link to="/flash-sales" className="inline-flex min-h-11 items-center rounded-[var(--ss-radius-control)] bg-[var(--ss-color-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--ss-color-primary-strong)]">
               Khám phá Flash Sale
             </Link>
-            <Link to="/products" className="inline-flex min-h-11 items-center rounded border border-slate-900 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-stone-100">
+            <Link to="/products" className="inline-flex min-h-11 items-center rounded-[var(--ss-radius-control)] border border-[var(--ss-color-input-border)] px-4 py-2 text-sm font-semibold text-[var(--ss-color-text)] hover:bg-[var(--ss-color-app-bg)]">
               Xem sản phẩm
             </Link>
           </div>
+          </FeedbackState>
         </div>
       )}
 
       {items.length > 0 && (
         <div className="mt-6 grid gap-8 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">
-            <div className="flex items-center justify-between rounded border border-slate-200 bg-slate-50 px-4 py-2">
-              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+            <Surface as="section" className="flex items-center justify-between px-4 py-2">
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[var(--ss-color-text)]">
                 <input
                   type="checkbox"
                   checked={selectedItems.length === items.length}
                   onChange={cart.toggleAll}
-                  className="size-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                  className="size-4"
                 />
                 Chọn tất cả ({items.length})
               </label>
-              <span className="text-xs text-slate-500">Tối đa {maxSkus} SKU</span>
-            </div>
+              <span className="text-xs text-[var(--ss-color-muted)]">Tối đa {maxSkus} SKU</span>
+            </Surface>
 
-            <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+            <ul className="space-y-3">
               {items.map((item) => (
                 <CartLineItem
                   key={item.id}

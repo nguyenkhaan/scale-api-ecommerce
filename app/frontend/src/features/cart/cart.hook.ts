@@ -258,3 +258,5 @@ export function useCheckoutPreview(cart: CartState) {
     acknowledge,
   }
 }
+
+export type CheckoutPreviewState = ReturnType<typeof useCheckoutPreview>
