@@ -27,10 +27,12 @@ export function PriceBlock({ regularPrice, effectivePrice, source, endsAt, compa
           <span className="sr-only">Giá ưu đãi </span>
           {formatVND(effectivePrice)}
         </strong>
-        <del className="text-xs text-[var(--ss-color-muted)]">
-          <span className="sr-only">Giá thường </span>
-          {formatVND(regularPrice)}
-        </del>
+        {regularPrice !== effectivePrice && (
+          <del className="text-xs text-[var(--ss-color-muted)]">
+            <span className="sr-only">Giá thường </span>
+            {formatVND(regularPrice)}
+          </del>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge domain="priceSource" value="flash_sale" />

@@ -1,4 +1,5 @@
 import type { SkuOption } from '@/features/catalog/catalog.hook'
+import { Button } from '@/components/common'
 import type { FieldViolation } from '@/lib/api-error'
 import { formatVND } from '@/lib/format'
 import { fieldMessages } from '@/lib/violation-messages'
@@ -27,10 +28,10 @@ export function CampaignItemRow({ index, item, options, violations, canRemove, o
   const selected = options.find((o) => o.skuId === item.sku_id)
 
   return (
-    <fieldset className="rounded border border-slate-200 bg-slate-50 p-3">
-      <legend className="px-1 text-xs font-bold text-slate-700">Dòng {index + 1}</legend>
+    <fieldset className="border border-[var(--ss-color-border)] bg-[var(--ss-color-app-bg)] p-3">
+      <legend className="px-1 text-xs font-semibold text-[var(--ss-color-text)]">Dòng {index + 1}</legend>
       <div>
-        <label htmlFor={idFor('sku_id')} className="block text-xs font-semibold text-slate-700">
+        <label htmlFor={idFor('sku_id')} className="block text-xs font-semibold text-[var(--ss-color-text)]">
           Sản phẩm — mã SKU — giá thường
         </label>
         <select
@@ -74,19 +75,15 @@ export function CampaignItemRow({ index, item, options, violations, canRemove, o
         ))}
       </div>
       {selected && (
-        <p className="mt-1 text-[11px] text-slate-500">
+        <p className="mt-1 text-[11px] text-[var(--ss-color-muted)]">
           Giá flash sale phải thấp hơn giá thường ({formatVND(selected.regularPrice)}).
         </p>
       )}
 
       {canRemove && (
-        <button
-          type="button"
-          onClick={onRemove}
-          className="mt-2 min-h-9 text-xs font-bold text-rose-700 hover:text-rose-900 focus-visible:outline-2 focus-visible:outline-amber-500"
-        >
+        <Button type="button" variant="ghost" onClick={onRemove} className="mt-2 px-0 text-xs underline">
           Xóa dòng {index + 1}
-        </button>
+        </Button>
       )}
     </fieldset>
   )

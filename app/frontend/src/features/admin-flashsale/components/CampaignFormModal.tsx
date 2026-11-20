@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Alert, Button, Dialog, FormField, StatusBadge } from '@/components/common'
 import { mergeCampaignSkuOptions, type SkuOption } from '@/features/catalog/catalog.hook'
 import { isApiError, type FieldViolation } from '@/lib/api-error'
 import type { CreateFlashSaleRequest, FlashSaleCampaign } from '@/features/flashsale/flashsale.type'
@@ -40,7 +41,7 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
       items: prev.items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     }))
 
-  const handleSubmit = async (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setFormError(null)
     const built = buildRequest(form, regularPriceOf)
@@ -68,43 +69,34 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
   const title = campaign ? 'Chỉnh sửa chiến dịch (bản nháp)' : 'Tạo chiến dịch Flash Sale mới'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="campaign-form-title"
-        onKeyDown={(e) => e.key === 'Escape' && onClose()}
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl sm:p-6"
-      >
-        <h2 id="campaign-form-title" className="text-xl font-bold text-slate-900">{title}</h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Chiến dịch sẽ ở trạng thái bản nháp (draft). Bạn có thể kiểm tra trước khi lên lịch.
-        </p>
+    <Dialog open title={title} onClose={onClose}>
+      <p className="flex flex-wrap items-center gap-2 text-xs text-[var(--ss-color-muted)]">
+        Chiến dịch sẽ ở trạng thái bản nháp.
+        <StatusBadge domain="flashSale" value="draft" audience="admin" />
+      </p>
 
         {(formError || summary.length > 0 || skuLoadError) && (
-          <div role="alert" className="mt-4 rounded border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+          <Alert tone="danger" className="mt-4 text-xs">
             {[formError, skuLoadError, ...summary].filter(Boolean).map((text) => (
               <p key={text}>{text}</p>
             ))}
-          </div>
+          </Alert>
         )}
 
         <form onSubmit={(e) => void handleSubmit(e)} noValidate className="mt-4 space-y-4">
-          <div>
-            <label htmlFor="campaign-name" className="block text-xs font-semibold text-slate-700">Tên chiến dịch</label>
-            <input
-              id="campaign-name"
-              type="text"
-              autoFocus
-              value={form.name}
-              onChange={(e) => patch({ name: e.target.value })}
-              placeholder="Ví dụ: Giờ vàng 11.11"
-              aria-invalid={textField('name').length > 0}
-              aria-describedby="campaign-name-error"
-              className={inputClass}
-            />
-            <FieldErrors id="campaign-name-error" messages={textField('name')} />
-          </div>
+          <FormField id="campaign-name" label="Tên chiến dịch" errorMessages={textField('name')} helper="Tên hiển thị cho quản trị viên và khách hàng.">
+            {(field) => (
+              <input
+                id="campaign-name"
+                type="text"
+                value={form.name}
+                onChange={(e) => patch({ name: e.target.value })}
+                placeholder="Ví dụ: Giờ vàng 11.11"
+                className={inputClass}
+                {...field}
+              />
+            )}
+          </FormField>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(
@@ -113,32 +105,27 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
                 ['ends_at', 'campaign-ends', 'Kết thúc', form.endsAt, 'endsAt'],
               ] as const
             ).map(([field, id, label, value, key]) => (
-              <div key={id}>
-                <label htmlFor={id} className="block text-xs font-semibold text-slate-700">{label}</label>
-                <input
-                  id={id}
-                  type="datetime-local"
-                  value={value}
-                  onChange={(e) => patch({ [key]: e.target.value })}
-                  aria-invalid={textField(field).length > 0}
-                  aria-describedby={`${id}-error`}
-                  className={inputClass}
-                />
-                <FieldErrors id={`${id}-error`} messages={textField(field)} />
-              </div>
+              <FormField key={id} id={id} label={label} errorMessages={textField(field)}>
+                {(control) => (
+                  <input
+                    id={id}
+                    type="datetime-local"
+                    value={value}
+                    onChange={(e) => patch({ [key]: e.target.value })}
+                    className={inputClass}
+                    {...control}
+                  />
+                )}
+              </FormField>
             ))}
           </div>
 
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-slate-700">Danh sách SKU và giá ưu đãi</h3>
-              <button
-                type="button"
-                onClick={() => patch({ items: [...form.items, emptyItem()] })}
-                className="min-h-9 text-xs font-semibold text-amber-700 hover:text-amber-800 focus-visible:outline-2 focus-visible:outline-amber-500"
-              >
+              <h3 className="text-xs font-semibold text-[var(--ss-color-text)]">Danh sách SKU và giá ưu đãi</h3>
+              <Button type="button" variant="ghost" onClick={() => patch({ items: [...form.items, emptyItem()] })} className="px-0 text-xs underline">
                 + Thêm dòng SKU
-              </button>
+              </Button>
             </div>
             <FieldErrors id="campaign-items-error" messages={fieldMessages(violations, 'items')} />
             <div className="mt-2 space-y-3">
@@ -157,24 +144,15 @@ export function CampaignFormModal({ campaign, skuOptions, skuLoadError, onSubmit
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="min-h-11 rounded border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-amber-500"
-            >
+          <div className="mt-6 flex justify-end gap-3 border-t border-[var(--ss-color-border)] pt-4">
+            <Button type="button" variant="secondary" onClick={onClose}>
               Đóng
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="min-h-11 rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-amber-500 disabled:opacity-50"
-            >
-              {submitting ? 'Đang lưu...' : campaign ? 'Lưu thay đổi' : 'Tạo bản nháp'}
-            </button>
+            </Button>
+            <Button type="submit" disabled={submitting} loading={submitting}>
+              {campaign ? 'Lưu thay đổi' : 'Tạo bản nháp'}
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Dialog>
   )
 }
