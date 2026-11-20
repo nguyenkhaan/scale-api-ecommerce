@@ -2,7 +2,9 @@
 
 **Phụ thuộc:** 02. **Mục tiêu:** `FR-014–020`, `INV-09/10`, `TEST-09/10/20`.
 
-**Trạng thái kiểm tra 21/11/2026:** FE/BE đã được kiểm tra lại sau đợt chuẩn hóa UI và accessibility review. Frontend có 97 test pass; backend quality gates pass, trong đó 55 test pass và 66 test PostgreSQL integration bị skip vì checkout hiện không cấu hình `TEST_DATABASE_URL`. Live API trên database development, browser smoke bằng Chrome headless và các oracle cart/preview đã đạt trong phạm vi Phase 03.
+**Trạng thái kiểm tra 21/11/2026:** FE/BE đã được kiểm tra lại sau đợt chuẩn hóa UI và accessibility review. Frontend có 99 test pass; backend quality gates pass, trong đó 55 test pass và 66 test PostgreSQL integration bị skip vì checkout hiện không cấu hình `TEST_DATABASE_URL`. Live API trên database development, browser smoke bằng Chrome headless và các oracle cart/preview đã đạt trong phạm vi Phase 03.
+
+> Các checkbox triển khai bên dưới thể hiện implementation và live/manual evidence; dedicated PostgreSQL integration checkpoint là mục riêng và vẫn để pending khi chưa có `TEST_DATABASE_URL`.
 
 ## Step 1 — Chương trình flash sale
 
@@ -52,7 +54,7 @@ OpenAPI: thêm mã `SALE_SCHEDULE_OVERLAP`, `CART_ITEM_CHANGED`; `FlashSale.item
 |---|---|---|
 | Backend format/build/test/vet | `cd app/backend && gofmt -l . && go build ./... && go test ./... && go vet ./...` | Pass; `gofmt` sạch, build/vet sạch, package test pass |
 | Backend verbose suite | `cd app/backend && go test -v ./test` | 55 pass, 66 skip; integration skip nêu rõ `set TEST_DATABASE_URL` |
-| Frontend | `cd app/frontend && bun run typecheck && bun run lint && bun test && bun run build` | Pass; 97 tests, 281 assertions, lint/build pass |
+| Frontend | `cd app/frontend && bun run typecheck && bun run lint && bun test && bun run build` | Pass; 99 tests, 284 assertions, lint/build pass |
 | Legacy API route audit | `rg -n '/api/v1' app/frontend` | Không có kết quả |
 | Migration/fixture | `go run ./cmd/migrate status`, `go run ./cmd/migrate up`, `ALLOW_SEED=true go run ./cmd/seed` | Migration `00009` đã áp dụng; fixture development nạp thành công |
 
@@ -88,8 +90,8 @@ Chrome `150.0.7871.100` headless được chạy bằng DevTools Protocol với 
 | Requirement | Evidence checkpoint |
 |---|---|
 | `FR-014–020` | Admin/public campaign lifecycle, public sale card, cart add/update/remove, regular + flash preview, line recovery |
-| `INV-09` | Live quota rejection and before/after quota oracle; backend quota tests remain listed for dedicated PostgreSQL suite |
-| `INV-10` | Live customer usage oracle unchanged during preview; backend purchase-limit validation and preview rules |
-| `TEST-09` | Mixed regular/flash preview, total/line source, read-only digest |
-| `TEST-10` | Sale quota/purchase-limit rejection and line error recovery |
-| `TEST-20` | Stop transition, `SALE_NOT_ACTIVE`, no fallback to regular price |
+| `INV-09` | Live quota rejection and before/after quota oracle; dedicated PostgreSQL quota tests remain pending |
+| `INV-10` | Live customer usage oracle unchanged during preview; dedicated PostgreSQL purchase-limit tests remain pending |
+| `TEST-09` | Live mixed regular/flash preview, total/line source, read-only digest; automated PostgreSQL case pending |
+| `TEST-10` | Live sale quota/purchase-limit rejection and line recovery; automated PostgreSQL case pending |
+| `TEST-20` | Live stop transition, `SALE_NOT_ACTIVE`, no fallback to regular price; automated PostgreSQL case pending |

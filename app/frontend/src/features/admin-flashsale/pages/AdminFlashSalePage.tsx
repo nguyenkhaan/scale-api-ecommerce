@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Alert, Button, FeedbackState, LoadMoreButton } from '@/components/common'
+import { loginRedirectPath } from '@/features/auth/auth.hook'
 import type { AdminAction } from '../admin-flashsale.logic'
 import { AdminCampaignCard } from '../components/AdminCampaignCard'
 import { CampaignFormModal } from '../components/CampaignFormModal'
@@ -39,7 +40,7 @@ export function AdminFlashSalePage() {
   const { list } = sales
 
   const handleNoticeAction = () => {
-    if (sales.notice?.recovery === 'login') navigate('/login', { replace: true })
+    if (sales.notice?.recovery === 'login') navigate(loginRedirectPath('/admin/flash-sales', ''), { replace: true })
     else void list.reload()
   }
 
@@ -66,7 +67,7 @@ export function AdminFlashSalePage() {
           skuOptions={skus.options}
           skuLoadError={skus.error}
           onClose={() => setFormTarget(null)}
-          onRecover={() => navigate('/login', { replace: true })}
+          onRecover={() => navigate(loginRedirectPath('/admin/flash-sales', ''), { replace: true })}
           onSubmit={async (request) => {
             await sales.save(request, formTarget === 'new' ? undefined : formTarget)
             setFormTarget(null)
