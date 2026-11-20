@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 
-import { buildSkuOptions, mergeCampaignSkuOptions } from '@/features/catalog/catalog.hook'
+import { buildSkuOptions, catalogQueryKeys, describeProductsLoadError, productListParams, mergeCampaignSkuOptions } from '@/features/catalog/catalog.hook'
 import type { CatalogProduct } from '@/features/catalog/catalog.type'
 
 const product = (over: Partial<CatalogProduct>): CatalogProduct => ({
@@ -31,6 +31,21 @@ describe('buildSkuOptions', () => {
     expect(options[0].skuId).toBe('s1')
     expect(options[0].label).toStartWith('Áo thun — AO-S — ')
     expect(options[0].label).toContain('100.000')
+  })
+})
+
+describe('catalog query state', () => {
+  it('separates empty and non-empty search terms in the query key', () => {
+    expect(catalogQueryKeys.products(20, '')).not.toEqual(catalogQueryKeys.products(20, 'áo'))
+  })
+
+  it('passes the search term and resets the cursor for a new query', () => {
+    expect(productListParams('áo', undefined)).toEqual({ limit: 20, query: 'áo' })
+    expect(productListParams('  ', 'next-cursor')).toEqual({ limit: 20, cursor: 'next-cursor' })
+  })
+
+  it('does not tell public catalog users to log in for a generic 401', () => {
+    expect(describeProductsLoadError({ status: 401 })).toBe('Không thể tải danh sách sản phẩm. Vui lòng thử lại.')
   })
 })
 

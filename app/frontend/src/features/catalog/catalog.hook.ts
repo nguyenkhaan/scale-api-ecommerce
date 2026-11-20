@@ -3,19 +3,27 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { formatVND } from '@/lib/format'
 
 import { isCatalogApiError, listProducts } from './catalog.service'
-import type { CatalogProduct, CatalogSku } from './catalog.type'
+import type { CatalogProduct, CatalogSku, ProductListParams } from './catalog.type'
 
 const pageSize = 20
 
 export const catalogQueryKeys = {
-  products: (limit: number) => ['catalog', 'products', { limit }] as const,
+  products: (limit: number, query: string) => ['catalog', 'products', { limit, query }] as const,
 }
 
-export function useProductsQuery() {
+export function productListParams(query: string, cursor?: string): ProductListParams {
+  const params: ProductListParams = { limit: pageSize }
+  const normalizedQuery = query.trim()
+  if (normalizedQuery !== '') params.query = normalizedQuery
+  if (cursor !== undefined) params.cursor = cursor
+  return params
+}
+
+export function useProductsQuery(query: string) {
   return useInfiniteQuery({
-    queryKey: catalogQueryKeys.products(pageSize),
+    queryKey: catalogQueryKeys.products(pageSize, query),
     initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }) => listProducts({ limit: pageSize, cursor: pageParam }),
+    queryFn: ({ pageParam }) => listProducts(productListParams(query, pageParam)),
     getNextPageParam: (page) => page.next_cursor ?? undefined,
   })
 }
@@ -62,7 +70,6 @@ export function mergeCampaignSkuOptions(options: SkuOption[], items: CampaignSku
 export function describeProductsLoadError(error: unknown): string {
   if (isCatalogApiError(error)) {
     if (error.code === 'NETWORK_ERROR') return 'Lỗi kết nối khi tải danh sách sản phẩm.'
-    if (error.status === 401) return 'Vui lòng đăng nhập để xem danh sách sản phẩm.'
     if (error.status === 403) return 'Bạn không có quyền xem danh sách sản phẩm.'
     if (error.status === 429) return 'Bạn thao tác quá nhanh khi tải danh sách sản phẩm. Vui lòng thử lại sau.'
   }

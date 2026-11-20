@@ -1,60 +1,74 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 
+import { FeedbackState, LoadMoreButton, SearchField } from '@/components/common'
 import { describeProductsLoadError, useProductsQuery } from '@/features/catalog/catalog.hook'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { CartActionNotice } from '@/features/cart/components/CartActionNotice'
 import { useAddToCart } from '@/features/cart/cart.hook'
+import { isCatalogApiError } from '../catalog.service'
 
 export function ProductsPage() {
-  const productsQuery = useProductsQuery()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const query = searchParams.get('query')?.trim() ?? ''
+  const productsQuery = useProductsQuery(query)
   const cartAction = useAddToCart()
   const products = productsQuery.data?.pages.flatMap((page) => page.items) ?? []
   const error = productsQuery.isError ? describeProductsLoadError(productsQuery.error) : null
   const loading = productsQuery.isPending
 
+  function submitSearch(searchInput: string) {
+    const next = new URLSearchParams(searchParams)
+    const normalized = searchInput.trim()
+    if (normalized === '') next.delete('query')
+    else next.set('query', normalized)
+    setSearchParams(next)
+  }
+
+  const feedbackKind = isCatalogApiError(productsQuery.error) && productsQuery.error.status === 429 ? 'overload' : 'error'
+  const loginNext = query === '' ? '/products' : `/products?query=${encodeURIComponent(query)}`
+
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+    <div className="mx-auto max-w-6xl">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--ss-color-border)] pb-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Sản phẩm</h1>
-          <p className="mt-1 text-sm text-slate-600">Thêm sản phẩm vào giỏ hàng với giá thường.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--ss-color-text)]">Sản phẩm</h1>
+          <p className="mt-1 text-sm text-[var(--ss-color-muted)]">Tìm và thêm sản phẩm vào giỏ hàng.</p>
         </div>
         <Link
           to="/cart"
-          className="inline-flex min-h-11 items-center rounded bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
+          className="inline-flex min-h-11 items-center rounded-[var(--ss-radius-control)] bg-[var(--ss-color-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--ss-color-primary-strong)]"
         >
           Xem giỏ hàng
         </Link>
       </div>
 
-      <CartActionNotice notice={cartAction.notice} loginNext="/products" />
+      <div className="mt-4 max-w-xl">
+        <CatalogSearchField key={query} query={query} onSubmit={submitSearch} />
+      </div>
+
+      <CartActionNotice notice={cartAction.notice} loginNext={loginNext} />
 
       {loading && (
-        <div className="py-12 text-center text-slate-500" role="status">
-          Đang tải danh sách sản phẩm...
-        </div>
+        <div className="mt-6"><FeedbackState kind="loading" title="Đang tải danh sách sản phẩm" message="Vui lòng chờ trong giây lát." /></div>
       )}
 
       {error && (
-        <div role="alert" className="mt-6 rounded border border-rose-200 bg-rose-50 p-4 text-rose-800">
-          <p className="font-semibold">{error}</p>
-          <button
-            type="button"
-            onClick={() => void productsQuery.refetch()}
-            className="mt-2 min-h-9 text-sm font-semibold underline"
-          >
-            Thử lại
-          </button>
+        <div className="mt-6">
+          <FeedbackState
+            kind={feedbackKind}
+            title="Không thể tải danh sách sản phẩm"
+            message={error}
+            action={{ label: 'Thử lại', onClick: () => void productsQuery.refetch() }}
+          />
         </div>
       )}
 
       {!loading && !error && products.length === 0 && (
-        <div className="mt-8 rounded border border-dashed border-slate-300 p-12 text-center text-slate-700">
-          Chưa có sản phẩm nào.
-        </div>
+        <div className="mt-6"><FeedbackState kind="empty" title="Chưa có sản phẩm nào." message={query ? 'Thử tìm với từ khóa khác.' : 'Danh mục hiện chưa có sản phẩm đang bán.'} /></div>
       )}
 
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul aria-label="Danh sách sản phẩm" className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -67,16 +81,14 @@ export function ProductsPage() {
 
       {productsQuery.hasNextPage && (
         <div className="mt-6 text-center">
-          <button
-            type="button"
-            disabled={productsQuery.isFetchingNextPage}
-            onClick={() => void productsQuery.fetchNextPage()}
-            className="min-h-11 border border-slate-900 px-4 text-sm font-semibold text-slate-900 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-amber-500 disabled:opacity-50"
-          >
-            {productsQuery.isFetchingNextPage ? 'Đang tải...' : 'Tải thêm'}
-          </button>
+          <LoadMoreButton loading={productsQuery.isFetchingNextPage} onClick={() => void productsQuery.fetchNextPage()} />
         </div>
       )}
     </div>
   )
+}
+
+function CatalogSearchField({ query, onSubmit }: { query: string; onSubmit: (value: string) => void }) {
+  const [value, setValue] = useState(query)
+  return <SearchField value={value} placeholder="Tìm theo tên sản phẩm hoặc SKU" onChange={setValue} onSubmit={() => onSubmit(value)} />
 }
