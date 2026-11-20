@@ -1,5 +1,6 @@
 import { errorFromResponse, invalidResponseError, networkError } from '@/lib/api-error'
 import { csrfCookieName, readDocumentCookie } from '@/lib/csrf'
+import { API_BASE_URL } from '@/api/base-url'
 
 export type FlashSaleItem = {
   id: string
@@ -108,31 +109,31 @@ export function createFlashSaleClient(options: FlashSaleClientOptions) {
 
   return {
     async listPublicFlashSales(params?: ListParams): Promise<FlashSalePage> {
-      const res = await send(`/api/v1/flash-sales${buildQuery(params)}`, { method: 'GET' })
+      const res = await send(`/flash-sales${buildQuery(params)}`, { method: 'GET' })
       if (!res.ok) throw await errorFromResponse(res)
       return readJSON<FlashSalePage>(res)
     },
 
     async getPublicFlashSale(id: string): Promise<FlashSaleCampaign> {
-      const res = await send(`/api/v1/flash-sales/${id}`, { method: 'GET' })
+      const res = await send(`/flash-sales/${id}`, { method: 'GET' })
       if (!res.ok) throw await errorFromResponse(res)
       return readJSON<FlashSaleCampaign>(res)
     },
 
     async listAdminFlashSales(params?: ListParams): Promise<FlashSalePage> {
-      const res = await send(`/api/v1/admin/flash-sales${buildQuery(params)}`, { method: 'GET' })
+      const res = await send(`/admin/flash-sales${buildQuery(params)}`, { method: 'GET' })
       if (!res.ok) throw await errorFromResponse(res)
       return readJSON<FlashSalePage>(res)
     },
 
     async getAdminFlashSale(id: string): Promise<FlashSaleCampaign> {
-      const res = await send(`/api/v1/admin/flash-sales/${id}`, { method: 'GET' })
+      const res = await send(`/admin/flash-sales/${id}`, { method: 'GET' })
       if (!res.ok) throw await errorFromResponse(res)
       return readJSON<FlashSaleCampaign>(res)
     },
 
     async createFlashSale(data: CreateFlashSaleRequest): Promise<FlashSaleCampaign> {
-      const res = await send('/api/v1/admin/flash-sales', {
+      const res = await send('/admin/flash-sales', {
         method: 'POST',
         body: data,
         csrf: getCsrf(),
@@ -142,7 +143,7 @@ export function createFlashSaleClient(options: FlashSaleClientOptions) {
     },
 
     async updateFlashSale(id: string, data: UpdateFlashSaleRequest): Promise<FlashSaleCampaign> {
-      const res = await send(`/api/v1/admin/flash-sales/${id}`, {
+      const res = await send(`/admin/flash-sales/${id}`, {
         method: 'PATCH',
         body: data,
         csrf: getCsrf(),
@@ -152,7 +153,7 @@ export function createFlashSaleClient(options: FlashSaleClientOptions) {
     },
 
     async scheduleFlashSale(id: string): Promise<FlashSaleCampaign> {
-      const res = await send(`/api/v1/admin/flash-sales/${id}/schedule`, {
+      const res = await send(`/admin/flash-sales/${id}/schedule`, {
         method: 'POST',
         csrf: getCsrf(),
       })
@@ -161,7 +162,7 @@ export function createFlashSaleClient(options: FlashSaleClientOptions) {
     },
 
     async cancelScheduleFlashSale(id: string): Promise<FlashSaleCampaign> {
-      const res = await send(`/api/v1/admin/flash-sales/${id}/cancel-schedule`, {
+      const res = await send(`/admin/flash-sales/${id}/cancel-schedule`, {
         method: 'POST',
         csrf: getCsrf(),
       })
@@ -170,7 +171,7 @@ export function createFlashSaleClient(options: FlashSaleClientOptions) {
     },
 
     async stopFlashSale(id: string): Promise<FlashSaleCampaign> {
-      const res = await send(`/api/v1/admin/flash-sales/${id}/stop`, {
+      const res = await send(`/admin/flash-sales/${id}/stop`, {
         method: 'POST',
         csrf: getCsrf(),
       })
@@ -181,5 +182,5 @@ export function createFlashSaleClient(options: FlashSaleClientOptions) {
 }
 
 export const flashSaleClient = createFlashSaleClient({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
+  baseURL: API_BASE_URL,
 })

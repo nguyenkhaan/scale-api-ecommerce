@@ -16,11 +16,11 @@ describe('flashSaleClient', () => {
   it('lists public flash sales with query parameters', async () => {
     const payload = { items: [], next_cursor: null }
     const { calls, fetcher } = recorder(() => Response.json(payload))
-    const client = createFlashSaleClient({ baseURL: 'http://api.test', fetcher })
+    const client = createFlashSaleClient({ baseURL: 'http://api.test/api', fetcher })
 
     const res = await client.listPublicFlashSales({ status: 'active', limit: 10 })
     expect(res).toEqual(payload)
-    expect(calls[0].url).toBe('http://api.test/api/v1/flash-sales?status=active&limit=10')
+    expect(calls[0].url).toBe('http://api.test/api/flash-sales?status=active&limit=10')
     expect(calls[0].init.method).toBe('GET')
   })
 
@@ -28,7 +28,7 @@ describe('flashSaleClient', () => {
     const campaign = { id: 'c1', name: 'Sale 1', status: 'draft', starts_at: '', ends_at: '', items: [] }
     const { calls, fetcher } = recorder(() => Response.json(campaign, { status: 201 }))
     const client = createFlashSaleClient({
-      baseURL: 'http://api.test',
+      baseURL: 'http://api.test/api',
       fetcher,
       readCookie: () => 'my-csrf-token',
     })
@@ -42,7 +42,7 @@ describe('flashSaleClient', () => {
     const res = await client.createFlashSale(data)
 
     expect(res.id).toBe('c1')
-    expect(calls[0].url).toBe('http://api.test/api/v1/admin/flash-sales')
+    expect(calls[0].url).toBe('http://api.test/api/admin/flash-sales')
     expect(calls[0].init.method).toBe('POST')
     expect((calls[0].init.headers as Record<string, string>)['X-CSRF-Token']).toBe('my-csrf-token')
   })
@@ -51,17 +51,17 @@ describe('flashSaleClient', () => {
     const campaign = { id: 'c1', name: 'Sale 1', status: 'scheduled', starts_at: '', ends_at: '', items: [] }
     const { calls, fetcher } = recorder(() => Response.json(campaign))
     const client = createFlashSaleClient({
-      baseURL: 'http://api.test',
+      baseURL: 'http://api.test/api',
       fetcher,
       readCookie: () => 'my-csrf-token',
     })
 
     await client.scheduleFlashSale('c1')
-    expect(calls[0].url).toBe('http://api.test/api/v1/admin/flash-sales/c1/schedule')
+    expect(calls[0].url).toBe('http://api.test/api/admin/flash-sales/c1/schedule')
     expect(calls[0].init.method).toBe('POST')
 
     await client.stopFlashSale('c1')
-    expect(calls[1].url).toBe('http://api.test/api/v1/admin/flash-sales/c1/stop')
+    expect(calls[1].url).toBe('http://api.test/api/admin/flash-sales/c1/stop')
     expect(calls[1].init.method).toBe('POST')
   })
 })

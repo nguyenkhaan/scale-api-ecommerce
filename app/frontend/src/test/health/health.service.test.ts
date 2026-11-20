@@ -5,7 +5,7 @@ describe('health client', () => {
   it('uses the configured API base URL and accepts the readiness schema', async () => {
     const requestedURLs: string[] = []
     const client = createHealthClient({
-      baseURL: 'http://localhost:4000/',
+      baseURL: 'http://localhost:4000/api/',
       fetcher: async (input) => {
         requestedURLs.push(String(input))
         return Response.json(healthFixture.readiness)
@@ -20,7 +20,7 @@ describe('health client', () => {
 
   it('rejects a successful response with an invalid payload', async () => {
     const client = createHealthClient({
-      baseURL: '',
+      baseURL: '/api',
       fetcher: async () => Response.json({ unexpected: true }),
     })
 
@@ -29,7 +29,7 @@ describe('health client', () => {
 
   it('returns a stable error without exposing the response body', async () => {
     const client = createHealthClient({
-      baseURL: '',
+      baseURL: '/api',
       fetcher: async () => new Response('database hostname is secret', { status: 503 }),
     })
 

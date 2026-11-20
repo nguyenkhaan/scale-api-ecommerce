@@ -1,4 +1,6 @@
-const readinessPath = '/api/health/ready'
+import { API_BASE_URL } from '@/api/base-url'
+
+const readinessPath = '/health/ready'
 const requestIDHeader = 'X-Request-ID'
 
 export type ReadinessResponse = {
@@ -48,7 +50,7 @@ export function createHealthClient(options: HealthClientOptions) {
 }
 
 export const healthClient = createHealthClient({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
+  baseURL: API_BASE_URL,
 })
 
 function isReadinessResponse(value: unknown): value is ReadinessResponse {
