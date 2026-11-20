@@ -45,6 +45,18 @@ describe('application shells', () => {
     expect(markup).toContain('Đăng ký')
   })
 
+  it('allows authenticated customer navigation to wrap on narrow screens', () => {
+    const markup = renderWithAuth(
+      <MemoryRouter initialEntries={['/cart']}>
+        <CustomerHeader />
+      </MemoryRouter>,
+      customer,
+    )
+
+    expect(markup).toContain('w-full min-w-0 flex-wrap')
+    expect(markup).toContain('sm:w-auto')
+  })
+
   it('renders customer content through an outlet under the public shell', () => {
     const markup = renderWithAuth(
       <MemoryRouter initialEntries={['/products']}>

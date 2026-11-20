@@ -23,7 +23,7 @@ export function CustomerHeader() {
         <div className="order-3 min-w-0 basis-full md:order-none md:flex-1">
           <SearchField value={query} placeholder="Tìm sản phẩm" onChange={setQuery} onSubmit={submitSearch} label="Tìm sản phẩm" />
         </div>
-        <nav aria-label="Customer navigation" className="ml-auto flex min-h-11 items-center gap-1 sm:gap-2">
+        <nav aria-label="Customer navigation" className="ml-auto flex w-full min-w-0 flex-wrap items-center justify-end gap-1 sm:w-auto sm:gap-2">
           <Link to="/flash-sales" className="inline-flex min-h-11 items-center px-2 text-sm font-semibold hover:bg-red-600/30 focus-visible:outline-white">Flash Sale</Link>
           <Link to="/cart" className="inline-flex min-h-11 items-center px-2 text-sm font-semibold hover:bg-red-600/30 focus-visible:outline-white">Giỏ hàng</Link>
           <AuthNav />
