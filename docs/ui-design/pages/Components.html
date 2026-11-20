@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaleScale – Thành phần dùng chung</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</head>
+<body>
+<div style="width: 1280px; min-height: 2000px; box-sizing: border-box; padding: 40px; background: rgb(245, 245, 245); color: rgb(34, 34, 34); font-family: Inter, system-ui, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; line-height: 20px; display: flex; flex-direction: column; gap: 24px;">
+  <h1 style="margin: 0px; font-size: 20px; line-height: 28px; font-weight: 600;">Thành phần dùng chung</h1>
+
+  <div style="display: flex; gap: 16px; align-items: flex-start;">
+    <div style="flex: 1 1 0px; min-width: 0px; display: flex; flex-direction: column; gap: 16px;">
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Badge trạng thái đơn</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 246, 244); border: 1px solid rgb(255, 216, 207); border-radius: 2px; color: rgb(215, 50, 17); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M8 4.75V8l2.25 1.5"></path></svg>Chờ thanh toán</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(232, 247, 245); border: 1px solid rgb(38, 170, 153); border-radius: 2px; color: rgb(0, 121, 107); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="#26AA99"></circle><path d="M5 8.25l2 2 4-4.25" fill="none" stroke="#FFFFFF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Đã xác nhận</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 240, 241); border: 1px solid rgb(208, 1, 27); border-radius: 2px; color: rgb(208, 1, 27); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>Thanh toán thất bại</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(245, 245, 245); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(97, 97, 97); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M3.6 3.6l8.8 8.8"></path></svg>Đã hủy</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(245, 245, 245); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(97, 97, 97); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M3.6 3.6l8.8 8.8"></path></svg>Hết hạn</span>
+        </div>
+        <p style="margin: 0px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">“Đã xác nhận” nghĩa là đơn đã được chốt, không phải đã giao hàng.</p>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Badge phiên thanh toán</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 246, 244); border: 1px solid rgb(255, 216, 207); border-radius: 2px; color: rgb(215, 50, 17); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M8 4.75V8l2.25 1.5"></path></svg>Đang chờ</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 248, 228); border: 1px solid rgb(255, 191, 0); border-radius: 2px; color: rgb(138, 97, 0); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 1.75h7 M4.5 14.25h7 M5.25 1.75v1.5L8 8l2.75-4.75v-1.5 M5.25 14.25v-1.5L8 8l2.75 4.75v1.5"></path></svg>Chưa xác định</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(232, 247, 245); border: 1px solid rgb(38, 170, 153); border-radius: 2px; color: rgb(0, 121, 107); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="#26AA99"></circle><path d="M5 8.25l2 2 4-4.25" fill="none" stroke="#FFFFFF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Thành công</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 240, 241); border: 1px solid rgb(208, 1, 27); border-radius: 2px; color: rgb(208, 1, 27); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>Thất bại</span>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Badge trạng thái flash sale</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(245, 245, 245); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(97, 97, 97); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-8 8H2.5v-3Z"></path></svg>Nháp</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 248, 228); border: 1px solid rgb(255, 191, 0); border-radius: 2px; color: rgb(138, 97, 0); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 3.5h11v10h-11Z M2.5 6.5h11 M5.5 2v3 M10.5 2v3"></path></svg>Đã lên lịch</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 248, 228); border: 1px solid rgb(255, 191, 0); border-radius: 2px; color: rgb(138, 97, 0); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 3.5h11v10h-11Z M2.5 6.5h11 M5.5 2v3 M10.5 2v3"></path></svg>Sắp diễn ra</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(255, 246, 244); border: 1px solid rgb(255, 216, 207); border-radius: 2px; color: rgb(215, 50, 17); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8Z"></path></svg>Đang diễn ra</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(245, 245, 245); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(97, 97, 97); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M6.5 5.5v5 M9.5 5.5v5"></path></svg>Đã dừng</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgb(245, 245, 245); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(97, 97, 97); font-size: 12px; line-height: 16px; font-weight: 600;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"></circle><path d="M5.5 8.25l1.75 1.75 3.25-3.5"></path></svg>Đã kết thúc</span>
+        </div>
+        <p style="margin: 0px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Trang quản trị hiện “Đã lên lịch”, trang khách hiện “Sắp diễn ra” cho cùng một trạng thái.</p>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Nhãn nguồn giá</h2>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <span style="background: rgb(238, 77, 45); color: rgb(255, 255, 255); font-size: 12px; line-height: 16px; font-weight: 600; padding: 2px 6px; border-radius: 2px;">Flash sale</span>
+          <span style="background: rgb(255, 255, 255); color: rgb(97, 97, 97); border: 1px solid rgb(189, 189, 189); font-size: 12px; line-height: 16px; font-weight: 600; padding: 1px 6px; border-radius: 2px;">Giá thường</span>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Khối giá</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 32px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Giá thường</span>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600; color: rgb(215, 50, 17);">250.000 ₫</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Có ưu đãi đang chạy</span>
+            <span style="display: flex; align-items: baseline; gap: 6px;"><span style="font-size: 20px; line-height: 24px; font-weight: 700; color: rgb(238, 77, 45);">129.000 ₫</span><s style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">199.000 ₫</s></span>
+            <span style="display: flex; align-items: center; gap: 6px;"><span style="background: rgb(238, 77, 45); color: rgb(255, 255, 255); font-size: 12px; line-height: 16px; font-weight: 600; padding: 2px 6px; border-radius: 2px;">Flash sale</span><span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Kết thúc 22:00</span></span>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Đồng hồ đếm ngược</h2>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <span style="color: rgb(117, 117, 117);">Kết thúc sau</span>
+          <span role="timer" style="display: flex; align-items: center; gap: 4px; font-weight: 700;">
+            <span style="min-width: 28px; height: 28px; padding: 0px 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: rgb(34, 34, 34); color: rgb(255, 255, 255); font-variant-numeric: tabular-nums; border-radius: 2px;">01</span><span aria-hidden="true">:</span>
+            <span style="min-width: 28px; height: 28px; padding: 0px 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: rgb(34, 34, 34); color: rgb(255, 255, 255); font-variant-numeric: tabular-nums; border-radius: 2px;">24</span><span aria-hidden="true">:</span>
+            <span style="min-width: 28px; height: 28px; padding: 0px 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: rgb(34, 34, 34); color: rgb(255, 255, 255); font-variant-numeric: tabular-nums; border-radius: 2px;">30</span>
+          </span>
+          <span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Thời gian chính thức theo hệ thống</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;">
+          <span>Còn <span role="timer" style="font-weight: 700; color: rgb(215, 50, 17); font-variant-numeric: tabular-nums;">04:59</span> để thanh toán</span>
+          <span style="font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Thời gian chính thức theo hệ thống</span>
+        </div>
+        <p style="margin: 0px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Đếm ngược chỉ để hiển thị, không đọc từng giây cho trình đọc màn hình.</p>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Nút và ô nhập</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button type="button" style="min-height: 44px; padding: 0px 16px; background: rgb(238, 77, 45); border: 0px; border-radius: 2px; color: rgb(255, 255, 255); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 700;">Nút chính</button>
+          <button type="button" style="min-height: 44px; padding: 0px 16px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500;">Nút phụ</button>
+          <button type="button" disabled="" style="min-height: 44px; padding: 0px 16px; background: rgb(245, 245, 245); border: 1px solid rgb(232, 232, 232); border-radius: 2px; color: rgb(189, 189, 189); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 700;">Vô hiệu</button>
+          <button type="button" disabled="" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0px 16px; background: rgb(245, 245, 245); border: 1px solid rgb(232, 232, 232); border-radius: 2px; color: rgb(117, 117, 117); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 700;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 2a6 6 0 1 0 6 6"></path></svg>Đang gửi…</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;"><label for="cmp-in1" style="font-weight: 500;">Thường</label><input id="cmp-in1" type="text" value="Nguyễn Minh Anh" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; border: 1px solid rgb(189, 189, 189); border-radius: 2px; font: inherit; color: rgb(34, 34, 34);"></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><label for="cmp-in2" style="font-weight: 500;">Đang focus</label><input id="cmp-in2" type="text" value="0901 234 567" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; border: 1px solid rgb(34, 34, 34); outline: rgb(34, 34, 34) solid 2px; outline-offset: 2px; border-radius: 2px; font: inherit; color: rgb(34, 34, 34);"></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><label for="cmp-in3" style="font-weight: 500;">Lỗi</label><input id="cmp-in3" type="text" aria-invalid="true" value="minhanh@" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; border: 1px solid rgb(208, 1, 27); border-radius: 2px; font: inherit; color: rgb(34, 34, 34);"><span style="font-size: 12px; line-height: 16px; color: rgb(208, 1, 27);">Email chưa đúng định dạng</span></div>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Nút “Tải thêm”</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button type="button" style="min-width: 200px; min-height: 44px; padding: 0px 16px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500;">Tải thêm</button>
+          <button type="button" disabled="" style="min-width: 200px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0px 16px; background: rgb(245, 245, 245); border: 1px solid rgb(232, 232, 232); border-radius: 2px; color: rgb(117, 117, 117); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 2a6 6 0 1 0 6 6"></path></svg>Đang tải…</button>
+        </div>
+        <p style="margin: 0px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">Danh sách dài tải theo con trỏ (cursor), không có số trang.</p>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Trạng thái rỗng</h2>
+        <div style="padding: 24px 16px; border: 1px dashed rgb(232, 232, 232); border-radius: 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
+          <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="#BDBDBD" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 1.75h9v12.5l-2.25-1.5L8 14.25l-2.25-1.5L3.5 14.25Z M6 5.5h4 M6 8.5h4"></path></svg>
+          <span style="font-weight: 600;">Chưa có dữ liệu</span>
+          <span style="color: rgb(117, 117, 117);">Mô tả ngắn điều gì sẽ hiện ở đây.</span>
+          <button type="button" style="min-height: 40px; margin-top: 4px; padding: 0px 16px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500;">Hành động gợi ý</button>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Skeleton</h2>
+        <div role="status" aria-label="Đang tải" style="display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 8px;">
+          <div aria-hidden="true" style="border: 1px solid rgb(232, 232, 232); border-radius: 2px; overflow: hidden;"><div style="aspect-ratio: 1 / 1; background: rgb(232, 232, 232);"></div><div style="padding: 8px; display: flex; flex-direction: column; gap: 6px;"><div style="height: 10px; background: rgb(232, 232, 232); border-radius: 2px;"></div><div style="height: 10px; width: 60%; background: rgb(232, 232, 232); border-radius: 2px;"></div></div></div>
+          <div aria-hidden="true" style="border: 1px solid rgb(232, 232, 232); border-radius: 2px; overflow: hidden;"><div style="aspect-ratio: 1 / 1; background: rgb(232, 232, 232);"></div><div style="padding: 8px; display: flex; flex-direction: column; gap: 6px;"><div style="height: 10px; background: rgb(232, 232, 232); border-radius: 2px;"></div><div style="height: 10px; width: 60%; background: rgb(232, 232, 232); border-radius: 2px;"></div></div></div>
+          <div aria-hidden="true" style="display: flex; flex-direction: column; gap: 8px; padding: 8px; border: 1px solid rgb(232, 232, 232); border-radius: 2px;"><div style="height: 12px; background: rgb(232, 232, 232); border-radius: 2px;"></div><div style="height: 12px; background: rgb(232, 232, 232); border-radius: 2px;"></div><div style="height: 12px; width: 70%; background: rgb(232, 232, 232); border-radius: 2px;"></div><div style="height: 12px; width: 50%; background: rgb(232, 232, 232); border-radius: 2px;"></div></div>
+        </div>
+      </section>
+    </div>
+
+    <div style="flex: 1 1 0px; min-width: 0px; display: flex; flex-direction: column; gap: 16px;">
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Lỗi tại dòng</h2>
+        
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: rgb(255, 240, 241); border-radius: 2px; box-shadow: rgb(208, 1, 27) 4px 0px 0px inset; color: rgb(208, 1, 27);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <span style="flex: 1 1 200px; font-weight: 600;">Chỉ còn 3 sản phẩm</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(97, 97, 97);">Không đủ hàng</span>
+            <button type="button" style="min-height: 32px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 500;">Sửa trong giỏ</button>
+          </div>
+        
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: rgb(255, 240, 241); border-radius: 2px; box-shadow: rgb(208, 1, 27) 4px 0px 0px inset; color: rgb(208, 1, 27);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <span style="flex: 1 1 200px; font-weight: 600;">Đã hết suất giá flash sale</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(97, 97, 97);">Hết suất ưu đãi</span>
+            <button type="button" style="min-height: 32px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 500;">Sửa trong giỏ</button>
+          </div>
+        
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: rgb(255, 240, 241); border-radius: 2px; box-shadow: rgb(208, 1, 27) 4px 0px 0px inset; color: rgb(208, 1, 27);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <span style="flex: 1 1 200px; font-weight: 600;">Vượt giới hạn 2 sản phẩm/tài khoản</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(97, 97, 97);">Vượt giới hạn mua</span>
+            <button type="button" style="min-height: 32px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 500;">Sửa trong giỏ</button>
+          </div>
+        
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: rgb(255, 240, 241); border-radius: 2px; box-shadow: rgb(208, 1, 27) 4px 0px 0px inset; color: rgb(208, 1, 27);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <span style="flex: 1 1 200px; font-weight: 600;">Chương trình chưa mở hoặc đã kết thúc</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(97, 97, 97);">Chương trình không hoạt động</span>
+            <button type="button" style="min-height: 32px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 500;">Sửa trong giỏ</button>
+          </div>
+        
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: rgb(255, 240, 241); border-radius: 2px; box-shadow: rgb(208, 1, 27) 4px 0px 0px inset; color: rgb(208, 1, 27);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <span style="flex: 1 1 200px; font-weight: 600;">Sản phẩm đã ngừng bán</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(97, 97, 97);">Ngừng bán</span>
+            <button type="button" style="min-height: 32px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 500;">Sửa trong giỏ</button>
+          </div>
+        
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: rgb(255, 240, 241); border-radius: 2px; box-shadow: rgb(208, 1, 27) 4px 0px 0px inset; color: rgb(208, 1, 27);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <span style="flex: 1 1 200px; font-weight: 600;">Giá đã đổi thành 275.000 ₫</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(97, 97, 97);">Đổi giá</span>
+            <button type="button" style="min-height: 32px; padding: 0px 12px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 12px; font-weight: 500;">Sửa trong giỏ</button>
+          </div>
+        
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Banner lỗi kèm mã yêu cầu</h2>
+        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(208, 1, 27); border-image: none; border-radius: 4px;">
+          <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#D0011B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 2px;"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-weight: 600; color: rgb(208, 1, 27);">Hệ thống tạm thời không xử lý được</span>
+            <span style="color: rgb(117, 117, 117);">Vui lòng thử lại sau ít phút.</span>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; color: rgb(117, 117, 117);">
+              <span>Mã yêu cầu:</span><code style="font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: rgb(34, 34, 34);">req_8f2c1a7b9d</code>
+              <button type="button" aria-label="Sao chép mã yêu cầu" style="display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0px 8px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font: inherit;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5.5h7.5v7.5H5.5Z M3 10.5V3h7.5"></path></svg>Sao chép</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Khối thông báo trạng thái</h2>
+        
+          <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(238, 77, 45); border-image: none; border-radius: 4px;">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#D73211" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 1px;"><path d="M14.25 8A6.25 6.25 0 1 1 1.75 8A6.25 6.25 0 1 1 14.25 8Z M8 4.75V8l2.25 1.5"></path></svg>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-weight: 600; color: rgb(215, 50, 17);">Chờ thanh toán</span>
+              <span style="color: rgb(117, 117, 117);">Hoàn tất thanh toán trước 20:46.</span>
+            </div>
+          </div>
+        
+          <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(38, 170, 153); border-image: none; border-radius: 4px;">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#00796B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 1px;"><path d="M14.25 8A6.25 6.25 0 1 1 1.75 8A6.25 6.25 0 1 1 14.25 8Z M5.25 8.25l1.9 1.9 3.6-3.9"></path></svg>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-weight: 600; color: rgb(0, 121, 107);">Thanh toán thành công</span>
+              <span style="color: rgb(117, 117, 117);">Đơn đã chuyển sang Đã xác nhận.</span>
+            </div>
+          </div>
+        
+          <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(208, 1, 27); border-image: none; border-radius: 4px;">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#D0011B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 1px;"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"></path></svg>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-weight: 600; color: rgb(208, 1, 27);">Thanh toán thất bại</span>
+              <span style="color: rgb(117, 117, 117);">Đơn đã đóng. Bấm Đặt lại để tạo đơn mới.</span>
+            </div>
+          </div>
+        
+          <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(255, 191, 0); border-image: none; border-radius: 4px;">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#8A6100" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 1px;"><path d="M4.5 1.75h7 M4.5 14.25h7 M5.25 1.75v1.5L8 8l2.75-4.75v-1.5 M5.25 14.25v-1.5L8 8l2.75 4.75v1.5"></path></svg>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-weight: 600; color: rgb(138, 97, 0);">Đang kiểm tra kết quả</span>
+              <span style="color: rgb(117, 117, 117);">Chưa thể kết luận, không cần thao tác lại.</span>
+            </div>
+          </div>
+        
+          <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(189, 189, 189); border-image: none; border-radius: 4px;">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#616161" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 1px;"><path d="M14.25 8A6.25 6.25 0 1 1 1.75 8A6.25 6.25 0 1 1 14.25 8Z M3.6 3.6l8.8 8.8"></path></svg>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-weight: 600; color: rgb(97, 97, 97);">Đơn đã hết hạn</span>
+              <span style="color: rgb(117, 117, 117);">Không thể thanh toán đơn này nữa.</span>
+            </div>
+          </div>
+        
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Thông báo chờ thử lại khi quá tải</h2>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px; background: rgb(255, 255, 255); border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(232, 232, 232) rgb(232, 232, 232) rgb(232, 232, 232) rgb(255, 191, 0); border-image: none; border-radius: 4px;">
+          <span style="flex: 1 1 100%; font-weight: 600; color: rgb(138, 97, 0);">Hệ thống đang quá tải</span>
+          <span>Thử lại sau</span>
+          <span role="timer" style="display: inline-flex; align-items: center; justify-content: center; min-width: 60px; height: 28px; padding: 0px 8px; box-sizing: border-box; background: rgb(34, 34, 34); color: rgb(255, 255, 255); font-weight: 700; font-variant-numeric: tabular-nums; border-radius: 2px;">00:15</span>
+          <button type="button" disabled="" style="min-height: 40px; padding: 0px 16px; background: rgb(245, 245, 245); border: 1px solid rgb(232, 232, 232); border-radius: 2px; color: rgb(117, 117, 117); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 600;">Thử lại sau 00:15</button>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Toast</h2>
+        <div role="status" style="width: 340px; max-width: 100%; box-sizing: border-box; display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: rgb(34, 34, 34); color: rgb(255, 255, 255); border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 24px;">
+          <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" style="flex: 0 0 auto; margin-top: 2px;"><circle cx="8" cy="8" r="7" fill="#26AA99"></circle><path d="M5 8.25l2 2 4-4.25" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-weight: 600;">Đã thêm vào giỏ</span>
+            <span style="font-size: 12px; line-height: 16px; color: rgb(232, 232, 232);">Áo thun basic · Đen / M · 1 sản phẩm · Giá flash sale</span>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 232, 232); border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0px; font-size: 16px; line-height: 24px; font-weight: 600;">Hộp xác nhận</h2>
+        <div style="padding: 24px; background: rgba(34, 34, 34, 0.45); border-radius: 4px;">
+          <div role="dialog" aria-modal="false" aria-labelledby="cmp-dlg" style="max-width: 420px; margin: 0px auto; box-sizing: border-box; background: rgb(255, 255, 255); border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+            <h3 id="cmp-dlg" style="margin: 0px; font-size: 18px; line-height: 24px; font-weight: 600;">Hủy đơn SS-1010-0042?</h3>
+            <p style="margin: 0px; color: rgb(117, 117, 117);">Hàng đang giữ cho đơn này sẽ được trả lại ngay. Bạn không thể hoàn tác thao tác này.</p>
+            <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px;">
+              <button type="button" style="min-height: 44px; padding: 0px 16px; background: rgb(255, 255, 255); border: 1px solid rgb(189, 189, 189); border-radius: 2px; color: rgb(34, 34, 34); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 500;">Giữ đơn</button>
+              <button type="button" style="min-height: 44px; padding: 0px 16px; background: rgb(238, 77, 45); border: 0px; border-radius: 2px; color: rgb(255, 255, 255); font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 700;">Xác nhận hủy đơn</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div></div>
+</body>
+</html>
