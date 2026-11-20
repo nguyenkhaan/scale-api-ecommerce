@@ -1,20 +1,51 @@
+@import "./styles/theme.css";
 @import "tailwindcss";
 
-:root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  color: #0f172a;
-  background: #f5f5f4;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+html {
+  background: var(--ss-color-app-bg);
 }
 
 body {
   margin: 0;
   min-width: 20rem;
   min-height: 100vh;
+  background: var(--ss-color-app-bg);
+  color: var(--ss-color-text);
+  font-family: var(--ss-font-sans);
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ss-color-primary);
+  outline-offset: 2px;
+  box-shadow: var(--ss-focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
