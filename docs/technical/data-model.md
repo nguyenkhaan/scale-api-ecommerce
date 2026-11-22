@@ -402,6 +402,16 @@ Insert theo event ID làm dedup. API chỉ xác nhận callback sau khi row đư
 
 P0 bắt buộc tạo case cho success đến muộn hoặc event mâu thuẫn; UI quản trị/ghi chú hoàn chỉnh là P1.
 
+### Schema đã triển khai (migration `00009` của checkout và `00010` của payment)
+
+Schema thật khác bản đề xuất ở trên ở các điểm sau; code và test bám theo schema thật:
+
+- Reservation nằm ở bảng `inventory_reservations` (`active` → `finalized` khi bán, `released` khi giải phóng), không có `order_id`/`flash_sale_item_id`/`expires_at` riêng: order và flash item lấy qua `order_items`, hạn lấy từ `orders.expires_at`.
+- `orders` thêm `updated_at` và `terminal_at` (NULL đúng khi còn `pending_payment`), index `orders_due (expires_at, id) WHERE status = 'pending_payment'` cho expiry worker.
+- `order_items` thêm `cart_item_id`, `cart_item_version` (nullable). Checkout ghi dòng giỏ và version đã đặt; khi thanh toán thành công chỉ xóa dòng giỏ còn đúng version đó (BR-13, TEST-25). NULL nghĩa là giữ giỏ.
+- `payment_events` có `id` riêng và `event_id` của simulator; unique `event_id` chỉ áp cho row `source_verified`, nên lần gửi sai chữ ký vẫn được lưu (`rejected`) mà không chặn sự kiện thật cùng ID (ADR-008). `payment_session_id` nullable để lưu được cả sự kiện trỏ tới phiên không tồn tại.
+- Mọi kết thúc order đi qua một hàm duy nhất `order.Finish` theo thứ tự khóa ở mục dưới; callback cập nhật `payment_sessions` sau cùng.
+
 ## Thứ tự khóa và transaction boundary
 
 ### Checkout
@@ -418,10 +428,13 @@ Mọi code path khác cần khóa nhiều inventory/sale row phải dùng cùng 
 ### Kết thúc order
 
 1. Order row.
-2. Reservation/order item theo `sku_id` tăng dần.
-3. Inventory theo `sku_id` tăng dần.
-4. Flash sale item và usage theo ID tăng dần.
-5. Payment event/session nếu transition bắt nguồn từ payment.
+2. Cart item của order theo ID tăng dần — chỉ khi xác nhận, vì chỉ xác nhận mới xóa dòng giỏ; phải đứng trước inventory như checkout để không deadlock khi khách đặt tiếp từ cùng giỏ.
+3. Reservation/order item theo `sku_id` tăng dần.
+4. Inventory theo `sku_id` tăng dần.
+5. Flash sale item và usage theo ID tăng dần.
+6. Payment event/session nếu transition bắt nguồn từ payment.
+
+Sau khi giữ đủ khóa, hạn thanh toán được kiểm lại bằng `clock_timestamp()` (không dùng `now()` của lúc bắt đầu transaction) và `terminal_at` ghi theo thời điểm đó, nên chờ khóa row nóng không làm đơn được xác nhận sau `expires_at`. Lưu ý: insert `payment_events` của callback giữ key-share lock trên `payment_sessions` trước khi khóa order; không được thêm `FOR UPDATE` trên `payment_sessions` trong đường đã khóa order.
 
 Không giữ transaction trong lúc gọi HTTP, RabbitMQ hoặc Redis.
 

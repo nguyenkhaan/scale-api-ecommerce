@@ -215,5 +215,5 @@ Không đặt coverage phần trăm làm tiêu chí duy nhất. Mọi nhánh tha
 | OPEN-02 | Quy trình thao tác sau khi đối soát thanh toán muộn | Trước nghiệm thu payment P0 |
 | OPEN-03 | Mục tiêu thời gian giao notification | Sau E0/E1, trước nghiệm thu P1 |
 | TECH-01 | Goose + GORM/PostgreSQL (pgx) + Gin middleware; xem ADR-007 | Đã chốt 24/10/2026 |
-| TECH-02 | Cơ chế ký/xác thực callback của payment simulator | Trước triển khai payment simulator |
+| TECH-02 | HMAC-SHA256 có timestamp qua `X-Simulator-Signature`; xem ADR-008 | Đã chốt 22/11/2026 |
 
