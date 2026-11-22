@@ -9,6 +9,8 @@ import (
 	"cloudian/cloudian-scale/internal/module/flashsale"
 	"cloudian/cloudian-scale/internal/module/health"
 	"cloudian/cloudian-scale/internal/module/inventory"
+	"cloudian/cloudian-scale/internal/module/order"
+	"cloudian/cloudian-scale/internal/module/payment"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +22,8 @@ type Dependencies struct {
 	CatalogService   *catalog.Service
 	FlashSaleService *flashsale.Service
 	CartService      *cart.Service
+	OrderQueries     *order.OrderQueries
+	PaymentService   *payment.Service
 	SecureCookies    bool
 }
 
@@ -59,6 +63,12 @@ func NewRouter(dependencies Dependencies) *gin.Engine {
 	if dependencies.CartService != nil {
 		cartController := cart.NewController(dependencies.CartService)
 		cart.RegisterRoutes(api, cartController, requireSession)
+	}
+	if dependencies.OrderQueries != nil {
+		order.RegisterOrderRoutes(api, order.NewOrdersController(dependencies.OrderQueries), requireSession)
+	}
+	if dependencies.PaymentService != nil {
+		payment.RegisterRoutes(api, payment.NewController(dependencies.PaymentService), requireSession, requireAdmin)
 	}
 	//Thuc hien RegisterRoute o day
 	return router
