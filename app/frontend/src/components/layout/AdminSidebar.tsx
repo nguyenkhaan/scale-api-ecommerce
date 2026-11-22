@@ -4,6 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 const links = [
   { to: '/admin', label: 'Tổng quan', end: true },
   { to: '/admin/flash-sales', label: 'Quản lý Flash Sale', end: false },
+  { to: '/admin/payment-simulator', label: 'Mô phỏng thanh toán', end: false },
 ]
 
 function linkClass(active: boolean) {
