@@ -20,6 +20,7 @@ export function CustomerHeader() {
         <nav aria-label="Customer navigation" className="ml-auto flex w-full min-w-0 flex-wrap items-center justify-end gap-1 sm:w-auto sm:gap-2">
           <Link to="/flash-sales" className="inline-flex min-h-11 items-center px-2 text-sm font-semibold hover:bg-red-600/30 focus-visible:outline-white">Flash Sale</Link>
           <Link to="/cart" className="inline-flex min-h-11 items-center px-2 text-sm font-semibold hover:bg-red-600/30 focus-visible:outline-white">Giỏ hàng</Link>
+          <Link to="/orders" className="inline-flex min-h-11 items-center px-2 text-sm font-semibold hover:bg-red-600/30 focus-visible:outline-white">Đơn hàng</Link>
           <AuthNav />
         </nav>
       </div>

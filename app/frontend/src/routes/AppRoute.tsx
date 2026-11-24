@@ -11,6 +11,10 @@ import { AdminFlashSalePage } from '@/features/admin-flashsale/pages/AdminFlashS
 import { AdminPage } from '@/features/admin-flashsale/pages/AdminPage'
 import { FlashSalesPage } from '@/features/flashsale/pages/FlashSalesPage'
 import { HealthPage } from '@/features/health/pages/HealthPage'
+import { OrderDetailPage } from '@/features/bill/pages/OrderDetailPage'
+import { OrdersPage } from '@/features/bill/pages/OrdersPage'
+import { PaymentPage } from '@/features/payment/pages/PaymentPage'
+import { PaymentSimulatorPage } from '@/features/payment/pages/PaymentSimulatorPage'
 import { AdminShell, CustomerShell } from '@/components/layout'
 
 export function AppRoute() {
@@ -30,6 +34,9 @@ export function AppRoute() {
             </RequireAuth>
           }
         />
+        <Route path="orders" element={<RequireAuth><OrdersPage /></RequireAuth>} />
+        <Route path="orders/:orderId" element={<RequireAuth><OrderDetailPage /></RequireAuth>} />
+        <Route path="orders/:orderId/payment" element={<RequireAuth><PaymentPage /></RequireAuth>} />
         <Route
           path="account"
           element={
@@ -43,6 +50,7 @@ export function AppRoute() {
       <Route path="admin" element={<RequireRole role="admin"><AdminShell /></RequireRole>}>
         <Route index element={<AdminPage />} />
         <Route path="flash-sales" element={<AdminFlashSalePage />} />
+        <Route path="payment-simulator" element={<PaymentSimulatorPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

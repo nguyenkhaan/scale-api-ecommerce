@@ -23,6 +23,7 @@ const (
 	CodeStateTransitionConflict = "STATE_TRANSITION_CONFLICT"
 	CodeSaleScheduleOverlap     = "SALE_SCHEDULE_OVERLAP"
 	CodeCartItemChanged         = "CART_ITEM_CHANGED"
+	CodeOrderNotPayable         = "ORDER_NOT_PAYABLE"
 
 	// Line-level checkout codes, highest priority first (BR-24).
 	CodeItemUnavailable       = "ITEM_UNAVAILABLE"

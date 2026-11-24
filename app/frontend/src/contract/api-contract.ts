@@ -275,8 +275,33 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Điều khiển simulator trong môi trường test */
+        /**
+         * Điều khiển simulator trong môi trường test
+         * @description Chỉ bật khi `PAYMENT_SIMULATOR_ENABLED` (mặc định ở dev/test); tắt thì 404. Cần
+         *     `X-Operator-Key` hoặc session quản trị (kèm CSRF); khách trả 403. Delivery gửi qua HTTP tới
+         *     callback thật, ký theo ADR-008; `drop_delivery` mô phỏng mất callback.
+         */
         post: operations["scheduleSimulatorEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-simulator/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Danh sách phiên thanh toán cho màn hình điều khiển simulator
+         * @description Cùng điều kiện bật và quyền như `/payment-simulator/events`.
+         */
+        get: operations["listSimulatorSessions"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -718,6 +743,10 @@ export interface components {
             expires_at: string;
             /** @description Tính từ state và database-authoritative expiry */
             payable?: boolean;
+            /** @description Trạng thái phiên thanh toán của đơn; null khi chưa mở phiên. */
+            payment_status?: ("pending" | "unknown" | "succeeded" | "failed") | null;
+            /** @description Có case đối soát đang mở (thanh toán đến muộn hoặc mâu thuẫn); không có nghĩa đơn đã được xác nhận. */
+            reconciliation_required?: boolean;
         };
         OrderPage: {
             items: components["schemas"]["Order"][];
@@ -1518,7 +1547,18 @@ export interface operations {
             };
             401: components["responses"]["Unauthenticated"];
             404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
+            /**
+             * @description `STATE_TRANSITION_CONFLICT` khi đơn đã confirmed/payment_failed/expired (kể cả đơn vừa bị
+             *     hết hạn vì quá deadline theo giờ database lúc hủy); `detail` nêu trạng thái hiện tại.
+             */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
         };
     };
     createOrGetPaymentSession: {
@@ -1552,7 +1592,18 @@ export interface operations {
             };
             401: components["responses"]["Unauthenticated"];
             404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
+            /**
+             * @description `ORDER_NOT_PAYABLE` khi đơn không còn `pending_payment` hoặc đã qua deadline theo giờ
+             *     database (đơn quá hạn được chuyển `expired` ngay trong request). Không gia hạn đơn.
+             */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
         };
     };
     scheduleSimulatorEvent: {
@@ -1579,6 +1630,49 @@ export interface operations {
             };
             403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationError"];
+        };
+    };
+    listSimulatorSessions: {
+        parameters: {
+            query?: {
+                status?: "pending" | "unknown" | "succeeded" | "failed";
+                limit?: components["parameters"]["Limit"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Phiên mới nhất trước */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            order_id: string;
+                            order_number: string;
+                            /** Format: int64 */
+                            amount: number;
+                            /** @constant */
+                            currency: "VND";
+                            /** @enum {string} */
+                            status: "pending" | "unknown" | "succeeded" | "failed";
+                            simulator_reference: string;
+                            order_status: components["schemas"]["OrderStatus"];
+                            /** Format: date-time */
+                            expires_at: string;
+                        }[];
+                    };
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     receiveSimulatorCallback: {

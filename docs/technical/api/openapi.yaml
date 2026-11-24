@@ -427,7 +427,12 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          $ref: '#/components/responses/Conflict'
+          description: |
+            `STATE_TRANSITION_CONFLICT` khi đơn đã confirmed/payment_failed/expired (kể cả đơn vừa bị
+            hết hạn vì quá deadline theo giờ database lúc hủy); `detail` nêu trạng thái hiện tại.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
 
   /orders/{orderId}/payment-session:
     post:
@@ -456,7 +461,12 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          $ref: '#/components/responses/Conflict'
+          description: |
+            `ORDER_NOT_PAYABLE` khi đơn không còn `pending_payment` hoặc đã qua deadline theo giờ
+            database (đơn quá hạn được chuyển `expired` ngay trong request). Không gia hạn đơn.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
 
   /payment-simulator/events:
     post:
@@ -465,7 +475,11 @@ paths:
       x-priority: P0
       x-requirements: [FR-031]
       summary: Điều khiển simulator trong môi trường test
-      security: [{ operatorKey: [] }]
+      description: |
+        Chỉ bật khi `PAYMENT_SIMULATOR_ENABLED` (mặc định ở dev/test); tắt thì 404. Cần
+        `X-Operator-Key` hoặc session quản trị (kèm CSRF); khách trả 403. Delivery gửi qua HTTP tới
+        callback thật, ký theo ADR-008; `drop_delivery` mô phỏng mất callback.
+      security: [{ operatorKey: [] }, { cookieAuth: [], csrfToken: [] }]
       requestBody:
         required: true
         content:
@@ -483,6 +497,49 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '422':
           $ref: '#/components/responses/ValidationError'
+
+  /payment-simulator/sessions:
+    get:
+      tags: [Payments]
+      operationId: listSimulatorSessions
+      x-priority: P0
+      x-requirements: [FR-031]
+      summary: Danh sách phiên thanh toán cho màn hình điều khiển simulator
+      description: Cùng điều kiện bật và quyền như `/payment-simulator/events`.
+      security: [{ operatorKey: [] }, { cookieAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, unknown, succeeded, failed] }
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Phiên mới nhất trước
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, order_id, order_number, amount, currency, status, simulator_reference, order_status, expires_at]
+                      properties:
+                        id: { type: string, format: uuid }
+                        order_id: { type: string, format: uuid }
+                        order_number: { type: string }
+                        amount: { type: integer, format: int64 }
+                        currency: { type: string, const: VND }
+                        status: { type: string, enum: [pending, unknown, succeeded, failed] }
+                        simulator_reference: { type: string }
+                        order_status: { $ref: '#/components/schemas/OrderStatus' }
+                        expires_at: { type: string, format: date-time }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /payment-callbacks/simulator:
     post:
@@ -991,6 +1048,10 @@ components:
       type: apiKey
       in: header
       name: X-Simulator-Signature
+      description: |
+        `t=<unix seconds>,v1=<hex HMAC-SHA256(PAYMENT_SIMULATOR_SECRET, "<t>." + raw body)>`; lệch giờ
+        quá 300 giây bị từ chối (ADR-008). Lần gửi sai chữ ký trả 401 nhưng vẫn được lưu `rejected`
+        chưa xác thực, không chặn sự kiện thật cùng `event_id`.
     operatorKey:
       type: apiKey
       in: header
@@ -1316,6 +1377,14 @@ components:
         created_at: { type: string, format: date-time }
         expires_at: { type: string, format: date-time }
         payable: { type: boolean, description: Tính từ state và database-authoritative expiry }
+        payment_status:
+          description: Trạng thái phiên thanh toán của đơn; null khi chưa mở phiên.
+          oneOf:
+            - { type: string, enum: [pending, unknown, succeeded, failed] }
+            - { type: 'null' }
+        reconciliation_required:
+          type: boolean
+          description: Có case đối soát đang mở (thanh toán đến muộn hoặc mâu thuẫn); không có nghĩa đơn đã được xác nhận.
 
     OrderPage:
       type: object
@@ -1394,7 +1463,10 @@ components:
         payment_session_id: { type: string, format: uuid }
         event_type: { type: string, enum: [succeeded, failed] }
         amount: { type: integer, format: int64, minimum: 1 }
-        currency: { type: string, const: VND }
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: Mismatches with the payment session are recorded as rejected events, not 422.
         occurred_at: { type: string, format: date-time }
 
     PaymentEventReceipt:

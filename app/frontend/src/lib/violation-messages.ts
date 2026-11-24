@@ -17,6 +17,13 @@ const fieldLabels: Record<string, string> = {
   version: 'Phiên bản dòng giỏ hàng',
   body: 'Dữ liệu gửi lên',
   cursor: 'Trang tiếp theo',
+  payment_session_id: 'Phiên thanh toán',
+  event_type: 'Kết quả',
+  delay_ms: 'Độ trễ',
+  repeat_count: 'Số lần gửi lặp',
+  signature_mode: 'Chữ ký',
+  amount_override: 'Số tiền ghi đè',
+  currency_override: 'Tiền tệ ghi đè',
 }
 
 /** Server reasons are English, stable phrases; match by substring and translate. */
