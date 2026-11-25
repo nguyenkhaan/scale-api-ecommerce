@@ -38,33 +38,13 @@ func previewInSnapshot(tx *gorm.DB, userID string, selection CheckoutSelection) 
 	if err != nil {
 		return CheckoutPreviewResponse{}, err
 	}
-
-	var (
-		responses  = make([]CheckoutLineResponse, 0, len(lines))
-		lineErrors []problem.LineProblem
-		total      int64
-	)
-	for _, line := range lines {
-		unitPrice, lineProblem := evaluateLine(line, contexts[line.ID], now)
-		if lineProblem != nil {
-			lineErrors = append(lineErrors, *lineProblem)
-			continue
-		}
-		subtotal := unitPrice * int64(line.Quantity)
-		total += subtotal
-		responses = append(responses, CheckoutLineResponse{
-			CartItemID:      line.ID,
-			CartItemVersion: line.Version,
-			SKUID:           line.SKUID,
-			Quantity:        line.Quantity,
-			UnitPrice:       unitPrice,
-			Subtotal:        subtotal,
-			PriceSource:     line.PriceSource,
-			FlashSaleItemID: line.FlashSaleItemID,
-		})
-	}
+	quoted, total, lineErrors := quoteLines(lines, contexts, now)
 	if len(lineErrors) > 0 {
 		return CheckoutPreviewResponse{}, &LineErrors{Lines: lineErrors}
+	}
+	responses := make([]CheckoutLineResponse, len(quoted))
+	for i, line := range quoted {
+		responses[i] = line.CheckoutLineResponse
 	}
 	return CheckoutPreviewResponse{
 		Currency:    "VND",
@@ -78,16 +58,28 @@ func previewInSnapshot(tx *gorm.DB, userID string, selection CheckoutSelection) 
 // the lines in selection order. Unknown ids yield a 422 that cannot reveal other customers' carts;
 // a stale version yields ErrCartItemChanged before any line is judged.
 func loadSelectedLines(tx *gorm.DB, userID string, selection CheckoutSelection) ([]selectedLine, error) {
+	return selectedLines(tx, userID, selection, false)
+}
+
+func loadSelectedLinesForUpdate(tx *gorm.DB, userID string, selection CheckoutSelection) ([]selectedLine, error) {
+	return selectedLines(tx, userID, selection, true)
+}
+
+func selectedLines(tx *gorm.DB, userID string, selection CheckoutSelection, lock bool) ([]selectedLine, error) {
 	ids := make([]string, len(selection.Items))
 	for i, item := range selection.Items {
 		ids[i] = item.CartItemID
 	}
 	var rows []selectedLine
-	err := tx.Raw(`
+	query := `
 		SELECT ci.id, ci.sku_id, ci.quantity, ci.version, ci.intended_price_source, ci.flash_sale_item_id
 		FROM cart_items ci
 		JOIN carts c ON c.id = ci.cart_id AND c.user_id = ? AND c.status = 'active'
-		WHERE ci.id IN ?`, userID, ids).Scan(&rows).Error
+		WHERE ci.id IN ?`
+	if lock {
+		query += ` ORDER BY ci.id FOR UPDATE OF ci`
+	}
+	err := tx.Raw(query, userID, ids).Scan(&rows).Error
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package cart
 
 import (
+	"encoding/json"
 	"time"
 
 	"cloudian/cloudian-scale/internal/model"
@@ -9,14 +10,15 @@ import (
 
 // skuInfo is the purchasable state of a SKU: its own and its product/category availability plus stock.
 type skuInfo struct {
-	ID                  string `gorm:"column:id"`
-	Code                string `gorm:"column:code"`
-	ProductName         string `gorm:"column:product_name"`
-	RegularPrice        int64  `gorm:"column:regular_price"`
-	MaxQuantityPerOrder int    `gorm:"column:max_quantity_per_order"`
-	Available           bool   `gorm:"column:available"`
-	OnHand              int64  `gorm:"column:on_hand"`
-	Reserved            int64  `gorm:"column:reserved"`
+	ID                  string          `gorm:"column:id"`
+	Code                string          `gorm:"column:code"`
+	ProductName         string          `gorm:"column:product_name"`
+	Attributes          json.RawMessage `gorm:"column:attributes"`
+	RegularPrice        int64           `gorm:"column:regular_price"`
+	MaxQuantityPerOrder int             `gorm:"column:max_quantity_per_order"`
+	Available           bool            `gorm:"column:available"`
+	OnHand              int64           `gorm:"column:on_hand"`
+	Reserved            int64           `gorm:"column:reserved"`
 }
 
 // flashInfo is a flash sale item together with its campaign window.
@@ -57,7 +59,7 @@ func loadSKUInfos(db *gorm.DB, skuIDs []string) (map[string]skuInfo, error) {
 	}
 	var rows []skuInfo
 	err := db.Raw(`
-		SELECT s.id, s.code, p.name AS product_name, s.regular_price, s.max_quantity_per_order,
+		SELECT s.id, s.code, p.name AS product_name, s.attributes, s.regular_price, s.max_quantity_per_order,
 		       (s.status = 'active' AND p.status = 'active' AND (c.id IS NULL OR c.is_visible)) AS available,
 		       COALESCE(i.on_hand, 0) AS on_hand, COALESCE(i.reserved, 0) AS reserved
 		FROM skus s
