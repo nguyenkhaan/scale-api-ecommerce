@@ -24,6 +24,8 @@ const (
 	CodeSaleScheduleOverlap     = "SALE_SCHEDULE_OVERLAP"
 	CodeCartItemChanged         = "CART_ITEM_CHANGED"
 	CodeOrderNotPayable         = "ORDER_NOT_PAYABLE"
+	CodeIdempotencyConflict     = "IDEMPOTENCY_CONFLICT"
+	CodeIdempotencyInProgress   = "IDEMPOTENCY_IN_PROGRESS"
 
 	// Line-level checkout codes, highest priority first (BR-24).
 	CodeItemUnavailable       = "ITEM_UNAVAILABLE"
@@ -70,12 +72,24 @@ func Abort(context *gin.Context, status int, code, detail string) {
 // AbortLineErrors rejects a whole multi-line request (409) and reports every failing line.
 // The top-level code is the most severe line code so clients that only read `code` still act correctly.
 func AbortLineErrors(context *gin.Context, detail string, lineErrors []LineProblem) {
-	write(context, Problem{
-		Status:     http.StatusConflict,
-		Code:       mostSevereLineCode(lineErrors),
-		Detail:     detail,
-		LineErrors: lineErrors,
-	})
+	write(context, LineErrorsProblem(detail, lineErrors))
+}
+
+func LineErrorsProblem(detail string, lineErrors []LineProblem) Problem {
+	body := CodeProblem(http.StatusConflict, mostSevereLineCode(lineErrors), detail)
+	body.LineErrors = lineErrors
+	return body
+}
+
+func CodeProblem(status int, code, detail string) Problem {
+	return Problem{Type: "about:blank", Title: http.StatusText(status), Status: status, Code: code, Detail: detail}
+}
+
+func WriteRaw(context *gin.Context, status int, contentType string, body []byte, headers map[string]string) {
+	for name, value := range headers {
+		context.Header(name, value)
+	}
+	context.Data(status, contentType, body)
 }
 
 var lineCodeSeverity = map[string]int{
