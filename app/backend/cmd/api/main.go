@@ -64,6 +64,10 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	checkoutService, err := order.NewCheckoutService(postgresDatabase.ORM(), order.NewCheckoutCounters())
+	if err != nil {
+		return err
+	}
 	paymentService, err := newPaymentService(postgresDatabase.ORM())
 	if err != nil {
 		return err
@@ -77,6 +81,7 @@ func run() error {
 		FlashSaleService: flashSaleService,
 		CartService:      cartService,
 		OrderQueries:     orderQueries,
+		CheckoutService:  checkoutService,
 		PaymentService:   paymentService,
 		SecureCookies:    !config.IsLocalEnvironment(applicationConfig.Env),
 	})

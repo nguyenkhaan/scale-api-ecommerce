@@ -14,6 +14,7 @@ import (
 	"cloudian/cloudian-scale/internal/module/cart"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -53,7 +54,8 @@ func (s *CheckoutService) PlaceOrder(ctx context.Context, input PlaceOrderInput)
 	var result PlaceOrderResult
 	var recordedCode string
 	requestHash := CanonicalRequestHash(input.Request)
-	err := s.database.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	checkoutDatabase := s.database.Session(&gorm.Session{Logger: logger.Discard}).WithContext(ctx)
+	err := checkoutDatabase.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec(`SET LOCAL lock_timeout = '2s'`).Error; err != nil {
 			return fmt.Errorf("set checkout lock timeout: %w", err)
 		}
@@ -219,7 +221,7 @@ func (s *CheckoutService) resolveExistingAttempt(ctx context.Context, input Plac
 		ResponseBody   *string      `gorm:"column:response_body"`
 		CompletedAt    sql.NullTime `gorm:"column:completed_at"`
 	}
-	query := s.database.WithContext(ctx).Raw(`SELECT request_hash, response_status, response_body::text AS response_body, completed_at
+	query := s.database.Session(&gorm.Session{Logger: logger.Discard}).WithContext(ctx).Raw(`SELECT request_hash, response_status, response_body::text AS response_body, completed_at
 		FROM idempotency_records WHERE user_id = ? AND operation = 'place_order' AND idempotency_key = ?`,
 		input.UserID, input.IdempotencyKey).Scan(&record)
 	if query.Error != nil {

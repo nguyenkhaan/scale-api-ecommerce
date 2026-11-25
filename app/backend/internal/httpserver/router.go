@@ -23,6 +23,7 @@ type Dependencies struct {
 	FlashSaleService *flashsale.Service
 	CartService      *cart.Service
 	OrderQueries     *order.OrderQueries
+	CheckoutService  *order.CheckoutService
 	PaymentService   *payment.Service
 	SecureCookies    bool
 }
@@ -66,6 +67,9 @@ func NewRouter(dependencies Dependencies) *gin.Engine {
 	}
 	if dependencies.OrderQueries != nil {
 		order.RegisterOrderRoutes(api, order.NewOrdersController(dependencies.OrderQueries), requireSession)
+	}
+	if dependencies.CheckoutService != nil {
+		order.RegisterCheckoutRoutes(api, order.NewCheckoutController(dependencies.CheckoutService), requireSession)
 	}
 	if dependencies.PaymentService != nil {
 		payment.RegisterRoutes(api, payment.NewController(dependencies.PaymentService), requireSession, requireAdmin)

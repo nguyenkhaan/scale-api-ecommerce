@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var ErrAttemptNotFound = errors.New("checkout attempt not found")
@@ -16,7 +18,7 @@ func (s *CheckoutService) LookupAttempt(ctx context.Context, userID, key string)
 		ResponseBody   *string      `gorm:"column:response_body"`
 		CompletedAt    sql.NullTime `gorm:"column:completed_at"`
 	}
-	query := s.database.WithContext(ctx).Raw(`SELECT idempotency_key, response_status, response_body::text AS response_body, completed_at
+	query := s.database.Session(&gorm.Session{Logger: logger.Discard}).WithContext(ctx).Raw(`SELECT idempotency_key, response_status, response_body::text AS response_body, completed_at
 		FROM idempotency_records WHERE user_id = ? AND operation = 'place_order' AND idempotency_key = ?`, userID, key).
 		Scan(&row)
 	if query.Error != nil {

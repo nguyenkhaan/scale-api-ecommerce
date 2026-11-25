@@ -86,6 +86,24 @@ func TestRequestLogFormatterIncludesIDWithoutSecrets(t *testing.T) {
 	}
 }
 
+func TestRequestLogFormatterRedactsOrderAndIdempotencyPathValues(t *testing.T) {
+	const orderID = "9c4cf1c0-1533-4f31-b185-386d6834b36b"
+	const idempotencyKey = "private-idempotency-key-01"
+	for _, path := range []string{
+		"/api/orders/" + orderID + "/payment-session",
+		"/api/idempotency/orders/" + idempotencyKey,
+	} {
+		request := httptest.NewRequest(http.MethodGet, path, nil)
+		line := middleware.RequestLogFormatter(gin.LogFormatterParams{
+			Request: request, TimeStamp: time.Now(), StatusCode: http.StatusOK,
+			Method: http.MethodGet, Path: path,
+		})
+		if strings.Contains(line, orderID) || strings.Contains(line, idempotencyKey) {
+			t.Errorf("log line exposes a path value: %q", line)
+		}
+	}
+}
+
 func serveRequestWithID(t *testing.T, incomingRequestID string) (*httptest.ResponseRecorder, string) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)

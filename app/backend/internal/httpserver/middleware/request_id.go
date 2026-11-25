@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"uuid"
 
 	"github.com/gin-gonic/gin"
@@ -46,7 +47,18 @@ func RequestLogFormatter(parameters gin.LogFormatterParams) string {
 		parameters.StatusCode,
 		parameters.Latency,
 		parameters.Method,
-		parameters.Path,
+		requestLogPath(parameters.Path),
 		requestID,
 	)
+}
+
+func requestLogPath(path string) string {
+	segments := strings.Split(path, "/")
+	if len(segments) >= 4 && segments[1] == "api" && segments[2] == "orders" && segments[3] != "" {
+		segments[3] = ":orderId"
+	}
+	if len(segments) >= 5 && segments[1] == "api" && segments[2] == "idempotency" && segments[3] == "orders" && segments[4] != "" {
+		segments[4] = ":idempotencyKey"
+	}
+	return strings.Join(segments, "/")
 }
