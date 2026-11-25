@@ -1,6 +1,5 @@
-import { useState } from 'react'
-
 import { Alert, Button, PriceBlock, StatusBadge, Surface } from '@/components/common'
+import { PlaceOrderSection, type PlaceOrderState } from '@/features/checkout/components/PlaceOrderSection'
 import type { PreviewChange } from '@/features/cart/cart.logic'
 import type { CartItem, CheckoutPreview } from '@/features/cart/cart.type'
 import { formatVND } from '@/lib/format'
@@ -15,11 +14,11 @@ type Props = {
   error: string | null
   onPreview: () => void
   onAcknowledge: () => void
+  placeOrder?: PlaceOrderState
 }
 
 export function CheckoutPreviewPanel(props: Props) {
   const { selectedCount, items, preview, changes, acknowledged, loading, error } = props
-  const [orderNote, setOrderNote] = useState(false)
   const lineName = (skuId: string) => items.find((item) => item.sku_id === skuId)?.product_name ?? 'Sản phẩm'
   const changeFor = (skuId: string) => changes.find((change) => change.sku_id === skuId)
   const canOrder = preview !== null && acknowledged
@@ -103,15 +102,8 @@ export function CheckoutPreviewPanel(props: Props) {
         <Button loading={loading} disabled={selectedCount === 0} onClick={props.onPreview} className="w-full">
           Xem trước thanh toán
         </Button>
-        <Button variant="secondary" disabled={!canOrder} onClick={() => setOrderNote(true)} className="w-full">
-          Đặt hàng (Phase 04)
-        </Button>
-        {orderNote && canOrder && (
-          <p role="status" className="text-center text-xs text-[var(--ss-color-muted)]">
-            Bước đặt hàng sẽ được bổ sung ở Phase 04. Giỏ hàng của bạn vẫn được giữ nguyên.
-          </p>
-        )}
       </div>
+      {canOrder && props.placeOrder && <PlaceOrderSection state={props.placeOrder} />}
     </Surface>
   )
 }

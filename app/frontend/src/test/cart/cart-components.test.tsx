@@ -21,8 +21,6 @@ const item: CartItem = {
   reference_unit_price: 90000,
 }
 const noop = () => {}
-const orderButtonDisabled = /disabled=""[^>]*>Đặt hàng \(Phase 04\)/
-
 describe('CartLineItem', () => {
   const render = (problem?: { message: string; code?: string }, source: CartItem['price_source'] = 'flash_sale') =>
     renderToStaticMarkup(
@@ -84,9 +82,9 @@ describe('CheckoutPreviewPanel', () => {
     newSource: 'flash_sale' as const,
   }
 
-  it('keeps the order button disabled until a preview exists', () => {
+  it('does not render the order form until a preview exists', () => {
     const markup = renderToStaticMarkup(<CheckoutPreviewPanel {...base} preview={null} changes={[]} acknowledged={false} />)
-    expect(markup).toMatch(orderButtonDisabled)
+    expect(markup).not.toContain('Đặt hàng')
   })
 
   it('requires acknowledging changed prices before enabling the order button', () => {
@@ -96,10 +94,10 @@ describe('CheckoutPreviewPanel', () => {
     expect(pending).toContain('Tôi đã xem giá mới')
     expect(pending).toContain('Giá đã đổi')
     expect(pending).toContain('data-price-source="flash_sale"')
-    expect(pending).toMatch(orderButtonDisabled)
+    expect(pending).not.toContain('Đặt hàng (Phase 04)')
     const done = renderToStaticMarkup(<CheckoutPreviewPanel {...base} preview={preview} changes={[change]} acknowledged />)
     expect(done).not.toContain('Tôi đã xem giá mới')
-    expect(done).not.toMatch(orderButtonDisabled)
+    expect(done).not.toContain('Đặt hàng (Phase 04)')
   })
 
   it('shows the failure summary text', () => {

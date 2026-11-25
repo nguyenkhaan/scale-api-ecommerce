@@ -4,21 +4,32 @@ import { Alert, FeedbackState, Surface } from '@/components/common'
 import { CartLineItem } from '@/features/cart/components/CartLineItem'
 import { CheckoutPreviewPanel } from '@/features/cart/components/CheckoutPreviewPanel'
 import { useCart, useCheckoutPreview, type CartState, type CheckoutPreviewState } from '@/features/cart/cart.hook'
+import type { LineError as CartLineError } from '@/features/cart/cart.type'
+import { usePlaceOrder } from '@/features/checkout/checkout.hook'
+import type { PlaceOrderState } from '@/features/checkout/components/PlaceOrderSection'
 
 const maxSkus = 20
 
 export function CartPage() {
   const cart = useCart()
   const checkout = useCheckoutPreview(cart)
-  return <CartPageView cart={cart} checkout={checkout} />
+  const placeOrder = usePlaceOrder({
+    preview: checkout.preview,
+    acknowledged: checkout.acknowledged,
+    onPriceChanged: () => void checkout.run(),
+    onCartChanged: () => void cart.reload(),
+    onRejected: (errors) => cart.applyLineErrors(errors.map((error) => ({ ...error, code: error.code as CartLineError['code'] }))),
+  })
+  return <CartPageView cart={cart} checkout={checkout} placeOrder={placeOrder} />
 }
 
 export type CartPageViewProps = {
   cart: CartState
   checkout: CheckoutPreviewState
+  placeOrder?: PlaceOrderState
 }
 
-export function CartPageView({ cart, checkout }: CartPageViewProps) {
+export function CartPageView({ cart, checkout, placeOrder }: CartPageViewProps) {
   const { items, selectedItems } = cart
 
   return (
@@ -110,6 +121,7 @@ export function CartPageView({ cart, checkout }: CartPageViewProps) {
               error={checkout.error}
               onPreview={() => void checkout.run()}
               onAcknowledge={checkout.acknowledge}
+              placeOrder={placeOrder}
             />
           </div>
         </div>
