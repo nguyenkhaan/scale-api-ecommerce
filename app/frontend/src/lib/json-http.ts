@@ -9,7 +9,12 @@ export type JsonHttpOptions = {
   readCookie?: (name: string) => string | null
 }
 
-type RequestSpec = { method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown }
+export type RequestSpec = {
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  body?: unknown
+  headers?: Record<string, string>
+  timeoutMs?: number
+}
 
 /** Cookie-session JSON transport: CSRF header on every non-GET, ApiError on non-2xx. */
 export function createJsonHttp(options: JsonHttpOptions) {
@@ -18,9 +23,11 @@ export function createJsonHttp(options: JsonHttpOptions) {
   const readCookie = options.readCookie ?? readDocumentCookie
 
   async function send(path: string, spec: RequestSpec): Promise<Response> {
-    const headers: Record<string, string> = { Accept: 'application/json' }
+    const headers: Record<string, string> = { Accept: 'application/json', ...spec.headers }
     if (spec.body !== undefined) headers['Content-Type'] = 'application/json'
     if (spec.method !== 'GET') headers['X-CSRF-Token'] = readCookie(csrfCookieName) ?? ''
+    const controller = spec.timeoutMs === undefined ? undefined : new AbortController()
+    const timeout = controller === undefined ? undefined : setTimeout(() => controller.abort(), spec.timeoutMs)
     let response: Response
     try {
       response = await fetcher(`${baseURL}${path}`, {
@@ -28,9 +35,12 @@ export function createJsonHttp(options: JsonHttpOptions) {
         credentials: 'include',
         headers,
         body: spec.body === undefined ? undefined : JSON.stringify(spec.body),
+        signal: controller?.signal,
       })
     } catch {
       throw networkError()
+    } finally {
+      if (timeout !== undefined) clearTimeout(timeout)
     }
     if (!response.ok) throw await errorFromResponse(response)
     return response
@@ -41,6 +51,14 @@ export function createJsonHttp(options: JsonHttpOptions) {
       const response = await send(path, spec)
       try {
         return (await response.json()) as T
+      } catch {
+        throw invalidResponseError(response)
+      }
+    },
+    async withHeaders<T>(path: string, spec: RequestSpec): Promise<{ data: T; headers: Headers }> {
+      const response = await send(path, spec)
+      try {
+        return { data: (await response.json()) as T, headers: response.headers }
       } catch {
         throw invalidResponseError(response)
       }
