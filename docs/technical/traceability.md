@@ -25,9 +25,9 @@
 | FR-010–FR-013 | P0 | DATA inventories, adjustments, reservations | admin inventories/adjustments | TEST-01–04, TEST-11–15, TEST-21 |
 | FR-014–FR-017 | P0 | DOMAIN FlashSale; DATA campaign/items/usage | admin flash-sales; preview/order | TEST-09, TEST-10, TEST-20 |
 | FR-018 | P1 | DOMAIN FlashSale transition | admin flash-sales stop | TEST-20 + P1 statistics acceptance |
-| FR-019–FR-022 | P0 | DOMAIN Cart; DATA carts/items | cart; checkout preview | TEST-08, TEST-25, HTTP contract |
+| FR-019–FR-022 | P0 | DOMAIN Cart; DATA carts/items | cart; checkout preview | TEST-08, TEST-25, `order_checkout_concurrency_test.go`, live preview HTTP contract |
 | FR-023 | P1 | DATA cart item version + order snapshot | cart/order boundary | TEST-25 |
-| FR-024–FR-029 | P0 | ARCH checkout; DOMAIN Idempotency; DATA order/reservation/idempotency | orders; idempotency lookup | TEST-01–10 |
+| FR-024–FR-029 | P0 | ARCH checkout; DOMAIN Idempotency; DATA order/reservation/idempotency | orders; idempotency lookup | TEST-01–10, `order_checkout_concurrency_test.go`, `order_checkout_payment_test.go`, frontend checkout tests |
 | FR-030–FR-035 | P0 | DOMAIN Payment; DATA sessions/events/reconciliation | payment session, simulator, callback | TEST-11–18 |
 | FR-036 | P1 | DATA reconciliation | admin payment-reconciliations | reconciliation acceptance |
 | FR-037–FR-040 | P0 | DOMAIN Order state; ARCH expiry worker | orders get/list/cancel; worker boundary | TEST-13–19 |
@@ -44,16 +44,16 @@ Các contract P1 được đánh dấu “cần chi tiết” phải được đ
 | Bất biến | Thiết kế bảo vệ | Test bắt buộc |
 |---|---|---|
 | INV-01 | Inventory check constraint + row lock | TEST-03, TEST-21 |
-| INV-02 | Reservation held ledger ↔ inventory.reserved | TEST-01–04, oracle SQL |
-| INV-03 | Một transaction tạo order/items/reservations | TEST-01, TEST-02, TEST-04 |
-| INV-04 | Rollback toàn bộ + stored business rejection | TEST-02, TEST-08, TEST-09, TEST-23 |
-| INV-05 | Unique idempotency identity + hash/response | TEST-05–07 |
+| INV-02 | Reservation held ledger ↔ inventory.reserved | TEST-01–04, `lifecycleRequireInvariants`, full backend race gate |
+| INV-03 | Một transaction tạo order/items/reservations | TEST-01, TEST-02, TEST-04, `TestCheckoutLastUnitsContention` |
+| INV-04 | Rollback toàn bộ + stored business rejection | TEST-02, TEST-08, TEST-09, TEST-23, reverse-order contention tests |
+| INV-05 | Unique idempotency identity + hash/response | TEST-05–07, frontend intent fingerprint tests |
 | INV-06 | Guarded terminal transition | TEST-11, TEST-12, TEST-14, TEST-15, TEST-19 |
 | INV-07 | Verified/unique payment event | TEST-11, TEST-17, TEST-18 |
 | INV-08 | Terminal order không còn HELD | TEST-12–16, TEST-19 |
-| INV-09 | Flash sale quota check constraint/counter | TEST-09 |
-| INV-10 | Locked customer usage counter | TEST-10 |
-| INV-11 | Integer money + order snapshot + payment equality | TEST-01, TEST-08, TEST-17 |
+| INV-09 | Flash sale quota check constraint/counter | TEST-09, `TestCheckoutPurchaseLimitAcrossKeys` |
+| INV-10 | Locked customer usage counter | TEST-10, `TestCheckoutPurchaseLimitAcrossKeys` |
+| INV-11 | Integer money + order snapshot + payment equality | TEST-01, TEST-08, TEST-17, `TestCheckoutOrderFlowsIntoPaymentSuccess` |
 | INV-12 | Inventory adjustment ledger và confirmed sold | TEST-03, TEST-11, oracle SQL |
 
 ## Non-functional requirements

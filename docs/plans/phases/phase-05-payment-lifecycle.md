@@ -4,7 +4,7 @@
 
 **Trạng thái kiểm tra 22/11/2026:** Step 1–2 triển khai xong trên nhánh `feat/phase-05-payment-lifecycle`, làm song song với Phase 04 (checkout chưa merge): test và e2e tạo đơn chờ thanh toán bằng SQL đúng như checkout để lại. TECH-02 đã chốt (ADR-008); OPEN-02 vẫn mở. Backend 175 test (PostgreSQL), frontend 177 test, e2e qua API 28/28 bước, đã chạy hành trình thanh toán/hủy trên trình duyệt. Sau review đã sửa: deadlock giữa xác nhận đơn và checkout (khóa dòng giỏ trước inventory), xác nhận sau hạn khi chờ khóa (kiểm lại bằng `clock_timestamp()`), phiên thanh toán tạo trong lúc đơn đang bị hủy, worker kẹt sau đơn lỗi.
 
-**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `6/9`. Đã merge vào `dev` (PR #10). Route, `cmd/expiry-worker` và các trang FE `/orders`, `/orders/:id`, `/orders/:id/payment`, `/admin/payment-simulator` đều có. Step 3 chưa xong vì phụ thuộc checkout Phase 04 và metrics.
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `6/9`. Đã merge vào `dev` (PR #10). Route, `cmd/expiry-worker` và các trang FE `/orders`, `/orders/:id`, `/orders/:id/payment`, `/admin/payment-simulator` đều có. Checkout Phase 04 đã có trong code và automated gates, nhưng Step 3 chưa xong: live `DATABASE_URL` thiếu `payment_sessions` dù goose ghi migration `00010` applied, và môi trường hiện không có browser runner để chạy viewport checkpoint.
 
 ## Step 1 — Phiên và callback
 
@@ -29,8 +29,10 @@
 - [ ] BE: hoàn thiện metrics order/payment/expiry, seed/reset và oracle SQL đầy đủ.
   - Đã có: oracle SQL trong test, worker log số liệu mỗi chu kỳ. Còn lại: metrics Prometheus (cần chốt thêm dependency).
 - [ ] FE: chạy hành trình khách từ xem hàng tới kết quả đơn; kiểm trạng thái tải/lỗi.
-  - Chờ checkout (Phase 04) để nối giỏ → đặt đơn → thanh toán.
+- Chờ live schema repair và browser runner để nối giỏ → đặt đơn → thanh toán; automated checkout/payment handoff tests đã pass.
 - [ ] Checkpoint: `TEST-01–25` qua trong lab, INV-01–12 không vi phạm; mới được đo E0.
+
+**Bằng chứng checkout bổ sung 25/11/2026:** `go test ./test -race -count=1 -timeout 30m` pass (`906.658s`), frontend `bun test` pass (196 tests), typecheck/lint/build pass. Live migration status và seed chạy được trên `DATABASE_URL`; live preview regular + flash-sale pass, nhưng place-order trả `500 INTERNAL_ERROR` vì `payment_sessions` không tồn tại trong schema hiện tại.
 
 ## Việc checkout (Phase 04) cần làm để khớp Phase 05
 
