@@ -1,6 +1,7 @@
 package order
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -11,10 +12,15 @@ import (
 
 	"cloudian/cloudian-scale/internal/httpserver/problem"
 	"cloudian/cloudian-scale/internal/module/cart"
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
-var errIdempotencyExists = errors.New("idempotency record already exists")
+var (
+	errIdempotencyExists     = errors.New("idempotency record already exists")
+	ErrIdempotencyConflict   = errors.New("idempotency key was used with a different request")
+	ErrIdempotencyInProgress = errors.New("idempotency request is still in progress")
+)
 
 type PlaceOrderInput struct {
 	UserID, IdempotencyKey, RequestID string
@@ -134,13 +140,33 @@ func (s *CheckoutService) PlaceOrder(ctx context.Context, input PlaceOrderInput)
 		if err != nil {
 			return fmt.Errorf("encode created checkout order: %w", err)
 		}
-		if err := saveIdempotencyResponse(tx, input, http.StatusCreated, body); err != nil {
+		storedBody, err := saveIdempotencyResponse(tx, input, http.StatusCreated, body)
+		if err != nil {
 			return err
 		}
-		result = PlaceOrderResult{Status: http.StatusCreated, Body: body, Outcome: OutcomeCreated}
+		result = PlaceOrderResult{Status: http.StatusCreated, Body: storedBody, Outcome: OutcomeCreated}
 		return nil
 	}, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 	if err != nil {
+		if errors.Is(err, errIdempotencyExists) {
+			replayed, code, resolveErr := s.resolveExistingAttempt(ctx, input, requestHash)
+			if resolveErr == nil {
+				s.recorder.RecordCheckout(OutcomeReplayed, code)
+				return replayed, nil
+			}
+			err = resolveErr
+		}
+		if isLockNotAvailable(err) {
+			err = ErrIdempotencyInProgress
+		}
+		if errors.Is(err, ErrIdempotencyConflict) {
+			s.recorder.RecordCheckout(OutcomeConflict, problem.CodeIdempotencyConflict)
+			return PlaceOrderResult{}, err
+		}
+		if errors.Is(err, ErrIdempotencyInProgress) {
+			s.recorder.RecordCheckout(OutcomeInProgress, problem.CodeIdempotencyInProgress)
+			return PlaceOrderResult{}, err
+		}
 		s.recorder.RecordCheckout(OutcomeError, "")
 		return PlaceOrderResult{}, err
 	}
@@ -162,25 +188,72 @@ func (s *CheckoutService) persistRejection(
 	if err != nil {
 		return fmt.Errorf("encode checkout rejection: %w", err)
 	}
-	if err := saveIdempotencyResponse(tx, input, http.StatusConflict, encoded); err != nil {
+	storedBody, err := saveIdempotencyResponse(tx, input, http.StatusConflict, encoded)
+	if err != nil {
 		return err
 	}
-	*result = PlaceOrderResult{Status: http.StatusConflict, Body: encoded, Outcome: OutcomeRejected}
+	*result = PlaceOrderResult{Status: http.StatusConflict, Body: storedBody, Outcome: OutcomeRejected}
 	*recordedCode = body.Code
 	return nil
 }
 
-func saveIdempotencyResponse(tx *gorm.DB, input PlaceOrderInput, status int, body []byte) error {
-	update := tx.Exec(`UPDATE idempotency_records SET response_status = ?, response_body = ?::jsonb, completed_at = now()
-		WHERE user_id = ? AND operation = 'place_order' AND idempotency_key = ?`,
-		status, string(body), input.UserID, input.IdempotencyKey)
+func saveIdempotencyResponse(tx *gorm.DB, input PlaceOrderInput, status int, body []byte) ([]byte, error) {
+	var stored string
+	update := tx.Raw(`UPDATE idempotency_records SET response_status = ?, response_body = ?::jsonb, completed_at = now()
+		WHERE user_id = ? AND operation = 'place_order' AND idempotency_key = ?
+		RETURNING response_body::text`,
+		status, string(body), input.UserID, input.IdempotencyKey).Scan(&stored)
 	if update.Error != nil {
-		return fmt.Errorf("save checkout idempotency response: %w", update.Error)
+		return nil, fmt.Errorf("save checkout idempotency response: %w", update.Error)
 	}
 	if update.RowsAffected != 1 {
-		return fmt.Errorf("save checkout idempotency response: updated %d rows", update.RowsAffected)
+		return nil, fmt.Errorf("save checkout idempotency response: updated %d rows", update.RowsAffected)
 	}
-	return nil
+	return []byte(stored), nil
+}
+
+func (s *CheckoutService) resolveExistingAttempt(ctx context.Context, input PlaceOrderInput, requestHash [32]byte) (PlaceOrderResult, string, error) {
+	var record struct {
+		RequestHash    []byte       `gorm:"column:request_hash"`
+		ResponseStatus *int         `gorm:"column:response_status"`
+		ResponseBody   *string      `gorm:"column:response_body"`
+		CompletedAt    sql.NullTime `gorm:"column:completed_at"`
+	}
+	query := s.database.WithContext(ctx).Raw(`SELECT request_hash, response_status, response_body::text AS response_body, completed_at
+		FROM idempotency_records WHERE user_id = ? AND operation = 'place_order' AND idempotency_key = ?`,
+		input.UserID, input.IdempotencyKey).Scan(&record)
+	if query.Error != nil {
+		return PlaceOrderResult{}, "", fmt.Errorf("read existing checkout attempt: %w", query.Error)
+	}
+	if query.RowsAffected != 1 {
+		return PlaceOrderResult{}, "", errors.New("idempotency conflict row disappeared")
+	}
+	if !bytes.Equal(record.RequestHash, requestHash[:]) {
+		return PlaceOrderResult{}, problem.CodeIdempotencyConflict, ErrIdempotencyConflict
+	}
+	if !record.CompletedAt.Valid || record.ResponseStatus == nil || record.ResponseBody == nil {
+		return PlaceOrderResult{}, problem.CodeIdempotencyInProgress, ErrIdempotencyInProgress
+	}
+	code := checkoutStoredProblemCode([]byte(*record.ResponseBody))
+	return PlaceOrderResult{
+		Status: *record.ResponseStatus, Body: json.RawMessage(*record.ResponseBody),
+		Replayed: true, Outcome: OutcomeReplayed,
+	}, code, nil
+}
+
+func checkoutStoredProblemCode(body []byte) string {
+	var stored struct {
+		Code string `json:"code"`
+	}
+	if json.Unmarshal(body, &stored) == nil {
+		return stored.Code
+	}
+	return ""
+}
+
+func isLockNotAvailable(err error) bool {
+	var databaseError *pgconn.PgError
+	return errors.As(err, &databaseError) && databaseError.Code == "55P03"
 }
 
 func selectionFromRequest(request PlaceOrderRequest) cart.CheckoutSelection {
