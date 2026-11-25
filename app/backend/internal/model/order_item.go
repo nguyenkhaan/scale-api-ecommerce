@@ -14,6 +14,8 @@ type OrderItem struct {
 	Subtotal        int64           `gorm:"type:bigint;not null" json:"subtotal"`
 	PriceSource     string          `gorm:"type:text;not null" json:"price_source"`
 	FlashSaleItemID *string         `gorm:"type:uuid" json:"flash_sale_item_id"`
+	CartItemID      *string         `gorm:"type:uuid" json:"cart_item_id"`
+	CartItemVersion *int64          `gorm:"type:bigint" json:"cart_item_version"`
 }
 
 func (OrderItem) TableName() string { return "order_items" }
