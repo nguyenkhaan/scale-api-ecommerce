@@ -6,6 +6,8 @@
 
 > Các checkbox triển khai bên dưới thể hiện implementation và live/manual evidence; dedicated PostgreSQL integration checkpoint là mục riêng và vẫn để pending khi chưa có `TEST_DATABASE_URL`.
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `9/10`. Các hạng mục đã đánh dấu khớp với mã nguồn. Mục PostgreSQL integration vẫn để trống: chạy lại trên máy này được 61 test pass và 114 test skip vì chưa có `TEST_DATABASE_URL`.
+
 ## Step 1 — Chương trình flash sale
 
 - [x] BE: migration campaign/item/usage; tạo nháp, lên lịch, hủy lịch, dừng, chống chồng SKU và khóa cấu hình.

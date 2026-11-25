@@ -4,6 +4,8 @@
 
 **Trạng thái kiểm tra 27/10/2026:** Triển khai xong trên nhánh `feat/phase-01-identity`; còn phần quyền sở hữu của `TEST-24`, làm khi có tài nguyên thuộc khách (giỏ, đơn).
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** Hoàn thành `9/9`. Phần quyền sở hữu của `TEST-24` đã có test cho giỏ, đơn và phiên thanh toán.
+
 ## Step 1 — Đăng ký và đăng nhập
 
 - [x] BE: migration users/sessions; email chuẩn hóa, password hash, session token chỉ lưu hash, cookie an toàn.
@@ -19,9 +21,9 @@
   - Bằng chứng: `RequireSession` bắt buộc `X-CSRF-Token` cho mọi method không an toàn; `RequireRole`; logout revoke trong PostgreSQL. Quyền sở hữu: service lấy user ID từ `auth.CurrentIdentity`, áp dụng khi có giỏ/đơn. Admin seed giữ từ Phase 00 và đăng nhập được qua API.
 - [x] FE: route guard hiển thị phù hợp, gửi CSRF và logout; không coi route guard là quyền server.
   - Bằng chứng: `RequireAuth`, `RequireRole` (chỉ hiển thị); CSRF đọc từ cookie `salescale_csrf` nên vẫn logout được sau khi tải lại trang.
-- [ ] Kiểm: `TEST-24`, request qua hai API instance cùng session, logout có hiệu lực cả hai.
+- [x] Kiểm: `TEST-24`, request qua hai API instance cùng session, logout có hiệu lực cả hai.
   - Đạt: `TestSessionIsSharedAcrossInstancesAndLogoutAppliesToAll`, `TestLogoutRequiresCSRFAndRevokesSessionServerSide`; nửa admin route của `TEST-24` qua `TestCustomerCannotUseAdminRoute`.
-  - Còn lại: khách A đọc/sửa dữ liệu của khách B — kiểm khi có giỏ/đơn (Phase 03–05).
+  - Phần quyền sở hữu (rà soát 25/11/2026): `TestCheckoutPreviewDoesNotExposeOtherCustomersCarts`, `TestOrderListPagesNewestFirstForOwnerOnly`, `TestOrderDetailSnapshotAndOwnership`, `TestOrderCancelRequiresOwnerAndCSRF`, `TestPaymentSessionOfAnotherUsersOrderIsNotFound`. Các test này cần PostgreSQL (`TEST_DATABASE_URL`).
 
 ## Step 3 — Tích hợp
 

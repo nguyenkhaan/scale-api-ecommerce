@@ -2,6 +2,8 @@
 
 **Phụ thuộc:** 06–07. **Mục tiêu:** `FR-044–046`, `NFR-11–14`, nghiệm thu PRD mục 15.
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `0/9` — chưa triển khai. `Dockerfile` và `docker-compose.yaml` ở thư mục gốc đang rỗng; chưa có cấu hình AKS.
+
 ## Step 1 — Môi trường tái lập
 
 - [ ] BE: hoàn chỉnh Compose cho API/worker/PostgreSQL/Redis/RabbitMQ/metrics, migration và seed/reset có guard; cấu hình AKS theo ADR-006.

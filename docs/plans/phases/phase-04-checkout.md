@@ -2,6 +2,8 @@
 
 **Phụ thuộc:** 03. **Mục tiêu:** `FR-021–029`, `INV-01–05/09–11`, `TEST-01–10/25`. Đây là lát cắt rủi ro cao nhất.
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `0/9` — **chưa triển khai**. Chỉ có phần nền: migration `00009_create_orders.sql` (bảng `orders`, `order_items`, `inventory_reservations`, `idempotency_records`) và model GORM tương ứng, dùng chung với Phase 05. Chưa có endpoint đặt đơn (`POST /orders`), service giữ hàng hay xử lý idempotency key. Nút "Đặt hàng (Phase 04)" trên giỏ hàng vẫn bị khóa.
+
 ## Step 1 — Order và reservation
 
 - [ ] BE: migration order/items/reservations/idempotency; khóa SKU theo thứ tự ổn định; giữ đủ hoặc rollback toàn bộ.

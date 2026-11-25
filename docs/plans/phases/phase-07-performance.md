@@ -2,6 +2,8 @@
 
 **Phụ thuộc:** 05 để chạy E0; 06 để chạy E1. **Mục tiêu:** `PERF-01–09`, `LOAD-01–10`, `DEC-14/15`.
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `0/9` — chưa triển khai. Chưa có k6 workload, Redis cache hay rate limit theo nhóm route.
+
 ## Step 1 — E0 và tối ưu BE
 
 - [ ] BE: viết k6 workloads, seed/reset/oracle; đo E0 chỉ sau TEST-01–25, lưu commit/tài nguyên/pool/latency theo outcome.

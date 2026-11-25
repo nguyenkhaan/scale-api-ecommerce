@@ -4,6 +4,8 @@
 
 **Trạng thái kiểm tra 22/11/2026:** Step 1–2 triển khai xong trên nhánh `feat/phase-05-payment-lifecycle`, làm song song với Phase 04 (checkout chưa merge): test và e2e tạo đơn chờ thanh toán bằng SQL đúng như checkout để lại. TECH-02 đã chốt (ADR-008); OPEN-02 vẫn mở. Backend 175 test (PostgreSQL), frontend 177 test, e2e qua API 28/28 bước, đã chạy hành trình thanh toán/hủy trên trình duyệt. Sau review đã sửa: deadlock giữa xác nhận đơn và checkout (khóa dòng giỏ trước inventory), xác nhận sau hạn khi chờ khóa (kiểm lại bằng `clock_timestamp()`), phiên thanh toán tạo trong lúc đơn đang bị hủy, worker kẹt sau đơn lỗi.
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `6/9`. Đã merge vào `dev` (PR #10). Route, `cmd/expiry-worker` và các trang FE `/orders`, `/orders/:id`, `/orders/:id/payment`, `/admin/payment-simulator` đều có. Step 3 chưa xong vì phụ thuộc checkout Phase 04 và metrics.
+
 ## Step 1 — Phiên và callback
 
 - [x] BE: một payment session/đơn; simulator tạo success/failure/delay/duplicate; callback xác thực nguồn, phiên, tiền, event ID và lưu bền vững.

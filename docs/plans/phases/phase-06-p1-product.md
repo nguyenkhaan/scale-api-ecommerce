@@ -2,6 +2,8 @@
 
 **Phụ thuộc:** 05. Trước mỗi task, chi tiết hóa OpenAPI/traceability cho contract P1 chưa đủ. **Mục tiêu:** `FR-004/005/018/023/036/041/047–049`, `TEST-26–29`.
 
+**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `0/9` — chưa triển khai. Chưa có outbox, RabbitMQ, notification, category admin hay thống kê sale trong mã nguồn.
+
 ## Step 1 — Admin và cấu hình còn thiếu
 
 - [ ] BE: API category admin, cấu hình cửa hàng, thống kê sale, tìm đơn/đối soát và ghi chú; ghi rõ quyền, schema và test.
