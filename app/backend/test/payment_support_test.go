@@ -14,6 +14,8 @@ import (
 	"cloudian/cloudian-scale/internal/httpserver/middleware"
 	"cloudian/cloudian-scale/internal/model"
 	"cloudian/cloudian-scale/internal/module/auth"
+	"cloudian/cloudian-scale/internal/module/cart"
+	"cloudian/cloudian-scale/internal/module/order"
 	"cloudian/cloudian-scale/internal/module/payment"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -85,6 +87,46 @@ func newPaymentEnv(t *testing.T, mutate ...func(*payment.Config)) paymentEnv {
 	auth.RegisterRoutes(api, auth.NewController(authService, true), middleware.RequireSession(authService))
 	payment.RegisterRoutes(api, payment.NewController(service),
 		middleware.RequireSession(authService), middleware.RequireRole(model.RoleAdmin))
+	sender.router = engine
+	return paymentEnv{db: database, router: engine, sender: sender}
+}
+
+func newCheckoutPaymentEnv(t *testing.T) paymentEnv {
+	t.Helper()
+	database := openIntegrationDatabase(t).ORM()
+	authService, err := auth.NewService(database, bcrypt.MinCost)
+	if err != nil {
+		t.Fatalf("create auth service: %v", err)
+	}
+	cartService, err := cart.NewService(database)
+	if err != nil {
+		t.Fatalf("create cart service: %v", err)
+	}
+	queries, err := order.NewOrderQueries(database)
+	if err != nil {
+		t.Fatalf("create order queries: %v", err)
+	}
+	checkoutService, err := order.NewCheckoutService(database, order.NewCheckoutCounters())
+	if err != nil {
+		t.Fatalf("create checkout service: %v", err)
+	}
+	cfg := payment.Config{SimulatorEnabled: true, SimulatorSecret: paymentTestSecret, OperatorKey: paymentTestOperatorKey}
+	sender := &paymentRouterSender{delivered: make(chan paymentDelivered, 64)}
+	service, err := payment.NewService(database, cfg, sender)
+	if err != nil {
+		t.Fatalf("create payment service: %v", err)
+	}
+	gin.SetMode(gin.TestMode)
+	engine := gin.New()
+	engine.Use(middleware.RequestIDMiddleware())
+	api := engine.Group("/api")
+	requireSession := middleware.RequireSession(authService)
+	auth.RegisterRoutes(api, auth.NewController(authService, true), requireSession)
+	cart.RegisterRoutes(api, cart.NewController(cartService), requireSession)
+	order.RegisterOrderRoutes(api, order.NewOrdersController(queries), requireSession)
+	order.RegisterCheckoutRoutes(api, order.NewCheckoutController(checkoutService), requireSession)
+	payment.RegisterRoutes(api, payment.NewController(service), requireSession,
+		middleware.RequireRole(model.RoleAdmin))
 	sender.router = engine
 	return paymentEnv{db: database, router: engine, sender: sender}
 }

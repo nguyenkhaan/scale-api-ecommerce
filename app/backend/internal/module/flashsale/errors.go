@@ -49,6 +49,7 @@ func invalid(field, reason string) error {
 // PostgreSQL SQLSTATE values that map to business outcomes.
 const (
 	sqlStateForeignKeyViolation = "23503"
+	sqlStateIntegrityViolation  = "23001"
 	sqlStateCheckViolation      = "23514"
 )
 

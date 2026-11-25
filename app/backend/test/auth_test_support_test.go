@@ -2,12 +2,17 @@ package backend_test
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -17,12 +22,28 @@ import (
 	"cloudian/cloudian-scale/internal/migration"
 	"cloudian/cloudian-scale/internal/module/auth"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 const testPassword = "correct horse battery"
+
+const integrationDatabaseTruncate = "TRUNCATE cart_items, carts, inventory_adjustments, inventories, skus, products, categories, flash_sale_customer_usage, flash_sale_items, flash_sale_campaigns, login_throttles, sessions, users CASCADE"
+
+var integrationSchemaState struct {
+	sync.Mutex
+	admin            *database.Database
+	schemaName       string
+	connectionString string
+}
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+	cleanupIntegrationSchema()
+	os.Exit(code)
+}
 
 // newAuthRouterWithoutDatabase serves requests that must be rejected before any database access.
 func newAuthRouterWithoutDatabase(t *testing.T) *gin.Engine {
@@ -37,33 +58,122 @@ func newAuthRouterWithoutDatabase(t *testing.T) *gin.Engine {
 	return newAuthRouter(t, orm)
 }
 
-// openIntegrationDatabase migrates and empties the database named by TEST_DATABASE_URL.
+// openIntegrationDatabase migrates one isolated schema on DATABASE_URL and empties it per test.
 func openIntegrationDatabase(t *testing.T) *database.Database {
 	t.Helper()
-	connectionString := strings.TrimSpace(os.Getenv("TEST_DATABASE_URL"))
+	connectionString := strings.TrimSpace(os.Getenv("DATABASE_URL"))
 	if connectionString == "" {
-		t.Skip("set TEST_DATABASE_URL to run PostgreSQL integration tests")
+		_ = godotenv.Load("../.env")
+		connectionString = strings.TrimSpace(os.Getenv("DATABASE_URL"))
 	}
-	if connectionString == strings.TrimSpace(os.Getenv("DATABASE_URL")) {
-		t.Fatal("TEST_DATABASE_URL must name a dedicated test database because tests truncate it")
+	if connectionString == "" {
+		t.Skip("set DATABASE_URL or configure it in ../.env to run PostgreSQL integration tests")
 	}
+	testConnectionString := ensureIntegrationSchema(t, connectionString)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	testDatabase, err := database.Open(ctx, testConnectionString)
+	if err != nil {
+		t.Fatalf("open isolated integration schema: %v", err)
+	}
+	t.Cleanup(func() {
+		if err := testDatabase.Close(); err != nil {
+			t.Errorf("close isolated integration database: %v", err)
+		}
+	})
+	if err := testDatabase.ORM().Exec(integrationDatabaseTruncate).Error; err != nil {
+		t.Fatalf("truncate isolated integration schema: %v", err)
+	}
+	return testDatabase
+}
+
+func ensureIntegrationSchema(t *testing.T, connectionString string) string {
+	t.Helper()
+	integrationSchemaState.Lock()
+	defer integrationSchemaState.Unlock()
+	if integrationSchemaState.admin != nil {
+		return integrationSchemaState.connectionString
+	}
+
+	var schemaToken [16]byte
+	if _, err := rand.Read(schemaToken[:]); err != nil {
+		t.Fatalf("generate integration schema name: %v", err)
+	}
+	schemaName := "scalingapi_test_" + hex.EncodeToString(schemaToken[:])
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	testDatabase, err := database.Open(ctx, connectionString)
+	adminDatabase, err := database.Open(ctx, connectionString)
 	if err != nil {
-		t.Fatalf("open test database: %v", err)
+		t.Fatalf("open DATABASE_URL for isolated test schema: %v", err)
 	}
-	t.Cleanup(func() { testDatabase.Close() })
+	if _, err := adminDatabase.SQL().ExecContext(ctx, `CREATE SCHEMA "`+schemaName+`"`); err != nil {
+		adminDatabase.Close()
+		t.Fatalf("create isolated integration schema: %v", err)
+	}
+	testConnectionString, err := integrationSchemaConnectionString(connectionString, schemaName)
+	if err != nil {
+		_ = adminDatabase.Close()
+		t.Fatalf("configure isolated integration schema connection: %v", err)
+	}
+	testDatabase, err := database.Open(ctx, testConnectionString)
+	if err != nil {
+		_ = adminDatabase.Close()
+		t.Fatalf("open isolated integration schema: %v", err)
+	}
+	defer testDatabase.Close()
+	var currentSchema, searchPath string
+	if err := testDatabase.ORM().Raw("SELECT current_schema(), current_setting('search_path')").Row().Scan(&currentSchema, &searchPath); err != nil {
+		_ = adminDatabase.Close()
+		t.Fatalf("verify isolated integration schema: %v", err)
+	}
+	if currentSchema != schemaName {
+		_ = adminDatabase.Close()
+		t.Fatalf("integration connection selected schema %q with search_path %q, want isolated schema", currentSchema, searchPath)
+	}
 	if err := migration.Run(ctx, testDatabase.SQL(), migration.CommandUp); err != nil {
-		t.Fatalf("migrate test database: %v", err)
+		_ = adminDatabase.Close()
+		t.Fatalf("migrate isolated integration schema: %v", err)
 	}
-	if err := testDatabase.ORM().Exec(
-		"TRUNCATE cart_items, carts, inventory_adjustments, inventories, skus, products, categories, flash_sale_customer_usage, flash_sale_items, flash_sale_campaigns, login_throttles, sessions, users CASCADE",
-	).Error; err != nil {
-		t.Fatalf("truncate test database: %v", err)
+	var migratedTables int64
+	if err := testDatabase.ORM().Raw("SELECT count(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = 'orders'", schemaName).Scan(&migratedTables).Error; err != nil || migratedTables != 1 {
+		_ = adminDatabase.Close()
+		t.Fatalf("isolated integration schema was not migrated (orders tables = %d, err = %v)", migratedTables, err)
 	}
-	return testDatabase
+	integrationSchemaState.admin = adminDatabase
+	integrationSchemaState.schemaName = schemaName
+	integrationSchemaState.connectionString = testConnectionString
+	return testConnectionString
+}
+
+func cleanupIntegrationSchema() {
+	integrationSchemaState.Lock()
+	defer integrationSchemaState.Unlock()
+	if integrationSchemaState.admin == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, _ = integrationSchemaState.admin.SQL().ExecContext(ctx, `DROP SCHEMA IF EXISTS "`+integrationSchemaState.schemaName+`" CASCADE`)
+	_ = integrationSchemaState.admin.Close()
+}
+
+func integrationSchemaConnectionString(connectionString, schemaName string) (string, error) {
+	parsed, err := url.Parse(connectionString)
+	if err != nil {
+		return "", fmt.Errorf("parse DATABASE_URL: %w", err)
+	}
+	if parsed.Scheme != "postgres" && parsed.Scheme != "postgresql" {
+		return "", fmt.Errorf("DATABASE_URL must use a PostgreSQL URL")
+	}
+	// Neon pooler connections ignore startup search_path parameters; a direct connection to the
+	// same database is needed to keep each test's schema isolated across the connection pool.
+	parsed.Host = strings.Replace(parsed.Host, "-pooler.", ".", 1)
+	query := parsed.Query()
+	query.Set("options", "-c search_path="+schemaName)
+	parsed.RawQuery = strings.ReplaceAll(query.Encode(), "+", "%20")
+	return parsed.String(), nil
 }
 
 func newAuthRouter(t *testing.T, orm *gorm.DB) *gin.Engine {

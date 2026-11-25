@@ -1,6 +1,7 @@
 package flashsale
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -106,7 +107,9 @@ func syncItems(tx *gorm.DB, campaignID string, wanted []CreateFlashSaleItem) err
 	if len(removed) > 0 {
 		err := tx.Exec(`DELETE FROM flash_sale_items WHERE campaign_id = ? AND sku_id IN ?`, campaignID, removed).Error
 		if err != nil {
-			if pgErrorCode(err) == sqlStateForeignKeyViolation {
+			if pgErrorCode(err) == sqlStateForeignKeyViolation ||
+				pgErrorCode(err) == sqlStateIntegrityViolation ||
+				errors.Is(err, gorm.ErrForeignKeyViolated) {
 				return stateConflict("An item cannot be removed because carts or customer usage still reference it.")
 			}
 			return fmt.Errorf("delete removed items: %w", err)
