@@ -11,6 +11,12 @@ export function AdminPage() {
       
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Surface as="article" className="p-4">
+          <Link to="/admin/products" className="block min-h-11 text-[var(--ss-color-primary-strong)] hover:underline">
+            <h2 className="text-lg font-semibold">Sản phẩm và SKU</h2>
+            <p className="mt-2 text-xs text-[var(--ss-color-muted)]">Tạo sản phẩm, cập nhật thông tin và quản lý các phiên bản đang bán.</p>
+          </Link>
+        </Surface>
+        <Surface as="article" className="p-4">
         <Link
           to="/admin/flash-sales"
           className="block min-h-11 text-[var(--ss-color-primary-strong)] hover:underline"

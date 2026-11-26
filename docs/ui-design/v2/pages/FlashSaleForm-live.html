@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chương trình – đang diễn ra – SaleScale Quản trị</title>
+<meta name="description" content="Chương trình Flash Sale 10.10: thông tin, SKU tham gia và thống kê.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/admin.css">
+</head>
+<body>
+<div class="admin">
+  <nav class="admin-nav" aria-label="Quản trị">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Quản trị</small></span></a>
+    <div class="nav-sec"><h4>Bán hàng</h4>
+      <a class="nav-link" href="AdminProducts.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M10 2 3 5.5v9L10 18l7-3.5v-9z"/><path d="M3 5.5 10 9l7-3.5M10 9v9"/></svg>Sản phẩm<span class="count">48</span></a>
+      <a class="nav-link" href="Inventory.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m10 2.5 7.5 4-7.5 4-7.5-4z"/><path d="m2.5 10 7.5 4 7.5-4M2.5 13.5l7.5 4 7.5-4"/></svg>Tồn kho</a>
+      <a class="nav-link active" href="AdminFlashSales.html" aria-current="page"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M11.5 1.5 4 11h5.5l-1 7.5L16 9h-5.5z"/></svg>Flash sale<span class="count">3</span></a>
+    </div>
+    <div class="nav-sec"><h4>Vận hành</h4>
+      <a class="nav-link" href="#"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10M3 5h.01M3 10h.01M3 15h.01"/></svg>Đơn hàng</a>
+      <a class="nav-link" href="#"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="4.5" width="16" height="11" rx="2"/><path d="M2 8.5h16"/></svg>Mô phỏng thanh toán</a>
+      <a class="nav-link" href="#"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10.3V3h7.3l7.7 7.7-7.3 7.3z"/><circle cx="6.5" cy="7" r="1.2"/></svg>Danh mục</a>
+    </div>
+    <div class="nav-foot"><a href="Main.html" style="display:inline-flex;gap:6px;align-items:center;color:var(--brand)"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7 9M11 9.5v3.5H3V5h3.5"/></svg>Xem trang khách hàng</a><span>Giờ hệ thống 20:35:30</span></div>
+  </nav>
+  <div>
+    <header class="admin-top">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="aq">Tìm trong quản trị</label><input id="aq" placeholder="Tìm chương trình flash sale…"></div>
+      <div class="admin-user"><span class="avatar" aria-hidden="true">AD</span><span>admin@salescale.vn</span><a class="btn btn-sm" href="Auth.html">Đăng xuất</a></div>
+    </header>
+    <main class="admin-body">
+      <nav class="breadcrumb adm-crumbs" aria-label="Đường dẫn"><a href="AdminFlashSales.html">Flash sale</a><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg><span aria-current="page">Flash Sale 10.10</span></nav>
+      <div class="admin-head adm-head">
+        <div><h1>Flash Sale 10.10 <span class="badge badge-sale-soft">Đang diễn ra</span></h1><p>20:00, 10/10/2026 – 22:00, 10/10/2026 · 4 SKU</p></div>
+        <div class="actions"><button class="btn adm-btn-danger" type="button" aria-haspopup="dialog"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 4v8 M10 4v8"/></svg>Dừng nhận đơn</button></div>
+      </div>
+      
+      <section class="kpis" aria-label="Tổng quan chương trình">
+        <div class="kpi"><span>Đã bán</span><b>78<em class="adm-of">/130 suất</em></b><small>60% tổng quota</small></div>
+        <div class="kpi"><span>Đang giữ cho đơn chờ thanh toán</span><b>11</b><small>Đơn đã giữ hàng vẫn được thanh toán tới hạn</small></div>
+        <div class="kpi"><span>Kết thúc sau</span><div class="adm-kpi-timer"><span class="countdown num" role="timer" aria-label="Còn 01 giờ 24 phút 30 giây"><span>01</span>:<span>24</span>:<span>30</span></span></div><small>22:00, 10/10/2026 · theo giờ hệ thống</small></div>
+        <div class="kpi"><span>SKU tham gia</span><b>4</b><small>0 SKU đã hết suất</small></div>
+      </section>
+      <form class="adm-form" action="#" novalidate>
+      <section class="panel" aria-labelledby="fsf-info">
+        <div class="panel-head adm-ph"><h2 class="panel-title" id="fsf-info">Thông tin chương trình</h2><span class="adm-locknote"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg>Đang diễn ra · không sửa được</span></div>
+        <div class="adm-grid adm-grid-fs">
+          <div class="adm-field ">
+            <label for="fsf-name">Tên chương trình <span class="adm-req" aria-hidden="true">*</span></label>
+            <input id="fsf-name" class="input" type="text" value="Flash Sale 10.10" required disabled>
+            
+          </div>
+          <div class="adm-field ">
+            <label for="fsf-start">Giờ bắt đầu <span class="adm-req" aria-hidden="true">*</span></label>
+            <input id="fsf-start" class="input" type="text" value="20:00, 10/10/2026" required disabled>
+            
+          </div>
+          <div class="adm-field ">
+            <label for="fsf-end">Giờ kết thúc <span class="adm-req" aria-hidden="true">*</span></label>
+            <input id="fsf-end" class="input" type="text" value="22:00, 10/10/2026" required disabled>
+            
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="fsf-skus">
+        <div class="panel-head adm-ph"><h2 class="panel-title" id="fsf-skus">SKU tham gia <span class="adm-count">4</span></h2><span class="adm-locknote"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg>Giá, quota và giới hạn mua đã khoá</span></div>
+        <ul class="adm-rules"><li>Giá flash sale phải nhỏ hơn giá thường.</li><li>Mỗi SKU chỉ xuất hiện một lần trong chương trình.</li></ul>
+        <div class="table-wrap">
+          <table class="table adm-cards adm-skutable">
+            <thead><tr><th scope="col">SKU</th><th scope="col">Giá flash sale (₫)</th><th scope="col" class="r">Quota</th><th scope="col">Giới hạn mỗi tài khoản</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody>
+              <tr>
+                <td data-label="SKU"><div class="prod-cell adm-skucell"><div class="thumb"><img src="../assets/img/tshirt-black.svg" alt=""></div><div><b><code class="adm-sku">AT-DEN-M</code> · Áo thun basic · Đen / M</b><small>Giá thường 199.000 ₫</small></div></div></td>
+                <td data-label="Giá flash sale"><span class="adm-fsprice">129.000 ₫</span><small class="adm-disc">Giảm 35%</small></td>
+                <td data-label="Quota" class="r">50</td>
+                <td data-label="Giới hạn mỗi tài khoản">2 sản phẩm</td>
+                <td class="adm-cell-act adm-cell-abs"><span class="adm-lockcell" title="Đã khoá"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg><span class="sr-only">Đã khoá</span></span></td>
+              </tr>
+              <tr>
+                <td data-label="SKU"><div class="prod-cell adm-skucell"><div class="thumb"><img src="../assets/img/tshirt-black.svg" alt=""></div><div><b><code class="adm-sku">AT-DEN-L</code> · Áo thun basic · Đen / L</b><small>Giá thường 199.000 ₫</small></div></div></td>
+                <td data-label="Giá flash sale"><span class="adm-fsprice">129.000 ₫</span><small class="adm-disc">Giảm 35%</small></td>
+                <td data-label="Quota" class="r">30</td>
+                <td data-label="Giới hạn mỗi tài khoản">2 sản phẩm</td>
+                <td class="adm-cell-act adm-cell-abs"><span class="adm-lockcell" title="Đã khoá"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg><span class="sr-only">Đã khoá</span></span></td>
+              </tr>
+              <tr>
+                <td data-label="SKU"><div class="prod-cell adm-skucell"><div class="thumb"><img src="../assets/img/tshirt-white.svg" alt=""></div><div><b><code class="adm-sku">AT-TRANG-M</code> · Áo thun basic · Trắng / M</b><small>Giá thường 199.000 ₫</small></div></div></td>
+                <td data-label="Giá flash sale"><span class="adm-fsprice">129.000 ₫</span><small class="adm-disc">Giảm 35%</small></td>
+                <td data-label="Quota" class="r">30</td>
+                <td data-label="Giới hạn mỗi tài khoản">2 sản phẩm</td>
+                <td class="adm-cell-act adm-cell-abs"><span class="adm-lockcell" title="Đã khoá"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg><span class="sr-only">Đã khoá</span></span></td>
+              </tr>
+              <tr>
+                <td data-label="SKU"><div class="prod-cell adm-skucell"><div class="thumb"><img src="../assets/img/headphones.svg" alt=""></div><div><b><code class="adm-sku">TN-X2-DEN</code> · Tai nghe Bluetooth X2 · Đen</b><small>Giá thường 890.000 ₫</small></div></div></td>
+                <td data-label="Giá flash sale"><span class="adm-fsprice">590.000 ₫</span><small class="adm-disc">Giảm 34%</small></td>
+                <td data-label="Quota" class="r">20</td>
+                <td data-label="Giới hạn mỗi tài khoản">1 sản phẩm</td>
+                <td class="adm-cell-act adm-cell-abs"><span class="adm-lockcell" title="Đã khoá"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg><span class="sr-only">Đã khoá</span></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+      </section>
+      </form>
+
+      <section class="panel" aria-labelledby="fsf-stats">
+        <div class="panel-head adm-ph"><h2 class="panel-title" id="fsf-stats">Thống kê theo SKU</h2><span class="muted adm-small">Cập nhật theo giờ hệ thống 20:35:30</span></div>
+        <div class="table-wrap"><table class="table adm-cards">
+            <thead><tr><th scope="col">SKU</th><th scope="col" class="r">Quota</th><th scope="col" class="r">Đang giữ</th><th scope="col" class="r">Đã bán</th><th scope="col">Tiến độ</th></tr></thead>
+            <tbody>
+              <tr><td data-label="SKU"><code class="adm-sku">AT-DEN-M</code> · Áo thun basic · Đen / M</td><td data-label="Quota" class="r">50</td><td data-label="Đang giữ" class="r">6</td><td data-label="Đã bán" class="r"><b>31</b></td><td data-label="Tiến độ"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 31 trên 50 suất"><i style="width:62%"></i></div><span class="quota-label">Đã bán <b>31</b>/50 suất</span></div></div></td></tr>
+              <tr><td data-label="SKU"><code class="adm-sku">AT-DEN-L</code> · Áo thun basic · Đen / L</td><td data-label="Quota" class="r">30</td><td data-label="Đang giữ" class="r">2</td><td data-label="Đã bán" class="r"><b>18</b></td><td data-label="Tiến độ"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 18 trên 30 suất"><i style="width:60%"></i></div><span class="quota-label">Đã bán <b>18</b>/30 suất</span></div></div></td></tr>
+              <tr><td data-label="SKU"><code class="adm-sku">AT-TRANG-M</code> · Áo thun basic · Trắng / M</td><td data-label="Quota" class="r">30</td><td data-label="Đang giữ" class="r">0</td><td data-label="Đã bán" class="r"><b>12</b></td><td data-label="Tiến độ"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 12 trên 30 suất"><i style="width:40%"></i></div><span class="quota-label">Đã bán <b>12</b>/30 suất</span></div></div></td></tr>
+              <tr><td data-label="SKU"><code class="adm-sku">TN-X2-DEN</code> · Tai nghe Bluetooth X2 · Đen</td><td data-label="Quota" class="r">20</td><td data-label="Đang giữ" class="r">3</td><td data-label="Đã bán" class="r"><b>17</b></td><td data-label="Tiến độ"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 17 trên 20 suất"><i style="width:85%"></i></div><span class="quota-label"><b>Sắp hết</b> · còn 3 suất</span></div></div></td></tr>
+            </tbody>
+          </table></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="adm-scrim">
+  <div class="adm-modal" role="dialog" aria-modal="true" aria-labelledby="stop-title" aria-describedby="stop-desc">
+    <span class="adm-modal-icon" aria-hidden="true"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 4v8 M10 4v8"/></svg></span>
+    <h2 id="stop-title">Dừng nhận đơn cho Flash Sale 10.10?</h2>
+    <div id="stop-desc">
+      <p>Khách sẽ không đặt được đơn mới với giá flash sale nữa. <b>Thao tác này không hoàn tác được.</b></p>
+      <p class="adm-modal-note"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.3v3.8M8 4.9v.1"/></svg>Các đơn đã giữ hàng vẫn được thanh toán tới hạn.</p>
+    </div>
+    <div class="adm-modal-foot"><button class="btn" type="button" autofocus>Tiếp tục chạy</button><button class="btn adm-btn-danger-solid" type="button">Dừng nhận đơn</button></div>
+  </div>
+</div>
+</body>
+</html>

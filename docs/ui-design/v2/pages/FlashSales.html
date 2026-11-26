@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chương trình flash sale – SaleScale</title>
+<meta name="description" content="Danh sách chương trình flash sale đang diễn ra, sắp diễn ra và đã kết thúc.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q">Tìm sản phẩm</label><input id="q" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Minh Anh</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 3 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count">3</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html" aria-current="page"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header>
+<main class="container page">
+  <nav class="breadcrumb" aria-label="Đường dẫn"><a href="Main.html">Trang chủ</a><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg><span aria-current="page">Flash sale</span></nav>
+  <div class="panel cat-list-head">
+    <div class="cat-list-title"><span class="flash-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</span><h1>Chương trình</h1></div>
+    <nav class="cat-filter" aria-label="Lọc chương trình">
+      <a href="FlashSales.html" aria-current="true">Tất cả<span class="count">5</span></a>
+      <a href="#g-upcoming">Sắp diễn ra<span class="count">2</span></a>
+      <a href="#g-live">Đang diễn ra<span class="count">1</span></a>
+      <a href="#g-ended">Đã kết thúc<span class="count">2</span></a>
+    </nav>
+  </div>
+  <div class="notice notice-info cat-gap"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.3v3.8M8 4.9v.1"/></svg><span>Giờ bắt đầu, kết thúc và đồng hồ đếm ngược theo <b>giờ hệ thống</b>, không theo đồng hồ máy bạn. Suất sale chỉ được giữ khi đặt đơn thành công.</span></div>
+  <div class="cat-camp-list">
+  <section class="cat-camp-group" aria-labelledby="g-live">
+    <h2 class="cat-group-title" id="g-live">Đang diễn ra<span class="count">1</span></h2>
+    <article class="panel cat-camp cat-camp-live" aria-labelledby="camp-1010-live">
+    <div class="cat-camp-when"><b class="num">20:00 – 22:00</b><span><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>10/10</span></div>
+    <div class="cat-camp-main">
+      <div class="cat-camp-title"><h3 id="camp-1010-live">Flash Sale 10.10</h3><span class="badge badge-sale"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Đang diễn ra</span></div>
+      <div class="cat-camp-meta"><span>Bắt đầu: <b>20:00, 10/10/2026</b></span><span>Kết thúc: <b>22:00, 10/10/2026</b></span></div>
+      <div class="cat-camp-items"><div class="thumb"><img src="../assets/img/tshirt-black.svg" alt=""></div><div class="thumb"><img src="../assets/img/headphones.svg" alt=""></div><div class="thumb"><img src="../assets/img/powerbank.svg" alt=""></div><div class="thumb"><img src="../assets/img/airfryer.svg" alt=""></div><span class="cat-camp-more">+2</span><span class="cat-camp-sold">124/275 suất đã bán</span></div>
+    </div>
+    <div class="cat-camp-side"><div class="cat-camp-timer"><span class="muted">Kết thúc sau</span><span class="countdown num" role="timer" aria-label="Còn 01 giờ 24 phút 30 giây"><span>01</span>:<span>24</span>:<span>30</span></span></div><a class="btn btn-sale" href="FlashSaleDetail.html">Xem chương trình</a></div>
+  </article>
+  </section>
+  <section class="cat-camp-group" aria-labelledby="g-upcoming">
+    <h2 class="cat-group-title" id="g-upcoming">Sắp diễn ra<span class="count">2</span></h2>
+    <article class="panel cat-camp cat-camp-upcoming" aria-labelledby="camp-1110-upcoming">
+    <div class="cat-camp-when"><b class="num">09:00 – 11:00</b><span><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>11/10</span></div>
+    <div class="cat-camp-main">
+      <div class="cat-camp-title"><h3 id="camp-1110-upcoming">Gia dụng cuối tuần</h3><span class="badge badge-brand"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.3 1.5"/></svg>Sắp diễn ra</span></div>
+      <div class="cat-camp-meta"><span>Bắt đầu: <b>09:00, 11/10/2026</b></span><span>Kết thúc: <b>11:00, 11/10/2026</b></span></div>
+      <div class="cat-camp-items"><div class="thumb"><img src="../assets/img/airfryer.svg" alt=""></div><div class="thumb"><img src="../assets/img/bottle.svg" alt=""></div><div class="thumb"><img src="../assets/img/lamp.svg" alt=""></div><span class="cat-camp-more">+5</span><span class="cat-camp-sold">8 sản phẩm · 160 suất</span></div>
+    </div>
+    <div class="cat-camp-side"><div class="cat-camp-timer"><span class="muted">Mở sau</span><span class="countdown num" role="timer" aria-label="Còn 12 giờ 24 phút 30 giây"><span>12</span>:<span>24</span>:<span>30</span></span></div><a class="btn btn-outline-brand" href="FlashSaleDetail-upcoming.html">Xem chương trình</a></div>
+  </article>
+    <article class="panel cat-camp cat-camp-upcoming" aria-labelledby="camp-1510-upcoming">
+    <div class="cat-camp-when"><b class="num">20:00 – 22:00</b><span><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>15/10</span></div>
+    <div class="cat-camp-main">
+      <div class="cat-camp-title"><h3 id="camp-1510-upcoming">Làm đẹp giữa tháng</h3><span class="badge badge-brand"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.3 1.5"/></svg>Sắp diễn ra</span></div>
+      <div class="cat-camp-meta"><span>Bắt đầu: <b>20:00, 15/10/2026</b></span><span>Kết thúc: <b>22:00, 15/10/2026</b></span></div>
+      <div class="cat-camp-items"><div class="thumb"><img src="../assets/img/sunscreen.svg" alt=""></div><div class="thumb"><img src="../assets/img/cleanser.svg" alt=""></div><span class="cat-camp-sold">2 sản phẩm · 80 suất</span></div>
+    </div>
+    <div class="cat-camp-side"><div class="cat-camp-timer"><span class="muted">Mở lúc 20:00, 15/10/2026</span></div><a class="btn btn-outline-brand" href="FlashSaleDetail-upcoming.html">Xem chương trình</a></div>
+  </article>
+  </section>
+  <section class="cat-camp-group" aria-labelledby="g-ended">
+    <h2 class="cat-group-title" id="g-ended">Đã kết thúc<span class="count">2</span></h2>
+    <article class="panel cat-camp cat-camp-ended" aria-labelledby="camp-1010-ended">
+    <div class="cat-camp-when"><b class="num">12:00 – 14:00</b><span><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>10/10</span></div>
+    <div class="cat-camp-main">
+      <div class="cat-camp-title"><h3 id="camp-1010-ended">Giờ vàng buổi trưa</h3><span class="badge badge-neutral">Đã kết thúc</span></div>
+      <div class="cat-camp-meta"><span>Bắt đầu: <b>12:00, 10/10/2026</b></span><span>Kết thúc: <b>14:00, 10/10/2026</b></span></div>
+      <div class="cat-camp-items"><div class="thumb"><img src="../assets/img/cable.svg" alt=""></div><div class="thumb"><img src="../assets/img/phonecase.svg" alt=""></div><div class="thumb"><img src="../assets/img/sandals.svg" alt=""></div><span class="cat-camp-more">+1</span><span class="cat-camp-sold">Đã kết thúc lúc 14:00, 10/10/2026</span></div>
+    </div>
+    <div class="cat-camp-side"><a class="btn " href="FlashSaleDetail-ended.html">Xem chương trình</a></div>
+  </article>
+    <article class="panel cat-camp cat-camp-ended" aria-labelledby="camp-0910-ended">
+    <div class="cat-camp-when"><b class="num">20:00 – 22:00</b><span><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>09/10</span></div>
+    <div class="cat-camp-main">
+      <div class="cat-camp-title"><h3 id="camp-0910-ended">Siêu sale điện tử</h3><span class="badge badge-warning"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M6.5 5.5v5M9.5 5.5v5"/></svg>Đã dừng</span></div>
+      <div class="cat-camp-meta"><span>Bắt đầu: <b>20:00, 09/10/2026</b></span><span>Kết thúc: <b>22:00, 09/10/2026</b></span></div>
+      <div class="cat-camp-items"><div class="thumb"><img src="../assets/img/headphones.svg" alt=""></div><div class="thumb"><img src="../assets/img/powerbank.svg" alt=""></div><span class="cat-camp-sold">Đã dừng nhận đơn lúc 21:10, 09/10/2026</span></div>
+    </div>
+    <div class="cat-camp-side"><a class="btn " href="FlashSaleDetail-stopped.html">Xem chương trình</a></div>
+  </article>
+  </section>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><h4>SaleScale</h4><ul><li>Flash sale hằng ngày với số suất giới hạn</li><li>Giá và suất do hệ thống xác nhận khi đặt đơn</li></ul></div>
+      <div><h4>Mua sắm</h4><ul><li><a href="FlashSales.html">Chương trình flash sale</a></li><li><a href="Main.html">Tất cả sản phẩm</a></li><li><a href="Cart.html">Giỏ hàng</a></li></ul></div>
+      <div><h4>Đơn hàng</h4><ul><li><a href="MyOrders.html">Đơn của tôi</a></li><li>Thanh toán trong 5 phút sau khi đặt</li><li>Đơn quá hạn tự hủy và trả suất</li></ul></div>
+      <div><h4>Hỗ trợ</h4><ul><li>Hotline 1900 0000 (mô phỏng)</li><li>hotro@salescale.vn</li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 SaleScale · Đồ án mô phỏng hệ thống flash sale</span><span>Thời gian hiển thị theo giờ hệ thống</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -90,6 +90,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listPublicCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/products/{productId}": {
         parameters: {
             query?: never;
@@ -617,6 +633,15 @@ export interface components {
             items: components["schemas"]["Product"][];
             next_cursor?: string | null;
         };
+        Category: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            slug: string;
+        };
+        CategoryPage: {
+            items: components["schemas"]["Category"][];
+        };
         /**
          * @description Đặt số lượng tuyệt đối cho dòng của SKU (một SKU một dòng). `quantity` không vượt
          *     `max_quantity_per_order` của SKU và, với dòng flash sale, `purchase_limit` của item.
@@ -818,8 +843,8 @@ export interface components {
             event_type: "succeeded" | "failed";
             /** Format: int64 */
             amount: number;
-            /** @constant */
-            currency: "VND";
+            /** @description Mismatches with the payment session are recorded as rejected events, not 422. */
+            currency: string;
             /** Format: date-time */
             occurred_at: string;
         };
@@ -1229,6 +1254,26 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationError"];
+        };
+    };
+    listPublicCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Danh mục đang hiển thị để lọc catalog */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryPage"];
+                };
+            };
         };
     };
     getProduct: {

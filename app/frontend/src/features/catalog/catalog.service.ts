@@ -1,13 +1,21 @@
 import axios, { type AxiosResponse } from 'axios'
 
 import { privateClient, publicClient } from '@/api/client'
+import { csrfCookieName, readDocumentCookie } from '@/lib/csrf'
 
 import type {
   AdminProductListParams,
   CatalogApiErrorInit,
   FieldViolation,
+  CategoryPage,
+  CreateProductRequest,
+  CreateSkuInput,
   ProductListParams,
+  CatalogProduct,
   ProductPage,
+  UpdateProductRequest,
+  UpdateSkuRequest,
+  CatalogSku,
 } from './catalog.type'
 
 type ProblemResponse = {
@@ -42,8 +50,40 @@ export async function listProducts(params: ProductListParams): Promise<ProductPa
   return request(publicClient.get<ProductPage>('/products', { params }))
 }
 
+export async function listCategories(): Promise<CategoryPage> {
+  return request(publicClient.get<CategoryPage>('/categories'))
+}
+
+export async function getProduct(productID: string): Promise<CatalogProduct> {
+  return request(publicClient.get<CatalogProduct>(`/products/${encodeURIComponent(productID)}`))
+}
+
 export async function listAdminProducts(params: AdminProductListParams): Promise<ProductPage> {
   return request(privateClient.get<ProductPage>('/admin/products', { params }))
+}
+
+export async function getAdminProduct(productID: string): Promise<CatalogProduct> {
+  return request(privateClient.get<CatalogProduct>(`/admin/products/${encodeURIComponent(productID)}`))
+}
+
+export async function createProduct(body: CreateProductRequest): Promise<CatalogProduct> {
+  return request(privateClient.post<CatalogProduct>('/admin/products', body, { headers: csrfHeaders() }))
+}
+
+export async function updateProduct(productID: string, body: UpdateProductRequest): Promise<CatalogProduct> {
+  return request(privateClient.patch<CatalogProduct>(`/admin/products/${encodeURIComponent(productID)}`, body, { headers: csrfHeaders() }))
+}
+
+export async function createSKU(productID: string, body: CreateSkuInput): Promise<CatalogSku> {
+  return request(privateClient.post<CatalogSku>(`/admin/products/${encodeURIComponent(productID)}/skus`, body, { headers: csrfHeaders() }))
+}
+
+export async function updateSKU(skuID: string, body: UpdateSkuRequest): Promise<CatalogSku> {
+  return request(privateClient.patch<CatalogSku>(`/admin/skus/${encodeURIComponent(skuID)}`, body, { headers: csrfHeaders() }))
+}
+
+function csrfHeaders() {
+  return { 'X-CSRF-Token': readDocumentCookie(csrfCookieName) ?? '' }
 }
 
 function request<T>(operation: Promise<AxiosResponse<T>>): Promise<T> {

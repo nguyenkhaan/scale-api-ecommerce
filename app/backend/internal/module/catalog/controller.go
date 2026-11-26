@@ -16,6 +16,7 @@ import (
 )
 
 type ProductService interface {
+	ListPublicCategories(context.Context) (CategoryPageResponse, error)
 	GetPublicProduct(context.Context, string) (ProductResponse, error)
 	ListPublicProducts(context.Context, ListPublicProductsQuery) (ProductPageResponse, error)
 	GetAdminProduct(context.Context, string) (ProductResponse, error)
@@ -35,9 +36,19 @@ func NewController(service ProductService) *Controller {
 }
 
 func RegisterRoutes(router *gin.RouterGroup, controller *Controller) {
+	router.GET("/categories", controller.ListCategories)
 	group := router.Group("/products")
 	group.GET("", controller.ListProducts)
 	group.GET("/:productId", controller.GetProduct)
+}
+
+func (controller *Controller) ListCategories(context *gin.Context) {
+	page, err := controller.service.ListPublicCategories(context.Request.Context())
+	if err != nil {
+		problem.AbortInternal(context, err)
+		return
+	}
+	context.JSON(http.StatusOK, page)
 }
 
 func RegisterAdminRoutes(

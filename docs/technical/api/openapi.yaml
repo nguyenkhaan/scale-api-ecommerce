@@ -150,6 +150,20 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
 
+  /categories:
+    get:
+      tags: [Catalog]
+      operationId: listPublicCategories
+      x-priority: P0
+      x-requirements: [FR-008, FR-016]
+      responses:
+        '200':
+          description: Danh mục đang hiển thị để lọc catalog
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryPage'
+
   /products/{productId}:
     get:
       tags: [Catalog]
@@ -1219,6 +1233,22 @@ components:
           oneOf:
             - { type: string }
             - { type: 'null' }
+
+    Category:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+
+    CategoryPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
 
     UpsertCartItemRequest:
       type: object

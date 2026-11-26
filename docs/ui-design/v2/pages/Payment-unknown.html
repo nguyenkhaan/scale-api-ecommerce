@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thanh toán – chưa xác định</title>
+<meta name="description" content="Trang thanh toán mô phỏng: số tiền, hạn thanh toán, phiên và trạng thái chính thức từ hệ thống.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/orders.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q">Tìm sản phẩm</label><input id="q" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Minh Anh</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 1 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count">1</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header>
+<main class="container page">
+<nav class="breadcrumb" aria-label="Đường dẫn"><a href="Main.html">Trang chủ</a><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg><a href="MyOrders.html">Đơn của tôi</a><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg><a href="OrderDetail.html">Đơn SS-1010-0042</a><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg><span aria-current="page">Thanh toán</span></nav>
+<div class="ord-pay-top"><h1 class="ord-h1">Thanh toán mô phỏng</h1><div class="panel ord-pay-steps"><ol class="steps"><li class="done">Giỏ hàng</li><li class="done">Xem trước đơn</li><li class="now">Thanh toán</li></ol></div></div>
+<div class="ord-pay">
+  <div class="ord-pay-main">
+    <section class="panel ord-session" aria-labelledby="ses-title">
+      <h2 id="ses-title" class="ord-h2">Phiên thanh toán</h2>
+      <div class="ord-amount"><span>Số tiền</span><b class="price num">848.000 ₫</b><small>Thanh toán bằng VND</small></div>
+      <dl class="ord-kv">
+        <div><dt>Mã đơn</dt><dd><a href="OrderDetail.html">SS-1010-0042</a></dd></div>
+        <div><dt>Mã tham chiếu phiên</dt><dd class="ord-mono">PAY-7F3K9Q</dd></div>
+        <div><dt>Hạn thanh toán</dt><dd><b>20:46, 10/10/2026</b> <span class="ord-left">còn <span class="ord-timer num" role="timer" aria-label="Còn 03 phút 12 giây">03:12</span></span></dd></div>
+      </dl>
+      <span class="clock-note"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.3v3.8M8 4.9v.1"/></svg>Thời gian chính thức theo hệ thống</span>
+      <div class="ord-official">
+        <span class="ord-official-label">Trạng thái chính thức từ hệ thống</span>
+        <span class="ord-pill">Phiên: <span class="badge badge-warning">Chưa xác định</span></span>
+        <span class="ord-pill">Đơn: <span class="badge badge-warning">Chờ thanh toán</span></span>
+        
+        <span class="ord-official-time"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V6H10"/></svg>Tự làm mới mỗi 5 giây · Cập nhật lúc 20:43:30</span>
+      </div>
+    </section>
+    <div class="ord-callout ord-callout--neutral" role="status">
+      <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17M7 9h4"/></svg>
+      <div>
+        <h2>Đang kiểm tra, chưa thể kết luận</h2>
+        <p>Chưa nhận được kết quả chính thức từ cổng thanh toán. <b>Đừng thanh toán lại</b> để tránh bị trừ tiền hai lần. Trang sẽ tự cập nhật khi có kết quả.</p>
+        
+        <div class="ord-callout-actions"><button class="btn btn-outline-brand btn-lg" type="button"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V6H10"/></svg>Kiểm tra lại</button><a class="btn btn-lg" href="OrderDetail.html">Xem đơn</a></div>
+      </div>
+    </div>
+  </div>
+  <aside class="panel ord-tools" aria-labelledby="tools-title">
+  <div class="ord-tools-head"><h2 id="tools-title" class="ord-h2">Công cụ thử nghiệm</h2><span class="badge badge-warning">Chỉ dùng trong môi trường thử nghiệm</span></div>
+  <p class="ord-tools-desc">Gửi sự kiện giả lập từ cổng thanh toán tới hệ thống để thử các kết quả.</p>
+  <fieldset class="ord-fs"><legend>Kết quả</legend>
+    <label><input type="radio" name="tool-result" checked>Thành công</label>
+    <label><input type="radio" name="tool-result">Thất bại</label>
+  </fieldset>
+  <div class="ord-fields">
+    <div class="ord-field"><label for="tool-delay">Độ trễ (ms)</label><input class="input" id="tool-delay" type="number" min="0" step="100" value="2000"></div>
+    <div class="ord-field"><label for="tool-repeat">Số lần gửi lặp</label><input class="input" id="tool-repeat" type="number" min="1" value="1"></div>
+  </div>
+  <label class="ord-check"><input type="checkbox">Không gửi (mô phỏng mất callback)</label>
+  <fieldset class="ord-fs"><legend>Chữ ký</legend>
+    <label><input type="radio" name="tool-sign" checked>Hợp lệ</label>
+    <label><input type="radio" name="tool-sign">Không hợp lệ</label>
+  </fieldset>
+  <details class="ord-adv"><summary>Nâng cao</summary>
+    <div class="ord-fields">
+      <div class="ord-field"><label for="tool-amount">Ghi đè số tiền</label><input class="input" id="tool-amount" type="number" placeholder="848000"></div>
+      <div class="ord-field"><label for="tool-currency">Ghi đè tiền tệ</label><input class="input" id="tool-currency" type="text" placeholder="VND"></div>
+    </div>
+  </details>
+  <button class="btn ord-btn-dark btn-block" type="button">Gửi sự kiện</button>
+  <div class="ord-events"><h3>Sự kiện đã lên lịch</h3>
+    <ul><li><b>#1 Thành công</b><span class="muted">không gửi (mô phỏng mất callback)</span><span class="ord-ev ord-ev--skip">Đã bỏ qua</span></li></ul>
+  </div>
+</aside>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><h4>SaleScale</h4><ul><li>Flash sale hằng ngày với số suất giới hạn</li><li>Giá và suất do hệ thống xác nhận khi đặt đơn</li></ul></div>
+      <div><h4>Mua sắm</h4><ul><li><a href="FlashSales.html">Chương trình flash sale</a></li><li><a href="Main.html">Tất cả sản phẩm</a></li><li><a href="Cart.html">Giỏ hàng</a></li></ul></div>
+      <div><h4>Đơn hàng</h4><ul><li><a href="MyOrders.html">Đơn của tôi</a></li><li>Thanh toán trong 5 phút sau khi đặt</li><li>Đơn quá hạn tự hủy và trả suất</li></ul></div>
+      <div><h4>Hỗ trợ</h4><ul><li>Hotline 1900 0000 (mô phỏng)</li><li>hotro@salescale.vn</li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 SaleScale · Đồ án mô phỏng hệ thống flash sale</span><span>Thời gian hiển thị theo giờ hệ thống</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

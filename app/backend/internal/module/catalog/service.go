@@ -29,6 +29,21 @@ var (
 	ErrSKUCodeTaken     = errors.New("SKU code already exists")
 )
 
+func (service *Service) ListPublicCategories(ctx context.Context) (CategoryPageResponse, error) {
+	var categories []model.Category
+	if err := service.database.WithContext(ctx).
+		Where("is_visible = TRUE").
+		Order("name ASC, id ASC").
+		Find(&categories).Error; err != nil {
+		return CategoryPageResponse{}, fmt.Errorf("list public categories: %w", err)
+	}
+	items := make([]CategoryResponse, 0, len(categories))
+	for _, category := range categories {
+		items = append(items, CategoryResponse{ID: category.ID, Name: category.Name, Slug: category.Slug})
+	}
+	return CategoryPageResponse{Items: items}, nil
+}
+
 func (service *Service) GetPublicProduct(
 	ctx context.Context,
 	productID string,

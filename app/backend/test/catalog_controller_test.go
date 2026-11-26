@@ -416,6 +416,9 @@ func setCatalogTestIdentity(role string) gin.HandlerFunc {
 }
 
 type catalogServiceStub struct {
+	categories         catalog.CategoryPageResponse
+	categoryError      error
+	categoryCalls      int
 	detail             catalog.ProductResponse
 	detailError        error
 	detailCalls        int
@@ -433,6 +436,11 @@ type catalogServiceStub struct {
 	updatedProduct     catalog.ProductResponse
 	updatedRequest     catalog.UpdateProductRequest
 	updateSKUCalls     int
+}
+
+func (service *catalogServiceStub) ListPublicCategories(context.Context) (catalog.CategoryPageResponse, error) {
+	service.categoryCalls++
+	return service.categories, service.categoryError
 }
 
 func (service *catalogServiceStub) ListAdminProducts(context.Context, catalog.AdminProductListQuery) (catalog.ProductPageResponse, error) {

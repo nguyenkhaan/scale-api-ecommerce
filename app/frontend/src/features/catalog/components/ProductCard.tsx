@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 
 import { Button, PriceBlock, QuantityStepper, Surface } from '@/components/common'
+import { Link } from 'react-router-dom'
 import { activeSkus } from '@/features/catalog/catalog.hook'
 import type { CatalogProduct } from '@/features/catalog/catalog.type'
 import { formatVND } from '@/lib/format'
@@ -25,7 +26,7 @@ export function ProductCard({ product, busy, onAdd }: Props) {
     <li>
       <Surface as="article" className="flex h-full flex-col justify-between p-4">
         <div>
-          <h2 className="break-words text-base font-semibold text-[var(--ss-color-text)]">{product.name}</h2>
+          <h2 className="break-words text-base font-semibold text-[var(--ss-color-text)]"><Link to={`/products/${product.id}`} className="hover:underline">{product.name}</Link></h2>
         {selected ? (
           <div className="mt-2"><PriceBlock regularPrice={selected.regular_price} effectivePrice={selected.regular_price} source="regular" compact /></div>
         ) : (

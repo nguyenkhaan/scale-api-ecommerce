@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Header trang khách – SaleScale</title>
+<meta name="description" content="Các trạng thái của header trang khách: đã đăng nhập, chưa đăng nhập, số lượng giỏ và khổ điện thoại.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body class="cat-sheet">
+<main class="container">
+  <div class="cat-sheet-intro">
+    <h1>Header trang khách</h1>
+    <p>Logo về <a href="Main.html">Trang chủ</a> · ô tìm theo tên sản phẩm · <a href="MyOrders.html">Đơn hàng</a> · tài khoản (<a href="Auth.html">Đăng nhập</a>) · <a href="Cart.html">Giỏ hàng</a> có số SKU · dải điều hướng với lối vào <a href="FlashSales.html">Flash sale</a>.</p>
+  </div>
+  <section class="cat-sheet-item" aria-labelledby="h1">
+    <div class="cat-sheet-label"><h2 id="h1">Đã đăng nhập · giỏ có 3 sản phẩm</h2><p>Trạng thái mặc định. Tên khách hiện ở mục tài khoản; số trên giỏ là số SKU khác nhau trong giỏ.</p></div>
+    <div class="cat-sheet-frame"><header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q-h1">Tìm sản phẩm</label><input id="q-h1" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Minh Anh</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 3 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count">3</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header></div>
+  </section>
+  <section class="cat-sheet-item" aria-labelledby="h2">
+    <div class="cat-sheet-label"><h2 id="h2">Chưa đăng nhập</h2><p>Mục tài khoản thành “Đăng nhập”. Không hiện số trên giỏ; bấm giỏ sẽ yêu cầu đăng nhập.</p></div>
+    <div class="cat-sheet-frame"><header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q-h2">Tìm sản phẩm</label><input id="q-h2" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Đăng nhập</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header></div>
+  </section>
+  <section class="cat-sheet-item" aria-labelledby="h3">
+    <div class="cat-sheet-label"><h2 id="h3">Giỏ đã đủ 20 sản phẩm</h2><p>Giỏ chứa tối đa 20 SKU khác nhau. Khi đủ, nút thêm vào giỏ ở trang sản phẩm báo lỗi.</p></div>
+    <div class="cat-sheet-frame"><header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q-h3">Tìm sản phẩm</label><input id="q-h3" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Minh Anh</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 20 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count cat-count-2d">20</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header></div>
+  </section>
+  <section class="cat-sheet-item" aria-labelledby="h4">
+    <div class="cat-sheet-label"><h2 id="h4">Đang tìm kiếm · đang ở trang Flash sale</h2><p>Ô tìm giữ từ khoá vừa tìm; mục Flash sale được đánh dấu là trang hiện tại.</p></div>
+    <div class="cat-sheet-frame"><header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q-h4">Tìm sản phẩm</label><input id="q-h4" name="q" value="áo khoác" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Minh Anh</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 3 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count">3</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html" aria-current="page"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header></div>
+  </section>
+  <section class="cat-sheet-item" aria-labelledby="h5">
+    <div class="cat-sheet-label"><h2 id="h5">Khổ điện thoại 390px</h2><p>Logo và biểu tượng trên một hàng, ô tìm xuống hàng riêng, nhãn chữ ẩn đi; dải danh mục cuộn ngang.</p></div>
+    <div class="cat-phones">
+      <figure class="cat-phone">
+      <iframe srcdoc="<!doctype html><html lang=&quot;vi&quot; data-theme=&quot;blue&quot;><head><meta charset=&quot;utf-8&quot;><meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;><link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap&quot;><link rel=&quot;stylesheet&quot; href=&quot;../assets/salescale.css&quot;></head><body style=&quot;background:#f5f5fa&quot;><header class=&quot;site-header&quot;>
+  <div class=&quot;container header-main&quot;>
+    <a class=&quot;logo&quot; href=&quot;Main.html&quot; aria-label=&quot;SaleScale – Trang chủ&quot;><span class=&quot;logo-mark&quot; aria-hidden=&quot;true&quot;><svg width=&quot;20&quot; height=&quot;20&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot;><path d=&quot;M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2.3&quot; stroke-linecap=&quot;round&quot;/><path d=&quot;M12.6 1.5 10.4 6h3.2l-2.2 4.5&quot; stroke=&quot;#ffe14d&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/></svg></span><span class=&quot;logo-text&quot;><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class=&quot;search&quot; role=&quot;search&quot; action=&quot;Main.html&quot;>
+      <div class=&quot;search-box&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; aria-hidden=&quot;true&quot;><circle cx=&quot;9&quot; cy=&quot;9&quot; r=&quot;6&quot;/><path d=&quot;M13.5 13.5 17 17&quot;/></svg><label class=&quot;sr-only&quot; for=&quot;q&quot;>Tìm sản phẩm</label><input id=&quot;q&quot; name=&quot;q&quot; placeholder=&quot;Tìm áo thun, tai nghe, nồi chiên…&quot;><button type=&quot;submit&quot;>Tìm kiếm</button></div>
+      <div class=&quot;search-hints&quot;><a href=&quot;#&quot;>áo thun</a><a href=&quot;#&quot;>tai nghe bluetooth</a><a href=&quot;#&quot;>nồi chiên không dầu</a><a href=&quot;#&quot;>kem chống nắng</a><a href=&quot;#&quot;>sạc dự phòng</a></div>
+    </form>
+    <nav class=&quot;header-actions&quot; aria-label=&quot;Tài khoản&quot;>
+      <a class=&quot;header-action&quot; href=&quot;MyOrders.html&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;><rect x=&quot;4&quot; y=&quot;2.5&quot; width=&quot;12&quot; height=&quot;15&quot; rx=&quot;2&quot;/><path d=&quot;M7 7h6M7 10.5h6M7 14h3.5&quot;/></svg><span class=&quot;label&quot;>Đơn hàng</span></a>
+      <a class=&quot;header-action&quot; href=&quot;Auth.html&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; aria-hidden=&quot;true&quot;><circle cx=&quot;10&quot; cy=&quot;7&quot; r=&quot;3.5&quot;/><path d=&quot;M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6&quot;/></svg><span class=&quot;label&quot;>Minh Anh</span></a>
+      <a class=&quot;header-action cart&quot; href=&quot;Cart.html&quot; aria-label=&quot;Giỏ hàng, 3 sản phẩm&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;><path d=&quot;M2 3h2.2l2 10h9.3l1.8-7H5&quot;/><circle cx=&quot;8&quot; cy=&quot;16.5&quot; r=&quot;1.3&quot;/><circle cx=&quot;14.5&quot; cy=&quot;16.5&quot; r=&quot;1.3&quot;/></svg><span class=&quot;cart-count&quot;>3</span><span class=&quot;label&quot;>Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class=&quot;header-sub&quot;><div class=&quot;container&quot;>
+    <a class=&quot;flash-link&quot; href=&quot;FlashSales.html&quot;><svg class=&quot;icon-sm&quot; viewBox=&quot;0 0 16 16&quot; fill=&quot;currentColor&quot; aria-hidden=&quot;true&quot;><path d=&quot;M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z&quot;/></svg>Flash sale</a>
+    <a href=&quot;Main.html?cat=thoi-trang&quot;>Thời trang</a><a href=&quot;Main.html?cat=dien-tu&quot;>Điện tử</a><a href=&quot;Main.html?cat=gia-dung&quot;>Gia dụng</a><a href=&quot;Main.html?cat=lam-dep&quot;>Làm đẹp</a>
+    <span class=&quot;ship-to&quot;><svg class=&quot;icon-sm&quot; viewBox=&quot;0 0 16 16&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; aria-hidden=&quot;true&quot;><path d=&quot;M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z&quot;/><circle cx=&quot;8&quot; cy=&quot;6.4&quot; r=&quot;1.7&quot;/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header></body></html>" title="Đã đăng nhập · 3 sản phẩm" width="390" height="160"></iframe>
+      <figcaption id="h5a">Đã đăng nhập · 3 sản phẩm</figcaption>
+    </figure>
+      <figure class="cat-phone">
+      <iframe srcdoc="<!doctype html><html lang=&quot;vi&quot; data-theme=&quot;blue&quot;><head><meta charset=&quot;utf-8&quot;><meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;><link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap&quot;><link rel=&quot;stylesheet&quot; href=&quot;../assets/salescale.css&quot;></head><body style=&quot;background:#f5f5fa&quot;><header class=&quot;site-header&quot;>
+  <div class=&quot;container header-main&quot;>
+    <a class=&quot;logo&quot; href=&quot;Main.html&quot; aria-label=&quot;SaleScale – Trang chủ&quot;><span class=&quot;logo-mark&quot; aria-hidden=&quot;true&quot;><svg width=&quot;20&quot; height=&quot;20&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot;><path d=&quot;M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2.3&quot; stroke-linecap=&quot;round&quot;/><path d=&quot;M12.6 1.5 10.4 6h3.2l-2.2 4.5&quot; stroke=&quot;#ffe14d&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/></svg></span><span class=&quot;logo-text&quot;><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class=&quot;search&quot; role=&quot;search&quot; action=&quot;Main.html&quot;>
+      <div class=&quot;search-box&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; aria-hidden=&quot;true&quot;><circle cx=&quot;9&quot; cy=&quot;9&quot; r=&quot;6&quot;/><path d=&quot;M13.5 13.5 17 17&quot;/></svg><label class=&quot;sr-only&quot; for=&quot;q&quot;>Tìm sản phẩm</label><input id=&quot;q&quot; name=&quot;q&quot; placeholder=&quot;Tìm áo thun, tai nghe, nồi chiên…&quot;><button type=&quot;submit&quot;>Tìm kiếm</button></div>
+      <div class=&quot;search-hints&quot;><a href=&quot;#&quot;>áo thun</a><a href=&quot;#&quot;>tai nghe bluetooth</a><a href=&quot;#&quot;>nồi chiên không dầu</a><a href=&quot;#&quot;>kem chống nắng</a><a href=&quot;#&quot;>sạc dự phòng</a></div>
+    </form>
+    <nav class=&quot;header-actions&quot; aria-label=&quot;Tài khoản&quot;>
+      <a class=&quot;header-action&quot; href=&quot;MyOrders.html&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;><rect x=&quot;4&quot; y=&quot;2.5&quot; width=&quot;12&quot; height=&quot;15&quot; rx=&quot;2&quot;/><path d=&quot;M7 7h6M7 10.5h6M7 14h3.5&quot;/></svg><span class=&quot;label&quot;>Đơn hàng</span></a>
+      <a class=&quot;header-action&quot; href=&quot;Auth.html&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; aria-hidden=&quot;true&quot;><circle cx=&quot;10&quot; cy=&quot;7&quot; r=&quot;3.5&quot;/><path d=&quot;M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6&quot;/></svg><span class=&quot;label&quot;>Đăng nhập</span></a>
+      <a class=&quot;header-action cart&quot; href=&quot;Cart.html&quot; aria-label=&quot;Giỏ hàng&quot;><svg class=&quot;icon&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;><path d=&quot;M2 3h2.2l2 10h9.3l1.8-7H5&quot;/><circle cx=&quot;8&quot; cy=&quot;16.5&quot; r=&quot;1.3&quot;/><circle cx=&quot;14.5&quot; cy=&quot;16.5&quot; r=&quot;1.3&quot;/></svg><span class=&quot;label&quot;>Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class=&quot;header-sub&quot;><div class=&quot;container&quot;>
+    <a class=&quot;flash-link&quot; href=&quot;FlashSales.html&quot;><svg class=&quot;icon-sm&quot; viewBox=&quot;0 0 16 16&quot; fill=&quot;currentColor&quot; aria-hidden=&quot;true&quot;><path d=&quot;M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z&quot;/></svg>Flash sale</a>
+    <a href=&quot;Main.html?cat=thoi-trang&quot;>Thời trang</a><a href=&quot;Main.html?cat=dien-tu&quot;>Điện tử</a><a href=&quot;Main.html?cat=gia-dung&quot;>Gia dụng</a><a href=&quot;Main.html?cat=lam-dep&quot;>Làm đẹp</a>
+    <span class=&quot;ship-to&quot;><svg class=&quot;icon-sm&quot; viewBox=&quot;0 0 16 16&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; aria-hidden=&quot;true&quot;><path d=&quot;M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z&quot;/><circle cx=&quot;8&quot; cy=&quot;6.4&quot; r=&quot;1.7&quot;/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header></body></html>" title="Chưa đăng nhập" width="390" height="160"></iframe>
+      <figcaption id="h5b">Chưa đăng nhập</figcaption>
+    </figure>
+    </div>
+  </section>
+</main>
+</body>
+</html>

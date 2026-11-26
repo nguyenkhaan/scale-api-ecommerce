@@ -1,29 +1,55 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import { formatVND } from '@/lib/format'
 
-import { isCatalogApiError, listProducts } from './catalog.service'
+import { getAdminProduct, getProduct, isCatalogApiError, listAdminProducts, listCategories, listProducts } from './catalog.service'
 import type { CatalogProduct, CatalogSku, ProductListParams } from './catalog.type'
 
 const pageSize = 20
 
 export const catalogQueryKeys = {
-  products: (limit: number, query: string) => ['catalog', 'products', { limit, query }] as const,
+  categories: ['catalog', 'categories'] as const,
+  product: (productID: string) => ['catalog', 'product', productID] as const,
+  products: (limit: number, query: string, categoryID = '') => ['catalog', 'products', { limit, query, categoryID }] as const,
+  adminProduct: (productID: string) => ['catalog', 'admin-product', productID] as const,
+  adminProducts: (limit: number, status: string) => ['catalog', 'admin-products', { limit, status }] as const,
 }
 
-export function productListParams(query: string, cursor?: string): ProductListParams {
+export function productListParams(query: string, cursor?: string, categoryID?: string): ProductListParams {
   const params: ProductListParams = { limit: pageSize }
   const normalizedQuery = query.trim()
   if (normalizedQuery !== '') params.query = normalizedQuery
   if (cursor !== undefined) params.cursor = cursor
+  if (categoryID) params.category_id = categoryID
   return params
 }
 
-export function useProductsQuery(query: string) {
+export function useProductsQuery(query: string, categoryID = '') {
   return useInfiniteQuery({
-    queryKey: catalogQueryKeys.products(pageSize, query),
+    queryKey: catalogQueryKeys.products(pageSize, query, categoryID),
     initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }) => listProducts(productListParams(query, pageParam)),
+    queryFn: ({ pageParam }) => listProducts(productListParams(query, pageParam, categoryID)),
+    getNextPageParam: (page) => page.next_cursor ?? undefined,
+  })
+}
+
+export function useCategoriesQuery() {
+  return useQuery({ queryKey: catalogQueryKeys.categories, queryFn: listCategories, retry: false })
+}
+
+export function useProductQuery(productID: string) {
+  return useQuery({ queryKey: catalogQueryKeys.product(productID), queryFn: () => getProduct(productID), enabled: productID !== '', retry: false })
+}
+
+export function useAdminProductQuery(productID: string) {
+  return useQuery({ queryKey: catalogQueryKeys.adminProduct(productID), queryFn: () => getAdminProduct(productID), enabled: productID !== '', retry: false })
+}
+
+export function useAdminProductsQuery(status: 'active' | 'inactive' | undefined) {
+  return useInfiniteQuery({
+    queryKey: catalogQueryKeys.adminProducts(pageSize, status ?? ''),
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) => listAdminProducts({ limit: pageSize, status, cursor: pageParam }),
     getNextPageParam: (page) => page.next_cursor ?? undefined,
   })
 }

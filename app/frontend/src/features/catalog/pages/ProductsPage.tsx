@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { FeedbackState, LoadMoreButton, SearchField } from '@/components/common'
-import { describeProductsLoadError, useProductsQuery } from '@/features/catalog/catalog.hook'
+import { describeProductsLoadError, useCategoriesQuery, useProductsQuery } from '@/features/catalog/catalog.hook'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { CartActionNotice } from '@/features/cart/components/CartActionNotice'
 import { useAddToCart } from '@/features/cart/cart.hook'
@@ -11,7 +11,9 @@ import { isCatalogApiError } from '../catalog.service'
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('query')?.trim() ?? ''
-  const productsQuery = useProductsQuery(query)
+  const categoryID = searchParams.get('category_id') ?? ''
+  const productsQuery = useProductsQuery(query, categoryID)
+  const categoriesQuery = useCategoriesQuery()
   const cartAction = useAddToCart()
   const products = productsQuery.data?.pages.flatMap((page) => page.items) ?? []
   const error = productsQuery.isError ? describeProductsLoadError(productsQuery.error) : null
@@ -22,6 +24,14 @@ export function ProductsPage() {
     const normalized = searchInput.trim()
     if (normalized === '') next.delete('query')
     else next.set('query', normalized)
+    setSearchParams(next)
+  }
+
+  function selectCategory(selectedID: string) {
+    const next = new URLSearchParams(searchParams)
+    if (selectedID) next.set('category_id', selectedID)
+    else next.delete('category_id')
+    next.delete('cursor')
     setSearchParams(next)
   }
 
@@ -43,8 +53,15 @@ export function ProductsPage() {
         </Link>
       </div>
 
-      <div className="mt-4 max-w-xl">
+      <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(16rem,1fr)_minmax(12rem,0.6fr)]">
         <CatalogSearchField key={query} query={query} onSubmit={submitSearch} />
+        <label className="flex flex-col gap-1 text-sm font-medium text-[var(--ss-color-text)]">
+          Lọc theo danh mục
+          <select aria-label="Lọc theo danh mục" value={categoryID} onChange={(event) => selectCategory(event.target.value)} className="min-h-11 rounded-[var(--ss-radius-control)] border border-[var(--ss-color-input-border)] bg-white px-3">
+            <option value="">Tất cả danh mục</option>
+            {(categoriesQuery.data?.items ?? []).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+          </select>
+        </label>
       </div>
 
       <CartActionNotice notice={cartAction.notice} loginNext={loginNext} />
@@ -63,6 +80,8 @@ export function ProductsPage() {
           />
         </div>
       )}
+
+      {categoriesQuery.isError && <p role="status" className="mt-3 text-sm text-[var(--ss-color-muted)]">Không tải được danh mục; bạn vẫn có thể xem tất cả sản phẩm.</p>}
 
       {!loading && !error && products.length === 0 && (
         <div className="mt-6"><FeedbackState kind="empty" title="Chưa có sản phẩm nào." message={query ? 'Thử tìm với từ khóa khác.' : 'Danh mục hiện chưa có sản phẩm đang bán.'} /></div>

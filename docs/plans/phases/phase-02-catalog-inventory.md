@@ -2,15 +2,15 @@
 
 **Phụ thuộc:** 01. **Mục tiêu:** `FR-006–013`, `INV-01/02/12`, `TEST-21`. Category admin P1 được để phase 06 nếu chưa cần UI.
 
-**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `4/9`. Backend catalog/inventory và test đã xong; **frontend Phase 02 chưa triển khai**. Hiện chỉ có trang `/products` tối giản (tìm theo tên, tải thêm) làm trong Phase 03. Chưa có trang chi tiết sản phẩm, form quản trị sản phẩm/SKU hoặc màn hình tồn kho (`features/product/` đang rỗng).
+**Rà soát mã nguồn 26/11/2026 (nhánh `dev`):** `8/9` checklist items; catalog checkpoint đã qua, UI tồn kho ở Step 2 còn lại. Catalog frontend có danh sách, tìm kiếm, lọc danh mục, cursor pagination, chi tiết sản phẩm và form quản trị Product/SKU. Admin có thể nhập tồn ban đầu khi tạo SKU; màn hình điều chỉnh tồn và ledger chưa triển khai.
 
 ## Step 1 — Catalog
 
 - [x] BE: migration categories/products/SKUs; admin tạo/sửa/ẩn, kiểm SKU duy nhất, không hard-delete lịch sử.
-- [ ] FE: danh sách/chi tiết sản phẩm có SKU, tìm/lọc/phân trang; form quản trị sản phẩm/SKU tối giản.
-  - Đã có: danh sách `/products` với tìm theo tên và phân trang cursor. Còn thiếu: trang chi tiết, lọc theo danh mục, form admin sản phẩm/SKU (BE đã có `POST/PATCH /admin/products`, `/admin/skus`).
-- [ ] Kiểm: API contract và browser với sản phẩm active/inactive, dữ liệu phân trang.
-  - Đã có phần API: `test/catalog_api_test.go` (ẩn sản phẩm inactive, tìm kiếm, phân trang, CSRF admin). Còn thiếu: kiểm bằng trình duyệt cho sản phẩm active/inactive.
+- [x] FE: danh sách/chi tiết sản phẩm có SKU, tìm/lọc/phân trang; form quản trị sản phẩm/SKU tối giản.
+  - `/products` có tìm kiếm, lọc danh mục và cursor “Tải thêm”; `/products/:productId` có chi tiết, SKU, giá và thêm giỏ. `/admin/products` và `/admin/products/:productId` hỗ trợ tạo/sửa sản phẩm, tạo SKU với tồn ban đầu và sửa giá/trạng thái SKU.
+- [x] Kiểm: API contract và browser với sản phẩm active/inactive, dữ liệu phân trang.
+  - API: `test/catalog_api_test.go` kiểm active/inactive, search, pagination và CSRF admin. Browser: `app/frontend/e2e/catalog-checkout.spec.ts` kiểm sản phẩm active, lọc danh mục, chi tiết và ẩn sản phẩm inactive; Playwright chạy Chrome ở viewport 390×844.
 
 ## Step 2 — Tồn kho
 
@@ -23,7 +23,7 @@
 ## Step 3 — Tích hợp
 
 - [x] BE: seed có nhiều sản phẩm và biến thể, API đọc không lộ số liệu nội bộ sai quyền.
-- [ ] FE: nối form/list với API thật, trạng thái lỗi/rỗng và cập nhật sau sửa.
-  - Chưa triển khai (phụ thuộc form admin sản phẩm/tồn kho ở trên).
-- [ ] Checkpoint: admin tạo SKU + tồn; khách xem đúng hàng; build/test/contract đạt.
-  - Chưa đạt: admin chỉ tạo SKU/tồn được qua API hoặc seed, chưa có UI.
+- [x] FE: nối form/list với API thật, trạng thái lỗi/rỗng và cập nhật sau sửa.
+  - Catalog và form Product/SKU dùng API thật, có loading/error/empty/not-found state; query được làm mới sau khi lưu sản phẩm hoặc SKU.
+- [x] Checkpoint: admin tạo SKU + tồn; khách xem đúng hàng; build/test/contract đạt.
+  - Form tạo sản phẩm/SKU nhận `initial_on_hand`; browser đã xác nhận khách xem active product và không truy cập được inactive product. `bun run build`, 199 frontend tests, lint, typecheck, backend catalog/migration tests và Playwright E2E đều pass. UI điều chỉnh tồn và ledger vẫn là việc còn lại ở Step 2.

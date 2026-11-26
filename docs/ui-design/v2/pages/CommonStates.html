@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaleScale – Trạng thái chung</title>
+<meta name="description" content="Các trạng thái dùng chung: đang tải, rỗng, lỗi mạng, chưa đăng nhập, không có quyền, không tìm thấy, quá tải, lỗi hệ thống.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/auth.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q">Tìm sản phẩm</label><input id="q" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Minh Anh</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 3 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count">3</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header>
+<main class="container page">
+<div class="auth-page-head"><div><h1>Trạng thái chung cho mọi màn hình</h1><p>Mỗi khối thay cho phần nội dung chính của trang; header và footer giữ nguyên.</p></div><a class="link-more" href="Components.html">Xem bảng thành phần<svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg></a></div>
+<div class="auth-states">
+  <section class="panel" aria-labelledby="cs-loading"><header><h2 id="cs-loading">Đang tải</h2></header><div class="auth-loading" role="status" aria-label="Đang tải nội dung">
+    <span class="auth-skel auth-skel-title" aria-hidden="true"></span>
+    <div class="auth-sk-grid" aria-hidden="true"><div class="auth-sk-card"><span class="auth-skel auth-skel-thumb" style="border-radius:0"></span><span class="auth-skel auth-skel-line"></span><span class="auth-skel auth-skel-line" style="width:55%"></span></div><div class="auth-sk-card"><span class="auth-skel auth-skel-thumb" style="border-radius:0"></span><span class="auth-skel auth-skel-line"></span><span class="auth-skel auth-skel-line" style="width:55%"></span></div><div class="auth-sk-card"><span class="auth-skel auth-skel-thumb" style="border-radius:0"></span><span class="auth-skel auth-skel-line"></span><span class="auth-skel auth-skel-line" style="width:55%"></span></div><div class="auth-sk-card"><span class="auth-skel auth-skel-thumb" style="border-radius:0"></span><span class="auth-skel auth-skel-line"></span><span class="auth-skel auth-skel-line" style="width:55%"></span></div></div>
+    <span class="auth-skel auth-skel-line" aria-hidden="true" style="width:70%"></span>
+    <span class="sr-only">Đang tải nội dung…</span>
+  </div></section>
+  <section class="panel" aria-labelledby="cs-empty"><header><h2 id="cs-empty">Rỗng</h2></header><div class="auth-state" role="status"><span class="auth-state-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 1.75h9v12.5l-2.25-1.5L8 14.25l-2.25-1.5L3.5 14.25Z M6 5.5h4 M6 8.5h4"/></svg></span><h3>Chưa có dữ liệu</h3><p>Ví dụ: “Bạn chưa có đơn hàng nào”, “Chưa có chương trình sắp diễn ra”.</p><a class="btn btn-primary" href="Main.html">Xem sản phẩm</a></div></section>
+  <section class="panel" aria-labelledby="cs-network"><header><h2 id="cs-network">Lỗi mạng</h2></header><div class="auth-state" role="alert"><span class="auth-state-ico is-danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2 2l12 12 M8 12.5v.25 M5.75 10.25a3.25 3.25 0 0 1 3.5-.75 M3.25 7.75a7 7 0 0 1 2.75-1.6 M10.25 6.2a7 7 0 0 1 2.5 1.55"/></svg></span><h3>Mất kết nối mạng</h3><p>Kiểm tra kết nối Internet rồi thử lại.</p><button class="btn btn-primary" type="button">Thử lại</button></div></section>
+  <section class="panel" aria-labelledby="cs-login"><header><h2 id="cs-login">Chưa đăng nhập</h2></header><div class="auth-state" role="status"><span class="auth-state-ico is-warning"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.25h8v6.5H4Z M5.75 7.25V5.5a2.25 2.25 0 0 1 4.5 0v1.75"/></svg></span><h3>Bạn cần đăng nhập để tiếp tục</h3><p>Đang chuyển tới trang đăng nhập… Sau khi đăng nhập, bạn sẽ quay lại đúng trang này.</p><span class="auth-spinner" aria-hidden="true" style="color:var(--brand)"></span><a class="btn btn-primary" href="Auth-redirect.html">Đăng nhập ngay</a></div></section>
+  <section class="panel" aria-labelledby="cs-forbidden"><header><h2 id="cs-forbidden">Không có quyền</h2></header><div class="auth-state" role="alert"><span class="auth-state-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M3.6 3.6l8.8 8.8"/></svg></span><h3>Bạn không có quyền truy cập trang này</h3><p>Tài khoản hiện tại không được phép xem nội dung này.</p><a class="btn btn-primary" href="Main.html">Về trang chủ</a></div></section>
+  <section class="panel" aria-labelledby="cs-notfound"><header><h2 id="cs-notfound">Không tìm thấy</h2></header><div class="auth-state" role="alert"><span class="auth-state-ico is-brand"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.75"/><path d="M10.5 10.5 14 14 M5.5 5.5l3 3 M8.5 5.5l-3 3"/></svg></span><h3>Không tìm thấy nội dung</h3><p>Sản phẩm, đơn hàng hoặc trang này không còn tồn tại.</p><a class="btn btn-primary" href="Main.html">Về trang chủ</a></div></section>
+  <section class="panel" aria-labelledby="cs-overload"><header><h2 id="cs-overload">Quá tải</h2></header><div class="auth-state" role="status"><span class="auth-state-ico is-warning"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 1.75h7 M4.5 14.25h7 M5.25 1.75v1.5L8 8l2.75-4.75v-1.5 M5.25 14.25v-1.5L8 8l2.75 4.75v1.5"/></svg></span><h3>Hệ thống đang quá tải</h3><p>Thử lại sau <span class="auth-timer" role="timer">00:15</span></p><small>Thời gian chờ do hệ thống trả về</small><button class="btn" type="button" disabled>Thử lại sau 00:15</button></div></section>
+  <section class="panel" aria-labelledby="cs-system"><header><h2 id="cs-system">Lỗi hệ thống</h2></header><div class="auth-state" role="alert"><span class="auth-state-ico is-danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"/></svg></span><h3>Hệ thống tạm thời không xử lý được</h3><p>Vui lòng thử lại sau ít phút.</p><span class="auth-reqid">Mã yêu cầu: <code>req_3c71e0b52a</code><button class="auth-copy" type="button" aria-label="Sao chép mã yêu cầu"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" style="width:12px;height:12px"><path d="M5.5 5.5h7.5v7.5H5.5Z M3 10.5V3h7.5"/></svg>Sao chép</button></span><button class="btn btn-primary" type="button">Thử lại</button></div></section>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><h4>SaleScale</h4><ul><li>Flash sale hằng ngày với số suất giới hạn</li><li>Giá và suất do hệ thống xác nhận khi đặt đơn</li></ul></div>
+      <div><h4>Mua sắm</h4><ul><li><a href="FlashSales.html">Chương trình flash sale</a></li><li><a href="Main.html">Tất cả sản phẩm</a></li><li><a href="Cart.html">Giỏ hàng</a></li></ul></div>
+      <div><h4>Đơn hàng</h4><ul><li><a href="MyOrders.html">Đơn của tôi</a></li><li>Thanh toán trong 5 phút sau khi đặt</li><li>Đơn quá hạn tự hủy và trả suất</li></ul></div>
+      <div><h4>Hỗ trợ</h4><ul><li>Hotline 1900 0000 (mô phỏng)</li><li>hotro@salescale.vn</li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 SaleScale · Đồ án mô phỏng hệ thống flash sale</span><span>Thời gian hiển thị theo giờ hệ thống</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điều chỉnh tồn – dưới lượng đang giữ – SaleScale Quản trị</title>
+<meta name="description" content="Tồn kho theo SKU: hiện có, đang giữ và khả dụng.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/admin.css">
+</head>
+<body>
+<div class="admin">
+  <nav class="admin-nav" aria-label="Quản trị">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Quản trị</small></span></a>
+    <div class="nav-sec"><h4>Bán hàng</h4>
+      <a class="nav-link" href="AdminProducts.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M10 2 3 5.5v9L10 18l7-3.5v-9z"/><path d="M3 5.5 10 9l7-3.5M10 9v9"/></svg>Sản phẩm<span class="count">48</span></a>
+      <a class="nav-link active" href="Inventory.html" aria-current="page"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m10 2.5 7.5 4-7.5 4-7.5-4z"/><path d="m2.5 10 7.5 4 7.5-4M2.5 13.5l7.5 4 7.5-4"/></svg>Tồn kho</a>
+      <a class="nav-link" href="AdminFlashSales.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M11.5 1.5 4 11h5.5l-1 7.5L16 9h-5.5z"/></svg>Flash sale<span class="count">3</span></a>
+    </div>
+    <div class="nav-sec"><h4>Vận hành</h4>
+      <a class="nav-link" href="#"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10M3 5h.01M3 10h.01M3 15h.01"/></svg>Đơn hàng</a>
+      <a class="nav-link" href="#"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="4.5" width="16" height="11" rx="2"/><path d="M2 8.5h16"/></svg>Mô phỏng thanh toán</a>
+      <a class="nav-link" href="#"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10.3V3h7.3l7.7 7.7-7.3 7.3z"/><circle cx="6.5" cy="7" r="1.2"/></svg>Danh mục</a>
+    </div>
+    <div class="nav-foot"><a href="Main.html" style="display:inline-flex;gap:6px;align-items:center;color:var(--brand)"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7 9M11 9.5v3.5H3V5h3.5"/></svg>Xem trang khách hàng</a><span>Giờ hệ thống 20:35:30</span></div>
+  </nav>
+  <div>
+    <header class="admin-top">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="aq">Tìm trong quản trị</label><input id="aq" placeholder="Tìm sản phẩm, mã SKU…"></div>
+      <div class="admin-user"><span class="avatar" aria-hidden="true">AD</span><span>admin@salescale.vn</span><a class="btn btn-sm" href="Auth.html">Đăng xuất</a></div>
+    </header>
+    <main class="admin-body">
+      <div class="admin-head">
+        <div><h1>Tồn kho</h1><p>Mọi điều chỉnh đều cần lý do và được ghi vào lịch sử của SKU.</p></div>
+        <div class="actions"><a class="btn" href="AdminProducts.html">Về danh sách sản phẩm</a></div>
+      </div>
+
+      <div class="adm-formula" role="note"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.3v3.8M8 4.9v.1"/></svg><span><b>Khả dụng</b> = <b>Hiện có</b> − <b>Đang giữ</b> <span class="muted">(hàng đã được giữ cho đơn chờ thanh toán)</span></span></div>
+
+      <section class="kpis" aria-label="Tổng quan tồn kho">
+        <div class="kpi"><span>Hiện có</span><b>430</b><small>trên 7 SKU</small></div>
+        <div class="kpi"><span>Đang giữ</span><b>12</b><small>cho đơn chờ thanh toán</small></div>
+        <div class="kpi"><span>Khả dụng</span><b>418</b><small>có thể bán ngay</small></div>
+        <div class="kpi"><span>Hết hàng</span><b>1</b><small class="warn">AT-TRANG-L · đang ngừng bán</small></div>
+      </section>
+
+      <section class="panel" aria-label="Tồn kho theo SKU">
+        <div class="tabs" role="tablist">
+          <a class="tab active" role="tab" aria-selected="true" href="Inventory.html">Tất cả<span class="count">7</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Đang giữ hàng<span class="count">4</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Hết hàng<span class="count">1</span></a>
+        </div>
+        <div class="filters">
+          <label class="sr-only" for="inv-q">Tìm SKU</label><input id="inv-q" class="input" placeholder="Mã SKU hoặc tên sản phẩm">
+          <label class="sr-only" for="inv-c">Danh mục</label><select id="inv-c" class="select"><option>Tất cả danh mục</option><option>Thời trang</option><option>Điện tử</option><option>Gia dụng</option></select>
+          <span class="result">Đang hiển thị 7 SKU</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table adm-cards">
+            <thead><tr><th scope="col">Mã SKU</th><th scope="col">Sản phẩm</th><th scope="col" class="r">Hiện có</th><th scope="col" class="r">Đang giữ</th><th scope="col" class="r">Khả dụng</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+            <tbody>
+              <tr class="adm-row-sel">
+                <td data-label="Mã SKU"><code class="adm-sku">AT-DEN-M</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/tshirt-black.svg" alt=""></div><div><b>Áo thun basic · Đen / M</b></div></div></td>
+                <td data-label="Hiện có" class="r">120</td>
+                <td data-label="Đang giữ" class="r"><span class="adm-held">6</span></td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">114</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:95%"></i><i class="held" style="width:5%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html" aria-current="true">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+              <tr>
+                <td data-label="Mã SKU"><code class="adm-sku">AT-DEN-L</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/tshirt-black.svg" alt=""></div><div><b>Áo thun basic · Đen / L</b></div></div></td>
+                <td data-label="Hiện có" class="r">80</td>
+                <td data-label="Đang giữ" class="r"><span class="adm-held">2</span></td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">78</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:97.5%"></i><i class="held" style="width:2.5%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+              <tr>
+                <td data-label="Mã SKU"><code class="adm-sku">AT-TRANG-M</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/tshirt-white.svg" alt=""></div><div><b>Áo thun basic · Trắng / M</b></div></div></td>
+                <td data-label="Hiện có" class="r">95</td>
+                <td data-label="Đang giữ" class="r">0</td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">95</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:100%"></i><i class="held" style="width:0%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+              <tr>
+                <td data-label="Mã SKU"><code class="adm-sku">AT-TRANG-L</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/tshirt-white.svg" alt=""></div><div><b>Áo thun basic · Trắng / L</b><span class="status off">Ngừng bán</span></div></div></td>
+                <td data-label="Hiện có" class="r">0</td>
+                <td data-label="Đang giữ" class="r">0</td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">0</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:0%"></i><i class="held" style="width:0%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+              <tr>
+                <td data-label="Mã SKU"><code class="adm-sku">TN-X2-DEN</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/headphones.svg" alt=""></div><div><b>Tai nghe Bluetooth X2 · Đen</b></div></div></td>
+                <td data-label="Hiện có" class="r">40</td>
+                <td data-label="Đang giữ" class="r"><span class="adm-held">3</span></td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">37</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:92.5%"></i><i class="held" style="width:7.5%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+              <tr>
+                <td data-label="Mã SKU"><code class="adm-sku">BGN-500-BAC</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/bottle.svg" alt=""></div><div><b>Bình giữ nhiệt 500ml · Bạc</b></div></div></td>
+                <td data-label="Hiện có" class="r">60</td>
+                <td data-label="Đang giữ" class="r">0</td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">60</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:100%"></i><i class="held" style="width:0%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+              <tr>
+                <td data-label="Mã SKU"><code class="adm-sku">SDP-10K-DEN</code></td>
+                <td data-label="Sản phẩm"><div class="prod-cell adm-invprod"><div class="thumb"><img src="../assets/img/powerbank.svg" alt=""></div><div><b>Sạc dự phòng 10.000mAh · Đen</b></div></div></td>
+                <td data-label="Hiện có" class="r">35</td>
+                <td data-label="Đang giữ" class="r"><span class="adm-held">1</span></td>
+                <td data-label="Khả dụng" class="r"><div class="stock adm-avail"><b class="num">34</b><div class="stock-bar" aria-hidden="true"><i class="avail" style="width:97.14285714285714%"></i><i class="held" style="width:2.857142857142857%"></i></div></div></td>
+                <td class="adm-cell-act"><div class="row-actions"><a href="Inventory-adjust.html">Điều chỉnh</a><a href="Inventory-history.html">Lịch sử</a></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pager"><span>Đang hiển thị 7 SKU</span><button class="btn btn-sm" type="button">Tải thêm</button></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="adm-scrim adm-scrim-side">
+  <aside class="adm-drawer" role="dialog" aria-modal="true" aria-labelledby="adj-title">
+    <div class="adm-drawer-head">
+      <div><h2 id="adj-title">Điều chỉnh tồn · <code class="adm-sku">AT-DEN-M</code></h2><p>Áo thun basic · Đen / M</p></div>
+      <a class="adm-iconbtn" href="Inventory.html" aria-label="Đóng"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg></a>
+    </div>
+    <div class="adm-drawer-body">
+      
+      <dl class="adm-trio">
+        <div><dt>Hiện có</dt><dd>120</dd></div>
+        <div><dt>Đang giữ</dt><dd class="adm-held">6</dd></div>
+        <div><dt>Khả dụng</dt><dd>114</dd></div>
+      </dl>
+      <div class="adm-field">
+        <label for="adj-delta">Số lượng thay đổi <span class="adm-req" aria-hidden="true">*</span></label>
+        <input id="adj-delta" class="input num adm-invalid" type="number" value="-118" required aria-invalid="true" aria-describedby="adj-delta-err">
+        <p class="adm-err" id="adj-delta-err"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"/></svg><span>Không thể giảm xuống dưới lượng đang giữ (6). Bạn chỉ có thể trừ tối đa 114.</span></p>
+      </div>
+      <div class="adm-field">
+        <label for="adj-reason">Lý do <span class="adm-req" aria-hidden="true">*</span></label>
+        <textarea id="adj-reason" class="input adm-textarea" rows="2" required aria-describedby="adj-reason-help">Kiểm kê cuối ngày</textarea>
+        <p class="adm-help" id="adj-reason-help">Bắt buộc. Lý do được ghi vào lịch sử điều chỉnh của SKU.</p>
+      </div>
+      <div class="adm-after bad" role="status">
+        <span class="adm-after-title">Sau điều chỉnh</span>
+        <div><span>Hiện có</span><b class="num">120 → 2</b></div>
+        <div><span>Khả dụng</span><b class="num">114 → −4</b></div>
+      </div>
+    </div>
+    <div class="adm-drawer-foot"><a class="btn" href="Inventory.html">Hủy</a><button class="btn btn-primary" type="button" disabled>Xác nhận điều chỉnh</button></div>
+  </aside>
+</div>
+</body>
+</html>

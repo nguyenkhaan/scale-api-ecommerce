@@ -43,6 +43,16 @@ type ProductPageResponse struct {
 	NextCursor *string           `json:"next_cursor"`
 }
 
+type CategoryResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+}
+
+type CategoryPageResponse struct {
+	Items []CategoryResponse `json:"items"`
+}
+
 type ListPublicProductsQuery struct {
 	Query      string
 	CategoryID *string

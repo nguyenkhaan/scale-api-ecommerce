@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng ký – lỗi theo trường</title>
+<meta name="description" content="Đăng ký với lỗi định dạng email và mật khẩu quá ngắn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="../assets/salescale.css">
+<link rel="stylesheet" href="../assets/auth.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-main">
+    <a class="logo" href="Main.html" aria-label="SaleScale – Trang chủ"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.5 5.2c-1-1.2-2.6-1.9-4.4-1.9-2.6 0-4.4 1.4-4.4 3.4 0 4.3 8.8 2.4 8.8 6.6 0 2-1.9 3.4-4.6 3.4-2 0-3.7-.8-4.7-2.1" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><path d="M12.6 1.5 10.4 6h3.2l-2.2 4.5" stroke="#ffe14d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="logo-text"><b>SaleScale</b><small>Flash sale mỗi ngày</small></span></a>
+    <form class="search" role="search" action="Main.html">
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="q">Tìm sản phẩm</label><input id="q" name="q" placeholder="Tìm áo thun, tai nghe, nồi chiên…"><button type="submit">Tìm kiếm</button></div>
+      <div class="search-hints"><a href="#">áo thun</a><a href="#">tai nghe bluetooth</a><a href="#">nồi chiên không dầu</a><a href="#">kem chống nắng</a><a href="#">sạc dự phòng</a></div>
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản">
+      <a class="header-action" href="MyOrders.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 7h6M7 10.5h6M7 14h3.5"/></svg><span class="label">Đơn hàng</span></a>
+      <a class="header-action" href="Auth.html"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg><span class="label">Đăng nhập</span></a>
+      <a class="header-action cart" href="Cart.html" aria-label="Giỏ hàng, 0 sản phẩm"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2 10h9.3l1.8-7H5"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="14.5" cy="16.5" r="1.3"/></svg><span class="cart-count">0</span><span class="label">Giỏ hàng</span></a>
+    </nav>
+  </div>
+  <div class="header-sub"><div class="container">
+    <a class="flash-link" href="FlashSales.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg>Flash sale</a>
+    <a href="Main.html?cat=thoi-trang">Thời trang</a><a href="Main.html?cat=dien-tu">Điện tử</a><a href="Main.html?cat=gia-dung">Gia dụng</a><a href="Main.html?cat=lam-dep">Làm đẹp</a>
+    <span class="ship-to"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 14.5s4.8-4.3 4.8-8.1A4.8 4.8 0 0 0 3.2 6.4c0 3.8 4.8 8.1 4.8 8.1z"/><circle cx="8" cy="6.4" r="1.7"/></svg>Giao đến: Q. 1, TP. Hồ Chí Minh</span>
+  </div></div>
+</header>
+<main class="page">
+<div class="auth-main">
+  <section class="panel auth-card" aria-labelledby="auth-title">
+    <div class="auth-form-col">
+      <nav class="auth-tabs" aria-label="Chọn đăng nhập hoặc đăng ký">
+        <a href="Auth.html">Đăng nhập</a>
+        <a href="Auth-register.html" aria-current="page">Đăng ký</a>
+      </nav>
+      <div class="auth-head">
+        <h1 id="auth-title">Tạo tài khoản</h1>
+        <p>Chỉ cần email và mật khẩu để bắt đầu mua flash sale.</p>
+      </div>
+      
+      <form class="auth-form" action="Main.html" novalidate>
+        <div class="auth-field">
+          <label for="auth-email">Email</label>
+          <input class="input" id="auth-email" type="email" autocomplete="email" placeholder="ten@email.com" value="minhanh@" aria-invalid="true" aria-describedby="auth-email-err">
+          <span class="auth-err" id="auth-email-err"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"/></svg>Email chưa đúng định dạng, ví dụ: ten@email.com</span>
+        </div>
+        <div class="auth-field">
+          <label for="auth-pass">Mật khẩu</label>
+          <div class="auth-pass is-invalid">
+            <input id="auth-pass" type="password" autocomplete="new-password" value="abc12" aria-invalid="true" aria-describedby="auth-pass-hint">
+            <button type="button" aria-pressed="false" aria-label="Hiện mật khẩu"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 8s2.5-4.75 6.5-4.75S14.5 8 14.5 8s-2.5 4.75-6.5 4.75S1.5 8 1.5 8Z"/><circle cx="8" cy="8" r="2"/></svg>Hiện</button>
+          </div>
+          <span class="auth-err" id="auth-pass-hint"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.25 14.5 13.5h-13Z M8 6.5v3 M8 11.6v.2"/></svg>Mật khẩu cần tối thiểu 8 ký tự (hiện có 5)</span>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit" aria-busy="false">Tạo tài khoản</button>
+      </form>
+      <p class="auth-switch">Đã có tài khoản? <a href="Auth.html">Đăng nhập</a></p>
+    </div>
+    <aside class="auth-aside" aria-label="Vì sao nên có tài khoản">
+      <img src="../assets/img/auth-hero.svg" alt="">
+      <h2>Săn flash sale mỗi ngày cùng SaleScale</h2>
+      <ul>
+        <li><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.2 1 3 9.2h4.3L6.4 15 13 6.6H8.6z"/></svg><span>Flash sale hằng ngày với số suất giới hạn</span></li>
+        <li><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5 2.8 3.5v4c0 3.3 2.2 5.9 5.2 7 3-1.1 5.2-3.7 5.2-7v-4z"/><path d="m5.6 8 1.7 1.7 3.2-3.4"/></svg><span>Giá và suất do hệ thống xác nhận khi đặt đơn</span></li>
+        <li><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.3 1.5"/></svg><span>Thanh toán trong 5 phút sau khi đặt; đơn quá hạn tự hủy và trả suất</span></li>
+      </ul>
+      <span class="clock-note"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.3v3.8M8 4.9v.1"/></svg>Thời gian hiển thị theo giờ hệ thống</span>
+    </aside>
+  </section>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><h4>SaleScale</h4><ul><li>Flash sale hằng ngày với số suất giới hạn</li><li>Giá và suất do hệ thống xác nhận khi đặt đơn</li></ul></div>
+      <div><h4>Mua sắm</h4><ul><li><a href="FlashSales.html">Chương trình flash sale</a></li><li><a href="Main.html">Tất cả sản phẩm</a></li><li><a href="Cart.html">Giỏ hàng</a></li></ul></div>
+      <div><h4>Đơn hàng</h4><ul><li><a href="MyOrders.html">Đơn của tôi</a></li><li>Thanh toán trong 5 phút sau khi đặt</li><li>Đơn quá hạn tự hủy và trả suất</li></ul></div>
+      <div><h4>Hỗ trợ</h4><ul><li>Hotline 1900 0000 (mô phỏng)</li><li>hotro@salescale.vn</li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 SaleScale · Đồ án mô phỏng hệ thống flash sale</span><span>Thời gian hiển thị theo giờ hệ thống</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

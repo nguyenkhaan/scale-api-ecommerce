@@ -21,7 +21,7 @@
 | FR-001–FR-003 | P0 | DOMAIN Identity; DATA users/sessions; ADR-005 | `/v1/auth/*` | TEST-24 + auth contract/security tests |
 | FR-004 | P1 | ARCH single-store deployment | Store configuration boundary chưa chi tiết | P1 acceptance |
 | FR-005 | P1 | DATA categories | Admin category contract cần chi tiết trước P1 | Catalog acceptance |
-| FR-006–FR-009 | P0 | DOMAIN Catalog; DATA products/skus/order snapshot | public products; admin products/skus | TEST-08, TEST-20, snapshot integration |
+| FR-006–FR-009 | P0 | DOMAIN Catalog; DATA products/skus/order snapshot | public categories/products; admin products/skus | TEST-08, TEST-20, snapshot integration, catalog browser acceptance |
 | FR-010–FR-013 | P0 | DATA inventories, adjustments, reservations | admin inventories/adjustments | TEST-01–04, TEST-11–15, TEST-21 |
 | FR-014–FR-017 | P0 | DOMAIN FlashSale; DATA campaign/items/usage | admin flash-sales; preview/order | TEST-09, TEST-10, TEST-20 |
 | FR-018 | P1 | DOMAIN FlashSale transition | admin flash-sales stop | TEST-20 + P1 statistics acceptance |

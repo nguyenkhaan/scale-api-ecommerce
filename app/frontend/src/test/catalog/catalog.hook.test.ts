@@ -44,6 +44,11 @@ describe('catalog query state', () => {
     expect(productListParams('  ', 'next-cursor')).toEqual({ limit: 20, cursor: 'next-cursor' })
   })
 
+  it('keeps category filtering in the request and query identity', () => {
+    expect(productListParams('áo', undefined, 'category-1')).toEqual({ limit: 20, query: 'áo', category_id: 'category-1' })
+    expect(catalogQueryKeys.products(20, 'áo', 'category-1')).not.toEqual(catalogQueryKeys.products(20, 'áo', 'category-2'))
+  })
+
   it('does not tell public catalog users to log in for a generic 401', () => {
     expect(describeProductsLoadError({ status: 401 })).toBe('Không thể tải danh sách sản phẩm. Vui lòng thử lại.')
   })

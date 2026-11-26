@@ -2,7 +2,7 @@
 
 **Phụ thuộc:** 03. **Mục tiêu:** `FR-021–029`, `INV-01–05/09–11`, `TEST-01–10/25`. Đây là lát cắt rủi ro cao nhất.
 
-**Rà soát mã nguồn 25/11/2026 (nhánh `dev`):** `8/9` — code checkout và các cổng tự động đã hoàn tất; live browser checkpoint còn mở. Backend có checkout nhiều SKU nguyên tử, idempotency lookup/replay, reservation/payment handoff và test contention; frontend đã chuyển UI `Preview*.html`/`OrderResult*.html` thành React trong cart flow. Live `DATABASE_URL` hiện có schema drift: goose báo `00010` applied nhưng thiếu bảng `payment_sessions`, nên `POST /api/orders` chỉ đạt tới order read-model rồi trả 500; không tự ý reset hoặc sửa migration trong checkpoint này.
+**Rà soát mã nguồn 26/11/2026 (nhánh `dev`):** `9/9`. Live browser checkpoint đã qua sau khi phát hiện DB thiếu `payment_sessions`, `payment_events` và `payment_reconciliations` dù goose ghi nhận `00010`; migration repair `00011`/`00012` đã khôi phục các bảng thiếu trên DB dev. Playwright đặt đơn nhận 201, mở trang đơn và hủy đơn thành công ở viewport 390×844.
 
 ## Step 1 — Order và reservation
 
@@ -28,5 +28,5 @@
   - Bằng chứng: order snapshot/reservation code và `CheckoutCounters`; Prometheus endpoint chưa được chốt nên vẫn để Phase 05 Step 3.
 - [x] FE: trạng thái đơn chính thức hiện mã đơn/hạn; trạng thái unknown không hiển thị thành công giả.
   - Bằng chứng: điều hướng tới `/orders/:id` sau 201 và `CheckoutOutcomeView`/tests cho unknown, processing, overload, rejected, price-changed.
-- [ ] Live checkpoint: `TEST-01–10/25`, oracle INV-01–05/09–11 và HTTP contract qua trước payment/benchmark.
-  - Automated gates đã qua; live preview qua `DATABASE_URL`, nhưng live place-order bị chặn bởi schema drift (`payment_sessions` thiếu dù migration 00010 đã applied). Browser viewport 390×844 chưa chạy vì môi trường không có Chrome/Chromium/Playwright runner.
+- [x] Live checkpoint: `TEST-01–10/25`, oracle INV-01–05/09–11 và HTTP contract qua trước payment/benchmark.
+  - Automated checkout/oracle gates đã qua ở lượt backend trước; lượt này chạy migration repair tests, kiểm tra đủ ba bảng payment trên DB dev, và Playwright Chrome 390×844 đặt đơn HTTP 201 rồi hủy đơn thành công. Không còn lỗi schema `payment_sessions`/payment lifecycle trong luồng checkout đã kiểm tra.

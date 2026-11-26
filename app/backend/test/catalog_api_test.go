@@ -40,6 +40,30 @@ func TestPublicProductDetailReturnsOnlyActiveCatalogData(t *testing.T) {
 	}
 }
 
+func TestPublicCategoryListIncludesOnlyVisibleCategories(t *testing.T) {
+	testDatabase := openIntegrationDatabase(t)
+	database := testDatabase.ORM()
+	visible := true
+	hidden := false
+	for _, category := range []model.Category{
+		{ID: "61000000-0000-4000-8000-000000000020", Name: "Visible category", Slug: "visible-category", IsVisible: &visible},
+		{ID: "61000000-0000-4000-8000-000000000021", Name: "Hidden category", Slug: "hidden-category", IsVisible: &hidden},
+	} {
+		if err := database.Create(&category).Error; err != nil {
+			t.Fatalf("create category: %v", err)
+		}
+	}
+
+	response := newTestClient(newCatalogRouter(t, database)).send(t, http.MethodGet, "/api/categories", nil)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body = %s", response.Code, response.Body.String())
+	}
+	page := decodeJSON[catalog.CategoryPageResponse](t, response)
+	if len(page.Items) != 1 || page.Items[0].Name != "Visible category" {
+		t.Fatalf("categories = %+v, want only the visible category", page.Items)
+	}
+}
+
 func TestPublicProductDetailHidesInactiveOrInvisibleCatalog(t *testing.T) {
 	testCases := []struct {
 		name            string

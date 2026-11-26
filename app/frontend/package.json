@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && bunx --bun vite build",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
-    "test": "bun test",
+    "test": "bun test src/test",
+    "test:e2e": "playwright test",
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/eslint-plugin-query": "^5.107.1",
     "@types/bun": "^1.4.4",
