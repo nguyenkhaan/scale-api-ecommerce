@@ -48,8 +48,9 @@ function authPage({ title, desc, mode = "login", alert = "", email = "", pass = 
       ? `<button class="btn btn-primary btn-lg btn-block" type="submit" disabled aria-busy="true"><span class="auth-spinner" aria-hidden="true"></span>Đang đăng nhập…</button>`
       : `<button class="btn btn-primary btn-lg btn-block" type="submit" aria-busy="false">${label}</button>`;
 
-  const body = `<div class="auth-main">
-  <section class="panel auth-card" aria-labelledby="auth-title">
+  const body = `<main class="auth-split">
+  <section class="auth-form-side" aria-labelledby="auth-title">
+    <div class="auth-topbar">${logo()}<a class="auth-back" href="Main.html"><span aria-hidden="true">←</span> Về trang chủ</a></div>
     <div class="auth-form-col">
       <nav class="auth-tabs" aria-label="Chọn đăng nhập hoặc đăng ký">
         <a href="Auth.html"${login ? ' aria-current="page"' : ""}>Đăng nhập</a>
@@ -78,7 +79,10 @@ function authPage({ title, desc, mode = "login", alert = "", email = "", pass = 
       </form>
       <p class="auth-switch">${login ? `Chưa có tài khoản? <a href="Auth-register.html">Đăng ký</a>` : `Đã có tài khoản? <a href="Auth.html">Đăng nhập</a>`}</p>
     </div>
-    <aside class="auth-aside" aria-label="Vì sao nên có tài khoản">
+    <p class="auth-legal">© 2026 SaleScale · Đồ án minh họa hệ thống flash sale</p>
+  </section>
+  <aside class="auth-aside" aria-label="Vì sao nên có tài khoản">
+    <div class="auth-aside-inner">
       <img src="${img("auth-hero")}" alt="">
       <h2>Săn flash sale mỗi ngày cùng SaleScale</h2>
       <ul>
@@ -87,10 +91,16 @@ function authPage({ title, desc, mode = "login", alert = "", email = "", pass = 
         <li>${ic.clock}<span>Thanh toán trong 5 phút sau khi đặt; đơn quá hạn tự hủy và trả suất</span></li>
       </ul>
       <span class="clock-note">${ic.info}Thời gian hiển thị theo giờ hệ thống</span>
-    </aside>
-  </section>
-</div>`;
-  return customerPage({ title, desc, body, cartCount: 0, loggedIn: false, extraCss: CSS, mainClass: "page" });
+    </div>
+  </aside>
+</main>`;
+  // Auth screens are standalone: no site header, footer or cart.
+  return `${head(title, "blue", desc, CSS)}
+<body class="auth-body">
+${body}
+</body>
+</html>
+`;
 }
 
 const FILLED = { email: "minhanh@example.com", pass: "matkhau2026" };

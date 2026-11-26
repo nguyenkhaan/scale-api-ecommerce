@@ -228,3 +228,51 @@ a.adm-iconbtn:hover { background: var(--bg); color: var(--ink); }
   .adm-drawer-foot .btn { flex: 1; }
   .adm-trio dd { font-size: 18px; }
 }
+
+/* ---------- Flash sale list (human pass) ---------- */
+.afs-live { display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(180px, 1fr) auto auto; align-items: start; gap: 28px; padding: 18px 20px; }
+.afs-live > .btn { align-self: center; }
+.afs-live-main { min-width: 0; }
+.afs-live-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--sale-deep); }
+.afs-live-tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--sale); box-shadow: 0 0 0 3px var(--price-soft); }
+.afs-live h2 { margin: 2px 0 0; font-size: 18px; line-height: 26px; font-weight: 700; }
+.afs-live h2 a { color: var(--ink); }
+.afs-live h2 a:hover { color: var(--brand); }
+.afs-live p { margin: 0; font-size: 13px; color: var(--muted); }
+.afs-live-stat { display: grid; gap: 2px; min-width: 0; }
+.afs-live-stat > span { font-size: 12px; color: var(--muted); }
+.afs-live-stat b { font-size: 20px; line-height: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.afs-live-stat b small { font-size: 13px; font-weight: 500; color: var(--muted); }
+.afs-live-stat em { font-style: normal; font-size: 12px; color: var(--muted); }
+.afs-live-progress .afs-track { margin-top: 4px; }
+.afs-track { display: block; height: 6px; border-radius: 99px; background: #ebebf0; overflow: hidden; }
+.afs-track i { display: block; height: 100%; background: #9aa0ab; border-radius: inherit; }
+.afs-track.is-live { background: var(--price-soft); }
+.afs-track.is-live i { background: var(--sale); }
+.afs-tabs .tab { font-size: 14px; padding: 13px 12px; }
+.afs-n { color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+.afs-tabs .tab.active .afs-n { color: var(--brand-strong); }
+.afs-th-note { font-weight: 400; color: var(--muted); }
+.afs-table td { vertical-align: top; padding-top: 14px; padding-bottom: 14px; }
+.afs-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.afs-note { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+.afs-note svg { width: 12px; height: 12px; }
+.afs-date { font-weight: 500; }
+.afs-q { display: grid; gap: 6px; width: 160px; }
+.afs-sold { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.afs-sold b { color: var(--ink); font-weight: 600; }
+.afs-row-live td { background: #fffafa; }
+@media (max-width: 1180px) {
+  .afs-live { grid-template-columns: auto minmax(160px, 1fr) auto auto; gap: 16px 32px; }
+  .afs-live-main { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .afs-live { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 16px; }
+  .afs-live-progress { grid-column: 1 / -1; order: 3; }
+  .afs-live > .btn { grid-column: 1 / -1; order: 4; }
+  .afs-q { width: auto; }
+  .table.adm-cards tr.afs-row-live { background: #fffafa; }
+  .table.adm-cards tr.afs-row-live td { background: transparent; }
+  .table.adm-cards td[data-label="Đã bán"] { grid-column: 1 / -1; }
+}
+.afs-table .badge { justify-self: start; }

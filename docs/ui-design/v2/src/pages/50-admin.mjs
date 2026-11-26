@@ -52,54 +52,69 @@ const fsDot = (s) => `<span class="status ${FS_STATE[s][1]}">${FS_STATE[s][0]}</
 const fsBadge = (s) => `<span class="badge ${FS_STATE[s][2]}">${FS_STATE[s][0]}</span>`;
 
 function adminFlashSalesPage() {
+  // [name, state, date, time, products, quota, href, action, note]
   const rows = [
-    ["Flash Sale 10.10", "live", "20:00, 10/10/2026", "22:00, 10/10/2026", 4, [78, 130], "FlashSaleForm-live.html", "Xem"],
-    ["Flash Sale cuối tuần", "scheduled", "20:00, 11/10/2026", "22:00, 11/10/2026", 3, null, "FlashSaleForm-scheduled.html", "Xem"],
-    ["Flash Sale 11.11", "draft", "20:00, 11/11/2026", "22:00, 11/11/2026", 2, null, "FlashSaleForm.html", "Sửa"],
-    ["Flash Sale 9.10", "stopped", "20:00, 09/10/2026", "22:00, 09/10/2026", 3, [61, 90], "FlashSaleForm-ended.html", "Xem"],
-    ["Flash Sale 9.9", "ended", "20:00, 09/09/2026", "22:00, 09/09/2026", 4, [116, 130], "FlashSaleForm-ended.html", "Xem"],
+    ["Flash Sale 10.10", "live", "10/10/2026", "20:00 – 22:00", 4, [78, 130], "FlashSaleForm-live.html", "Theo dõi", ""],
+    ["Flash Sale cuối tuần", "scheduled", "11/10/2026", "20:00 – 22:00", 3, null, "FlashSaleForm-scheduled.html", "Xem", `${ic.lock}Đã khóa giá và suất`],
+    ["Flash Sale 11.11", "draft", "11/11/2026", "20:00 – 22:00", 2, null, "FlashSaleForm.html", "Sửa", "Khách chưa thấy"],
+    ["Flash Sale 9.10", "stopped", "09/10/2026", "20:00 – 22:00", 3, [61, 90], "FlashSaleForm-ended.html", "Xem", ""],
+    ["Flash Sale 9.9", "ended", "09/09/2026", "20:00 – 22:00", 4, [116, 130], "FlashSaleForm-ended.html", "Xem", ""],
   ];
   const tabs = [["Tất cả", 5, true], ["Nháp", 1], ["Đã lên lịch", 1], ["Đang diễn ra", 1], ["Đã dừng", 1], ["Đã kết thúc", 1]];
+  const sold = ([s, t]) => `<span class="afs-sold"><b>${s}</b>/${t}</span>`;
+  const track = ([s, t], live) => `<span class="afs-track${live ? " is-live" : ""}" role="img" aria-label="Đã bán ${s} trên ${t} suất"><i style="width:${Math.round((s / t) * 100)}%"></i></span>`;
   return adminShell({
     title: "Flash sale – SaleScale Quản trị",
     desc: "Danh sách chương trình flash sale theo trạng thái.",
     active: "flashsales",
     extraCss: CSS,
-    searchPlaceholder: "Tìm chương trình flash sale…",
     body: `      <div class="admin-head">
-        <div><h1>Flash sale</h1><p>Giá, quota và giới hạn mua bị khoá khi chương trình đã lên lịch. Thời gian theo giờ hệ thống.</p></div>
+        <h1>Flash sale</h1>
         <div class="actions"><a class="btn btn-primary" href="FlashSaleForm.html">${ic.plus}Tạo chương trình</a></div>
       </div>
 
-      <section class="kpis" aria-label="Tổng quan">
-        <div class="kpi"><span>Đang diễn ra</span><b>1</b><small>Flash Sale 10.10 · kết thúc 22:00</small></div>
-        <div class="kpi"><span>Suất đã bán (đang diễn ra)</span><b>78<em class="adm-of">/130</em></b><small>11 suất đang giữ cho đơn chờ thanh toán</small></div>
-        <div class="kpi"><span>Đã lên lịch</span><b>1</b><small>Bắt đầu 20:00, 11/10/2026</small></div>
-        <div class="kpi"><span>Nháp</span><b>1</b><small class="warn">Chưa lên lịch · chưa hiển thị cho khách</small></div>
+      <section class="panel afs-live" aria-labelledby="afs-live-t">
+        <div class="afs-live-main">
+          <span class="afs-live-tag">Đang chạy</span>
+          <h2 id="afs-live-t"><a href="FlashSaleForm-live.html">Flash Sale 10.10</a></h2>
+          <p>Hôm nay, 20:00 – 22:00 · 4 sản phẩm</p>
+        </div>
+        <div class="afs-live-stat">
+          <span>Còn lại</span>
+          <b class="num" role="timer">01:24:30</b>
+        </div>
+        <div class="afs-live-stat afs-live-progress">
+          <span>Đã bán</span>
+          <b class="num">78<small>/130 suất</small></b>
+          ${track([78, 130], true)}
+        </div>
+        <div class="afs-live-stat">
+          <span>Đang giữ</span>
+          <b class="num">11<small> suất</small></b>
+          <em>chờ thanh toán</em>
+        </div>
+        <a class="btn btn-outline-brand" href="FlashSaleForm-live.html">Theo dõi</a>
       </section>
 
       <section class="panel" aria-label="Danh sách chương trình">
-        <div class="tabs adm-tabs" role="tablist">
-          ${tabs.map(([t, n, on]) => `<a class="tab${on ? " active" : ""}" role="tab" aria-selected="${on ? "true" : "false"}" href="#">${t}<span class="count">${n}</span></a>`).join("\n          ")}
+        <div class="tabs adm-tabs afs-tabs" role="tablist">
+          ${tabs.map(([t, n, on]) => `<a class="tab${on ? " active" : ""}" role="tab" aria-selected="${on ? "true" : "false"}" href="#">${t} <span class="afs-n">${n}</span></a>`).join("\n          ")}
         </div>
         <div class="filters">
-          <label class="sr-only" for="fs-q">Tìm chương trình</label><input id="fs-q" class="input" placeholder="Tên chương trình">
-          <label class="sr-only" for="fs-m">Tháng</label><select id="fs-m" class="select"><option>Tất cả thời gian</option><option>Tháng 11/2026</option><option>Tháng 10/2026</option><option>Tháng 9/2026</option></select>
-          <span class="result">Đang hiển thị 5 chương trình</span>
+          <label class="sr-only" for="fs-q">Tìm chương trình</label><input id="fs-q" class="input" type="search" placeholder="Tìm theo tên">
+          <label class="sr-only" for="fs-m">Tháng</label><select id="fs-m" class="select"><option>Mọi tháng</option><option>Tháng 11/2026</option><option>Tháng 10/2026</option><option>Tháng 9/2026</option></select>
         </div>
         <div class="table-wrap">
-          <table class="table adm-cards">
-            <thead><tr><th scope="col">Tên chương trình</th><th scope="col">Trạng thái</th><th scope="col">Giờ bắt đầu</th><th scope="col">Giờ kết thúc</th><th scope="col" class="r">Số SKU</th><th scope="col">Suất đã bán</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <table class="table adm-cards afs-table">
+            <thead><tr><th scope="col">Chương trình</th><th scope="col">Thời gian <span class="afs-th-note">(giờ hệ thống)</span></th><th scope="col">Trạng thái</th><th scope="col">Đã bán</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
             <tbody>
               ${rows
                 .map(
-                  ([name, st, start, end, skus, q, href, act]) => `<tr>
-                <td data-label="Chương trình"><a class="adm-strong-link" href="${href}">${name}</a></td>
-                <td data-label="Trạng thái">${fsDot(st)}</td>
-                <td data-label="Bắt đầu" class="num">${start}</td>
-                <td data-label="Kết thúc" class="num">${end}</td>
-                <td data-label="Số SKU" class="r">${skus}</td>
-                <td data-label="Suất đã bán"><div class="adm-quota-cell">${q ? (st === "live" ? quotaBar(q) : closedBar(q)) : `<span class="muted">Chưa bắt đầu</span>`}</div></td>
+                  ([name, st, date, time, n, q, href, act, note]) => `<tr${st === "live" ? ' class="afs-row-live"' : ""}>
+                <td data-label="Chương trình"><a class="adm-strong-link" href="${href}">${name}</a><small class="afs-sub">${n} sản phẩm</small></td>
+                <td data-label="Thời gian" class="num"><span class="afs-date">${date}</span><small class="afs-sub">${time}</small></td>
+                <td data-label="Trạng thái">${fsBadge(st)}${note ? `<small class="afs-sub afs-note">${note}</small>` : ""}</td>
+                <td data-label="Đã bán">${q ? `<div class="afs-q">${sold(q)}${track(q, st === "live")}</div>` : `<span class="muted">—</span>`}</td>
                 <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="${href}">${act}</a></div></td>
               </tr>`
                 )
@@ -107,7 +122,6 @@ function adminFlashSalesPage() {
             </tbody>
           </table>
         </div>
-        <div class="pager"><span>Đang hiển thị 5 chương trình</span><button class="btn btn-sm" type="button">Tải thêm</button></div>
       </section>`,
   });
 }

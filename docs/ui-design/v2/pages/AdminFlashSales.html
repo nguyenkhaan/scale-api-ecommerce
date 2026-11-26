@@ -29,89 +29,93 @@
   </nav>
   <div>
     <header class="admin-top">
-      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="aq">Tìm trong quản trị</label><input id="aq" placeholder="Tìm chương trình flash sale…"></div>
+      <div class="search-box"><svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg><label class="sr-only" for="aq">Tìm trong quản trị</label><input id="aq" placeholder="Tìm sản phẩm, mã SKU…"></div>
       <div class="admin-user"><span class="avatar" aria-hidden="true">AD</span><span>admin@salescale.vn</span><a class="btn btn-sm" href="Auth.html">Đăng xuất</a></div>
     </header>
     <main class="admin-body">
       <div class="admin-head">
-        <div><h1>Flash sale</h1><p>Giá, quota và giới hạn mua bị khoá khi chương trình đã lên lịch. Thời gian theo giờ hệ thống.</p></div>
+        <h1>Flash sale</h1>
         <div class="actions"><a class="btn btn-primary" href="FlashSaleForm.html"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Tạo chương trình</a></div>
       </div>
 
-      <section class="kpis" aria-label="Tổng quan">
-        <div class="kpi"><span>Đang diễn ra</span><b>1</b><small>Flash Sale 10.10 · kết thúc 22:00</small></div>
-        <div class="kpi"><span>Suất đã bán (đang diễn ra)</span><b>78<em class="adm-of">/130</em></b><small>11 suất đang giữ cho đơn chờ thanh toán</small></div>
-        <div class="kpi"><span>Đã lên lịch</span><b>1</b><small>Bắt đầu 20:00, 11/10/2026</small></div>
-        <div class="kpi"><span>Nháp</span><b>1</b><small class="warn">Chưa lên lịch · chưa hiển thị cho khách</small></div>
+      <section class="panel afs-live" aria-labelledby="afs-live-t">
+        <div class="afs-live-main">
+          <span class="afs-live-tag">Đang chạy</span>
+          <h2 id="afs-live-t"><a href="FlashSaleForm-live.html">Flash Sale 10.10</a></h2>
+          <p>Hôm nay, 20:00 – 22:00 · 4 sản phẩm</p>
+        </div>
+        <div class="afs-live-stat">
+          <span>Còn lại</span>
+          <b class="num" role="timer">01:24:30</b>
+        </div>
+        <div class="afs-live-stat afs-live-progress">
+          <span>Đã bán</span>
+          <b class="num">78<small>/130 suất</small></b>
+          <span class="afs-track is-live" role="img" aria-label="Đã bán 78 trên 130 suất"><i style="width:60%"></i></span>
+        </div>
+        <div class="afs-live-stat">
+          <span>Đang giữ</span>
+          <b class="num">11<small> suất</small></b>
+          <em>chờ thanh toán</em>
+        </div>
+        <a class="btn btn-outline-brand" href="FlashSaleForm-live.html">Theo dõi</a>
       </section>
 
       <section class="panel" aria-label="Danh sách chương trình">
-        <div class="tabs adm-tabs" role="tablist">
-          <a class="tab active" role="tab" aria-selected="true" href="#">Tất cả<span class="count">5</span></a>
-          <a class="tab" role="tab" aria-selected="false" href="#">Nháp<span class="count">1</span></a>
-          <a class="tab" role="tab" aria-selected="false" href="#">Đã lên lịch<span class="count">1</span></a>
-          <a class="tab" role="tab" aria-selected="false" href="#">Đang diễn ra<span class="count">1</span></a>
-          <a class="tab" role="tab" aria-selected="false" href="#">Đã dừng<span class="count">1</span></a>
-          <a class="tab" role="tab" aria-selected="false" href="#">Đã kết thúc<span class="count">1</span></a>
+        <div class="tabs adm-tabs afs-tabs" role="tablist">
+          <a class="tab active" role="tab" aria-selected="true" href="#">Tất cả <span class="afs-n">5</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Nháp <span class="afs-n">1</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Đã lên lịch <span class="afs-n">1</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Đang diễn ra <span class="afs-n">1</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Đã dừng <span class="afs-n">1</span></a>
+          <a class="tab" role="tab" aria-selected="false" href="#">Đã kết thúc <span class="afs-n">1</span></a>
         </div>
         <div class="filters">
-          <label class="sr-only" for="fs-q">Tìm chương trình</label><input id="fs-q" class="input" placeholder="Tên chương trình">
-          <label class="sr-only" for="fs-m">Tháng</label><select id="fs-m" class="select"><option>Tất cả thời gian</option><option>Tháng 11/2026</option><option>Tháng 10/2026</option><option>Tháng 9/2026</option></select>
-          <span class="result">Đang hiển thị 5 chương trình</span>
+          <label class="sr-only" for="fs-q">Tìm chương trình</label><input id="fs-q" class="input" type="search" placeholder="Tìm theo tên">
+          <label class="sr-only" for="fs-m">Tháng</label><select id="fs-m" class="select"><option>Mọi tháng</option><option>Tháng 11/2026</option><option>Tháng 10/2026</option><option>Tháng 9/2026</option></select>
         </div>
         <div class="table-wrap">
-          <table class="table adm-cards">
-            <thead><tr><th scope="col">Tên chương trình</th><th scope="col">Trạng thái</th><th scope="col">Giờ bắt đầu</th><th scope="col">Giờ kết thúc</th><th scope="col" class="r">Số SKU</th><th scope="col">Suất đã bán</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+          <table class="table adm-cards afs-table">
+            <thead><tr><th scope="col">Chương trình</th><th scope="col">Thời gian <span class="afs-th-note">(giờ hệ thống)</span></th><th scope="col">Trạng thái</th><th scope="col">Đã bán</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
             <tbody>
-              <tr>
-                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-live.html">Flash Sale 10.10</a></td>
-                <td data-label="Trạng thái"><span class="status adm-st-live">Đang diễn ra</span></td>
-                <td data-label="Bắt đầu" class="num">20:00, 10/10/2026</td>
-                <td data-label="Kết thúc" class="num">22:00, 10/10/2026</td>
-                <td data-label="Số SKU" class="r">4</td>
-                <td data-label="Suất đã bán"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 78 trên 130 suất"><i style="width:60%"></i></div><span class="quota-label">Đã bán <b>78</b>/130 suất</span></div></div></td>
-                <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="FlashSaleForm-live.html">Xem</a></div></td>
+              <tr class="afs-row-live">
+                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-live.html">Flash Sale 10.10</a><small class="afs-sub">4 sản phẩm</small></td>
+                <td data-label="Thời gian" class="num"><span class="afs-date">10/10/2026</span><small class="afs-sub">20:00 – 22:00</small></td>
+                <td data-label="Trạng thái"><span class="badge badge-sale-soft">Đang diễn ra</span></td>
+                <td data-label="Đã bán"><div class="afs-q"><span class="afs-sold"><b>78</b>/130</span><span class="afs-track is-live" role="img" aria-label="Đã bán 78 trên 130 suất"><i style="width:60%"></i></span></div></td>
+                <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="FlashSaleForm-live.html">Theo dõi</a></div></td>
               </tr>
               <tr>
-                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-scheduled.html">Flash Sale cuối tuần</a></td>
-                <td data-label="Trạng thái"><span class="status adm-st-sched">Đã lên lịch</span></td>
-                <td data-label="Bắt đầu" class="num">20:00, 11/10/2026</td>
-                <td data-label="Kết thúc" class="num">22:00, 11/10/2026</td>
-                <td data-label="Số SKU" class="r">3</td>
-                <td data-label="Suất đã bán"><div class="adm-quota-cell"><span class="muted">Chưa bắt đầu</span></div></td>
+                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-scheduled.html">Flash Sale cuối tuần</a><small class="afs-sub">3 sản phẩm</small></td>
+                <td data-label="Thời gian" class="num"><span class="afs-date">11/10/2026</span><small class="afs-sub">20:00 – 22:00</small></td>
+                <td data-label="Trạng thái"><span class="badge badge-brand">Đã lên lịch</span><small class="afs-sub afs-note"><svg class="icon-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5"/><path d="M5.3 7V5a2.7 2.7 0 0 1 5.4 0v2"/></svg>Đã khóa giá và suất</small></td>
+                <td data-label="Đã bán"><span class="muted">—</span></td>
                 <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="FlashSaleForm-scheduled.html">Xem</a></div></td>
               </tr>
               <tr>
-                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm.html">Flash Sale 11.11</a></td>
-                <td data-label="Trạng thái"><span class="status adm-st-draft">Nháp</span></td>
-                <td data-label="Bắt đầu" class="num">20:00, 11/11/2026</td>
-                <td data-label="Kết thúc" class="num">22:00, 11/11/2026</td>
-                <td data-label="Số SKU" class="r">2</td>
-                <td data-label="Suất đã bán"><div class="adm-quota-cell"><span class="muted">Chưa bắt đầu</span></div></td>
+                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm.html">Flash Sale 11.11</a><small class="afs-sub">2 sản phẩm</small></td>
+                <td data-label="Thời gian" class="num"><span class="afs-date">11/11/2026</span><small class="afs-sub">20:00 – 22:00</small></td>
+                <td data-label="Trạng thái"><span class="badge badge-neutral">Nháp</span><small class="afs-sub afs-note">Khách chưa thấy</small></td>
+                <td data-label="Đã bán"><span class="muted">—</span></td>
                 <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="FlashSaleForm.html">Sửa</a></div></td>
               </tr>
               <tr>
-                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-ended.html">Flash Sale 9.10</a></td>
-                <td data-label="Trạng thái"><span class="status adm-st-stop">Đã dừng</span></td>
-                <td data-label="Bắt đầu" class="num">20:00, 09/10/2026</td>
-                <td data-label="Kết thúc" class="num">22:00, 09/10/2026</td>
-                <td data-label="Số SKU" class="r">3</td>
-                <td data-label="Suất đã bán"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 61 trên 90 suất"><i style="width:68%"></i></div><span class="quota-label">Đã bán <b>61</b>/90 suất · đã đóng</span></div></div></td>
+                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-ended.html">Flash Sale 9.10</a><small class="afs-sub">3 sản phẩm</small></td>
+                <td data-label="Thời gian" class="num"><span class="afs-date">09/10/2026</span><small class="afs-sub">20:00 – 22:00</small></td>
+                <td data-label="Trạng thái"><span class="badge badge-warning">Đã dừng</span></td>
+                <td data-label="Đã bán"><div class="afs-q"><span class="afs-sold"><b>61</b>/90</span><span class="afs-track" role="img" aria-label="Đã bán 61 trên 90 suất"><i style="width:68%"></i></span></div></td>
                 <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="FlashSaleForm-ended.html">Xem</a></div></td>
               </tr>
               <tr>
-                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-ended.html">Flash Sale 9.9</a></td>
-                <td data-label="Trạng thái"><span class="status adm-st-ended">Đã kết thúc</span></td>
-                <td data-label="Bắt đầu" class="num">20:00, 09/09/2026</td>
-                <td data-label="Kết thúc" class="num">22:00, 09/09/2026</td>
-                <td data-label="Số SKU" class="r">4</td>
-                <td data-label="Suất đã bán"><div class="adm-quota-cell"><div class="quota"><div class="quota-track" role="img" aria-label="Đã bán 116 trên 130 suất"><i style="width:89%"></i></div><span class="quota-label">Đã bán <b>116</b>/130 suất · đã đóng</span></div></div></td>
+                <td data-label="Chương trình"><a class="adm-strong-link" href="FlashSaleForm-ended.html">Flash Sale 9.9</a><small class="afs-sub">4 sản phẩm</small></td>
+                <td data-label="Thời gian" class="num"><span class="afs-date">09/09/2026</span><small class="afs-sub">20:00 – 22:00</small></td>
+                <td data-label="Trạng thái"><span class="badge badge-neutral">Đã kết thúc</span></td>
+                <td data-label="Đã bán"><div class="afs-q"><span class="afs-sold"><b>116</b>/130</span><span class="afs-track" role="img" aria-label="Đã bán 116 trên 130 suất"><i style="width:89%"></i></span></div></td>
                 <td class="adm-cell-act adm-cell-abs"><div class="row-actions"><a href="FlashSaleForm-ended.html">Xem</a></div></td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div class="pager"><span>Đang hiển thị 5 chương trình</span><button class="btn btn-sm" type="button">Tải thêm</button></div>
       </section>
     </main>
   </div>
