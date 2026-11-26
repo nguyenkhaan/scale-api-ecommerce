@@ -54,7 +54,7 @@ export const rating = (r, extra = "") =>
 export const quotaBar = ([sold, total]) => {
   const soldOut = sold >= total;
   const w = Math.max(4, Math.round((sold / total) * 100));
-  const label = soldOut ? "Đã hết suất" : sold / total >= 0.85 ? `<b>Sắp hết</b> · còn ${total - sold} suất` : `Đã bán <b>${sold}</b>/${total} suất`;
+  const label = soldOut ? "Đã hết suất" : sold / total >= 0.85 ? `<b class="hand">Sắp hết!</b> còn ${total - sold} suất` : `Đã bán <b>${sold}</b>/${total} suất`;
   return `<div class="quota${soldOut ? " soldout" : ""}"><div class="quota-track" role="img" aria-label="Đã bán ${sold} trên ${total} suất"><i style="width:${soldOut ? 100 : w}%"></i></div><span class="quota-label">${label}</span></div>`;
 };
 
@@ -65,7 +65,7 @@ export const flashItem = (p) => {
   <div class="price-row"><span class="price">${vnd(p.sale)}</span></div>
   <span class="price-old">${vnd(p.base)}</span>
   ${quotaBar(p.quota)}
-  <span class="limit-note">Tối đa ${p.limit} sản phẩm/tài khoản</span>
+  <span class="limit-note">Tối đa ${p.limit}/người</span>
 </a>`;
 };
 
@@ -75,7 +75,7 @@ export const productCard = (p) => {
   return `<a class="card" href="ProductDetail.html">
   <div class="thumb"><img src="${img(p.img)}" alt="" loading="lazy"></div>
   <div class="card-body">
-    <div class="card-tags">${onSale && !soldOut ? `<span class="badge badge-sale">${ic.bolt}Flash sale</span>` : ""}${onSale && soldOut ? `<span class="badge badge-neutral">Hết suất sale</span>` : ""}</div>
+    <div class="card-tags">${onSale && soldOut ? `<span class="badge badge-neutral">Hết suất sale</span>` : ""}</div>
     <span class="card-brand">${p.brand}</span>
     <h3 class="card-name">${p.name}</h3>
     ${rating(p.rating, `<span class="sep"></span><span>Đã bán ${compact(p.sold)}</span>`)}
@@ -84,7 +84,7 @@ export const productCard = (p) => {
         ? `<div class="price-row"><span class="price">${vnd(p.sale)}</span><span class="discount">-${pct(p.sale, p.base)}%</span></div><span class="price-old">${vnd(p.base)}</span>`
         : `<div class="price-row"><span class="price price-plain">${vnd(p.base)}</span></div><span class="price-old" style="visibility:hidden">.</span>`
     }
-    <div class="card-foot">${onSale && !soldOut ? `${ic.clock}Kết thúc 22:00 hôm nay` : `Giá thường · ${p.cat}`}</div>
+    <div class="card-foot">${onSale && !soldOut ? `${ic.clock}Kết thúc 22:00 hôm nay` : p.cat}</div>
   </div>
 </a>`;
 };
@@ -99,7 +99,7 @@ export const head = (title, theme, desc, extraCss = []) => `<!doctype html>
 <meta name="description" content="${desc}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&family=Patrick+Hand&display=swap">
 <link rel="stylesheet" href="../assets/salescale.css">${extraCss.map((c) => `\n<link rel="stylesheet" href="../assets/${c}">`).join("")}
 </head>`;
 

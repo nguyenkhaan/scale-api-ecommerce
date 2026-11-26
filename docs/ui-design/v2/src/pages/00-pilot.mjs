@@ -23,7 +23,7 @@ ${header()}
       <ul class="side-list">${cats.map(([i, n, c, a]) => `<li><a href="#"${a ? ' class="active" aria-current="true"' : ""}><img class="cat-ico" src="${img(i)}" alt="">${n}<span class="count">${c}</span></a></li>`).join("")}</ul>
     </div>
     <div class="panel">
-      <h3>Lịch flash sale hôm nay</h3>
+      <h3>Lịch hôm nay</h3>
       <ul class="side-list">
         <li><a href="FlashSaleDetail.html"><span>12:00 – 14:00</span><span class="count">Đã kết thúc</span></a></li>
         <li><a href="FlashSaleDetail.html" class="active"><span>20:00 – 22:00</span><span class="count" style="color:var(--sale);font-weight:600">Đang diễn ra</span></a></li>
@@ -37,10 +37,9 @@ ${header()}
       <a class="promo promo-sale" href="FlashSaleDetail.html">
         <div>
           <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">${ic.bolt}Đang diễn ra · 20:00 – 22:00</span>
-          <h2 style="margin-top:12px">Flash Sale 10.10 giảm đến 45%</h2>
-          <p>6 sản phẩm, số suất có hạn. Giá được giữ khi bạn đặt đơn thành công.</p>
+          <h2 style="margin-top:12px">Flash Sale 10.10 giảm đến <span class="hand-circle">45%</span></h2>
         </div>
-        <div class="promo-stats"><div><b class="num">01:24:30</b><span>Kết thúc sau</span></div><div><b class="num">124/275</b><span>Suất đã bán</span></div></div>
+        <div class="promo-stats"><div><b class="num">01:24:30</b><span>Kết thúc sau</span></div><div><b class="num">124/275</b><span>Suất đã bán</span></div><span class="hand-note promo-note"><svg viewBox="0 0 34 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M31 4C22 3 12 8 6 20"/><path d="M4 12l2 9 8-4"/></svg>chỉ tối nay thôi!</span></div>
         <img class="art" src="${img("flash-hero")}" alt="">
       </a>
       <div class="promo-side">
@@ -51,9 +50,9 @@ ${header()}
 
     <section class="flash" aria-labelledby="flash-title">
       <div class="flash-head">
-        <h2 id="flash-title" class="flash-title">${ic.bolt}Giá sốc hôm nay</h2>
+        <h2 id="flash-title" class="flash-title squiggle squiggle-sale">${ic.bolt}Giá sốc hôm nay</h2>
         <div class="flash-meta">Kết thúc sau ${countdown("01", "24", "30")}</div>
-        <span class="clock-note">${ic.info}Theo giờ hệ thống</span>
+        <span class="clock-note" title="Đếm ngược theo giờ hệ thống">giờ hệ thống</span>
         <a class="link-more" href="FlashSaleDetail.html">Xem tất cả${ic.chevron}</a>
       </div>
       <div class="flash-row">${flash.map(flashItem).join("")}</div>
@@ -61,7 +60,7 @@ ${header()}
 
     <section class="panel" aria-labelledby="all-title">
       <div class="catalog-bar">
-        <div class="catalog-top"><h2 id="all-title">Gợi ý cho bạn</h2><label class="sort">Sắp xếp<select class="select"><option>Phổ biến</option><option>Bán chạy</option><option>Giá thấp đến cao</option><option>Giá cao đến thấp</option></select></label></div>
+        <div class="catalog-top"><h2 id="all-title" class="squiggle">Gợi ý cho bạn</h2><label class="sort">Sắp xếp<select class="select"><option>Phổ biến</option><option>Bán chạy</option><option>Giá thấp đến cao</option><option>Giá cao đến thấp</option></select></label></div>
         <a class="chip on" href="#" aria-pressed="true">Tất cả</a>
         <a class="chip" href="#">${ic.bolt}Đang flash sale</a>
         <a class="chip" href="#">Thời trang</a>
