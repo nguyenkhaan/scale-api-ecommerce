@@ -90,7 +90,6 @@ const orderCard = (o) => {
   const [label, cls] = STATUS[o.status];
   const actions = [];
   if (o.status === "pending") actions.push(`<a class="btn btn-sale btn-sm" href="Payment.html">Thanh toán</a>`);
-  if (["failed", "expired", "cancelled"].includes(o.status) && !o.recon) actions.push(`<a class="btn btn-outline-brand btn-sm" href="Cart.html">Mua lại</a>`);
   actions.push(`<a class="btn btn-sm" href="OrderDetail.html">Xem đơn</a>`);
   return `<article class="panel ord-card" aria-labelledby="o-${o.id}">
   <header class="ord-card-head">
@@ -329,7 +328,7 @@ const PAY = {
     session: null, order: ["Hết hạn", "badge-neutral"], updated: "20:46:02",
     tone: "neutral", role: "status", icon: icx.hourglass, head: "Đơn đã hết hạn thanh toán",
     text: `Đơn ${ORDER_ID} đã hết thời gian giữ hàng lúc 20:46 nên không thể thanh toán nữa. Hàng đã được trả lại.`,
-    actions: `<a class="btn btn-primary btn-lg" href="Cart.html">Mua lại</a><a class="btn btn-lg" href="OrderDetail.html">Xem đơn</a>`,
+    actions: `<a class="btn btn-primary btn-lg" href="Main.html">Tiếp tục mua sắm</a><a class="btn btn-lg" href="OrderDetail.html">Xem đơn</a>`,
     event: null,
   },
 };
